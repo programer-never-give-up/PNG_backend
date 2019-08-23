@@ -25,3 +25,7 @@ def register(request):
 def logout(request):
     pass
     return redirect("/login/")
+
+def verify(request):
+    pass
+    return render(request, 'login/verify.html')
