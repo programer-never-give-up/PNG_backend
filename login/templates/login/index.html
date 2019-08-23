@@ -1,0 +1,132 @@
+{%  load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="plugins/bootstrap-4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'login/css/style.css' %}">
+    <title>主页</title>
+    <style>
+        .item-list {
+            background: #ffffff;
+            margin-bottom: 30px;
+        }
+        .item-card img{
+            height: 100%;
+            width: 100%;
+        }
+        .item-card h1 {
+            float: left;
+            width: 28%;
+            height: 152px;
+        }
+        .item-card h2 {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-size: 18px;
+            line-height: 22px;
+            margin-bottom: 12px;
+
+        }
+        .item-card h3 {
+            line-height: 24px;
+            font-size: 14px;
+            margin: 0;
+            color: #888;
+
+        }
+        .item-card button {
+            line-height: 32px;
+            font-size: 13px;
+            padding: 0 18px;
+            margin: 14px 0 0;
+            background-color: #f55d54;
+            border-color: #f55d54;
+        }
+        .item-card .item-info {
+            margin-left: 30%;
+        }
+        .item-list li {
+            list-style-type: none;
+            margin-bottom: 50px;
+            text-align: left;
+        }
+        #user-info {
+            border-left: solid 10px #eeeeee;
+            background-color: #ffffff;
+        }
+        #user-info .user-info-show {
+            padding-top: 20px;
+            text-align: center;
+        }
+        #user-info .user-info-show #user-name {
+            margin-top: 20px;
+        }
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="#">
+        <img src="https://y4ngyy.xyz/assets/avatar.jpg" width="30" height="30" class="d-inline-block align-top" alt="">
+        <span class="home-name">云会议系统</span>
+    </a>
+    <div class="nav-list">
+        <a href="#" class="nav-list-item">公开会议列表</a>
+        <a href="#" class="nav-list-item">控制台</a>
+        <a href="" class="nav-list-item">消息</a>
+        <a href="#" class="nav-list-item">个人中心</a>
+
+        <span style="color: #ff5722;" class="nav-list-item">
+                <i class="fas fa-power-off"></i>
+                <a href="#">退出</a>
+            </span>
+
+    </div>
+</nav>
+<div class="container main-content">
+    <div class="row">
+     <div class="col-9 item-list">
+         可参加的会议
+         <hr/>
+         <ul class="p-0">
+             <li class="item-card">
+                <h1><img class=" " src="https://y4ngyy.xyz/assets/avatar.jpg" alt="会议logo"></h1>
+                 <div class="item-info">
+                     <a href="#"><h2>超级超级超级超级超级超级超级超级超级超级超级长的会议名称</h2></a>
+                <h3>时间 地点</h3>
+                     <h3>主办方</h3>
+                <h3>简介十大大苏打撒旦</h3>
+                     <a href="#"><button type="button" class="btn btn-primary">查看详情</button></a>
+                 </div>
+             </li>
+         </ul>
+         <div><a href="#">Load More>></a></div>
+     </div>
+    <div class="col-3">
+        <div id="user-info">
+            <div class="user-info-show">
+                <img src="https://y4ngyy.xyz/assets/avatar.jpg" alt=""class="avatar">
+                <div id="user-name">用户名</div>
+            </div>
+        </div>
+
+    </div>
+    </div>
+</div>
+<footer class="footer" id="footer">
+    这是页脚
+</footer>
+
+<script src="plugins/fontawesome/font-awesome.js"></script>
+<script src="plugins/jquery/jquery-3.4.1.min.js"></script>
+<script src="plugins/popper/popper.min.js"></script>
+<script src="plugins/bootstrap-4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="plugins/bootstrap-4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'login/css/style.css' %}">
+    <title>邮箱验证</title>
+    <style>
+        .container{
+            display:table;
+            height:100%;
+        }
+
+        .row{
+            display: table-cell;
+            vertical-align: middle;
+        }
+        .row-centered {
+            text-align:center;
+        }
+        .col-centered {
+            display:inline-block;
+            float:none;
+            text-align:left;
+            margin-right:-4px;
+        }
+        .bgcolor_red{
+            background-color:#f55d54;
+        }
+        .button-ce
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="#">
+        <img src="https://y4ngyy.xyz/assets/avatar.jpg" width="30" height="30" class="d-inline-block align-top" alt="">
+        <span class="home-name">云会议系统</span>
+    </a>
+    <div class="nav-list">
+        <a href="#" class="nav-list-item">公开会议列表</a>
+        <a href="#" class="nav-list-item">控制台</a>
+        <a href="" class="nav-list-item">消息</a>
+        <a href="#" class="nav-list-item">个人中心</a>
+
+        <span style="color: #ff5722;" class="nav-list-item">
+                <i class="fas fa-power-off"></i>
+                <a href="#">退出</a>
+            </span>
+
+    </div>
+</nav>
+<div class="container main-content  ">
+    <div class="col-12 " >
+        <div class="card  text-center" >
+            <div class="card-header">
+                用户注册
+            </div>
+            <div class="card-body ">
+                <form class="col-centered">
+                    <table style="border-collapse: separate;border-spacing: 10px 10px;">
+                        邮箱：<input type="text" name="" id="" value="" />
+                        <button id="sendVer" onclick="run()" >点击发送验证码</button>
+                        <tr>
+                            <td>
+                                <label for="pwd">验证码:</label>
+                            </td>
+                            <td>
+                                <input type="text" name="pwd" id="pwd">
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="bg-white" style="text-align: center;">
+                        <button type="button" class="btn bgcolor_red" onabort="Toregister()">验证</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+<footer class="footer" id="footer">
+    这是页脚
+</footer>
+
+
+<script src="plugins/fontawesome/font-awesome.js"></script>
+<script src="plugins/jquery/jquery-3.4.1.min.js"></script>
+<script src="plugins/popper/popper.min.js"></script>
+<script src="plugins/bootstrap-4.3.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+
+
+    // var ipt = document.getElementsByTagName('input')[0];
+    function run(){
+        var time = 60;//定义时间变量。用于倒计时用
+        var timer = null;//定义一个定时器；
+        timer = setInterval(function(){///开启定时器。函数内执行
+            var btn = document.getElementById('sendVer');
+            btn.disabled = true;
+            btn.innerText = time+"秒后重新发送";    //点击发生后，按钮的文本内容变成之前定义好的时间值。
+            time--;//时间值自减
+            if(time === 0){     //判断,当时间值小于等于0的时候
+                btn.innerText='重新发送验证码'; //其文本内容变成……点击重新发送……
+                btn.disabled = false;
+                clearInterval(timer); //清除定时器
+            }
+        },1000)
+    }
+
+</script>
+</body>
+</html>

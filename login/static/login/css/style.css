@@ -1,0 +1,56 @@
+html, body {
+    background: #eeeeee;
+    height: 100%;
+}
+.navbar {
+    background: #ffffff!important;
+}
+.main-content {
+    margin-top: 20px;
+    min-height: calc(100vh - 70px);
+}
+.main-content .header {
+    background: #ededed;
+    margin-bottom: 10px;
+}
+.main-content .header .title{
+    background: #ffffff;
+}
+.main-content .header .title h5{
+    background: #ffffff;
+    margin-top:.5rem;
+    padding-left: .5rem;
+}
+.function-list a{
+    text-decoration: none;
+    color: black;
+}
+.nav-list {
+    float: right;
+}
+
+.nav-list a {
+    text-decoration: none;
+    color: #f55d54;
+}
+.content-show {
+    background-color: #ffffff;
+}
+@media  (min-width: 1200px) {
+    .container {
+        max-width: 1170px;
+    }
+}
+.footer {
+    height: 70px;
+    background-color: #212529;
+    color: #ffffff;
+}
+.navbar .home-name {
+    color: #f55d54;
+    margin-left: 30px;
+}
+.nav-list .nav-list-item {
+    margin-left: 10px;
+    margin-right: 10px;
+}
