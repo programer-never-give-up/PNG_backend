@@ -60,7 +60,7 @@
             </div>
             <div class="card-body ">
                 <form class="col-centered" action="/login/" method="post">
-
+                    {% csrf_token %}
 
                     <table style="border-collapse: separate;border-spacing: 10px 10px;">
                         <tr>
@@ -68,15 +68,15 @@
                                 <label for="id_username">用户名：</label>
                             </td>
                             <td>
-                                <input type="text" name="username" class="" id="id_username" placeholder="Username" autofocus required>
+                                <input type="text" name="username" id="id_username" placeholder="Username" autofocus required>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <label for="pwd">密码:</label>
+                                <label for="id_password">密码:</label>
                             </td>
                             <td>
-                                <input type="password" name="" >
+                                <input type="password" name="password" id="id_password" placeholder="Password" required>
                             </td>
                         </tr>
                     </table>
@@ -87,8 +87,9 @@
                     </div>
                     <div class="footer bg-white" style="text-align: center;">
                         <button type="submit" class="btn btn-danger">登陆</button>
-                        <button type="" class="btn btn-secondary " οnclick="Toregister()">注册</button>
+                        <button type="button" class="btn btn-secondary " onclick="window.location.href='/verify/'">注册</button>
                         <button type="button" class="btn btn-link"><small>忘记密码？</small></button>
+
                     </div>
                 </form>
             </div>
