@@ -60,7 +60,11 @@
             </div>
             <div class="card-body ">
                 <form class="col-centered" action="/login/" method="post">
+                    {% if message %}
+                        <div class="alert alert-warning">{{ message }}</div>
+                    {% endif %}
                     {% csrf_token %}
+
 
                     <table style="border-collapse: separate;border-spacing: 10px 10px;">
                         <tr>
