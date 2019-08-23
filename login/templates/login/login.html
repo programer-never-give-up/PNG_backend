@@ -59,14 +59,16 @@
                 用户登陆
             </div>
             <div class="card-body ">
-                <form class="col-centered">
+                <form class="col-centered" action="/login/" method="post">
+
+
                     <table style="border-collapse: separate;border-spacing: 10px 10px;">
                         <tr>
                             <td class="margin-top:10">
-                                <label>用户名：</label>
+                                <label for="id_username">用户名：</label>
                             </td>
                             <td>
-                                <input type="text" name="" class="">
+                                <input type="text" name="username" class="" id="id_username" placeholder="Username" autofocus required>
                             </td>
                         </tr>
                         <tr>
