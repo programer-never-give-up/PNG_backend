@@ -37,6 +37,7 @@ def login(request):
             except :
                 message = '用户不存在！'
                 data['message']=message
+                data['status'] = False
                 return JsonResponse(data)
 
             if user.password == password:
@@ -53,6 +54,7 @@ def login(request):
             else:
                 message = '密码不正确！'
                 data['message'] = message
+                data['status'] = False
                 return JsonResponse(data)
 
         else:

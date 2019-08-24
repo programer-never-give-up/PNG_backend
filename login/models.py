@@ -14,7 +14,8 @@ class User(models.Model):
     username = models.CharField(max_length=128, unique=True)#长度128，不可重复
     password = models.CharField(max_length=256)
     email = models.EmailField(unique=True)#django内置邮箱类型，唯一
-    #type=models.
+    type=models.CharField(max_length=64)#用户类型
+    
 
     c_time = models.DateTimeField(auto_now_add=True)
 
