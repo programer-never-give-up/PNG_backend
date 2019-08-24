@@ -1,7 +1,10 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.http import HttpResponse
+from django.http import JsonResponse
 from . import models
 from . import forms
+from django.views.decorators.csrf import csrf_exempt,csrf_protect
 # Create your views here.
 
 def index(request):
@@ -9,10 +12,9 @@ def index(request):
     return render(request, 'login/index.html')
 
 
-
+@csrf_exempt
 def login(request):
-    if request.session.get('is_login',None):#不允许重复登录
-        return redirect('/index/')
+
     if request.method == 'POST':
         #login_form = forms.UserForm(request.POST)
         username = request.POST.get('username')
@@ -28,7 +30,7 @@ def login(request):
 
 
             try:
-                user = models.User.objects.get(name=username)
+                user = models.User.objects.get(username=username)
             except :
                 message = '用户不存在！'
                 return render(request, 'login/login.html', {'message':message})#返回当前所有的本地变量字典
@@ -39,9 +41,13 @@ def login(request):
                 request.session['is_login']=True
                 request.session['user_id'] = user.id
                 request.session['user_name'] = user.name
-                request.session.set_expiry(10)#十秒过期，无效
+                request.session.set_expiry(20)#关闭浏览器过期
                 print(username, password)
-                return redirect('/index/')
+                data = {
+                    "status":True,
+                }
+
+                return JsonResponse(data)
             else:
                 message = '密码不正确！'
                 return render(request, 'login/login.html',{'message':message})
@@ -50,6 +56,17 @@ def login(request):
 
     #login_form=forms.UserForm    #空表单
     return render(request, 'login/login.html')
+
+def check(request):#判断是否可以登录，若已登录则返回false
+    data = {
+        "status": False,
+    }
+    if request.session.get('is_login', None):  # 不允许重复登录
+        return JsonResponse(data)
+    else:
+        data['status'] = True
+        return JsonResponse(data)
+
 
 
 def register(request):
