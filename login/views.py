@@ -14,7 +14,9 @@ def index(request):
 
 @csrf_exempt
 def login(request):
-
+    data = {
+        "status": True,
+    }#登录信息
     if request.method == 'POST':
         #login_form = forms.UserForm(request.POST)
         username = request.POST.get('username')
@@ -40,12 +42,10 @@ def login(request):
 
                 request.session['is_login']=True
                 request.session['user_id'] = user.id
-                request.session['user_name'] = user.name
-                request.session.set_expiry(20)#关闭浏览器过期
+                request.session['user_name'] = user.username
+                request.session.set_expiry(0)#关闭浏览器过期
                 print(username, password)
-                data = {
-                    "status":True,
-                }
+
 
                 return JsonResponse(data)
             else:
@@ -57,14 +57,14 @@ def login(request):
     #login_form=forms.UserForm    #空表单
     return render(request, 'login/login.html')
 
-def check(request):#判断是否可以登录，若已登录则返回false
+def check(request):#判断是否登录
     data = {
-        "status": False,
+        "status": True,
     }
     if request.session.get('is_login', None):  # 不允许重复登录
         return JsonResponse(data)
     else:
-        data['status'] = True
+        data['status'] = False
         return JsonResponse(data)
 
 
