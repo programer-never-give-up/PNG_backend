@@ -16,6 +16,7 @@ def index(request):
 def login(request):
     data = {
         "status": True,
+        "message":''
     }#登录信息
     if request.method == 'POST':
         #login_form = forms.UserForm(request.POST)
@@ -35,7 +36,8 @@ def login(request):
                 user = models.User.objects.get(username=username)
             except :
                 message = '用户不存在！'
-                return render(request, 'login/login.html', {'message':message})#返回当前所有的本地变量字典
+                data['message']=message
+                return JsonResponse(data)
 
             if user.password == password:
                 #在session字典加入用户状态
@@ -45,17 +47,22 @@ def login(request):
                 request.session['user_name'] = user.username
                 request.session.set_expiry(0)#关闭浏览器过期
                 print(username, password)
-
+                data['status']=True
 
                 return JsonResponse(data)
             else:
                 message = '密码不正确！'
-                return render(request, 'login/login.html',{'message':message})
+                data['message'] = message
+                return JsonResponse(data)
+
         else:
-            return render(request, 'login/login.html', {'message':message})#若验证不通过
+            data['status']=False
+            return JsonResponse(data)#若验证不通过
 
     #login_form=forms.UserForm    #空表单
-    return render(request, 'login/login.html')
+    data['status'] = False
+    return JsonResponse(data)
+
 
 def check(request):#判断是否登录
     data = {
