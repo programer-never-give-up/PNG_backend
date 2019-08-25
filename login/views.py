@@ -90,12 +90,13 @@ def register(request):
 
 def logout(request):
     data={
-        'status':False,
+        'status':True,
         'message':''
     }
     if not request.session.get('is_login', None):
         # 如果本来就未登录，也就没有登出一说
         data['message']='您未登录'
+        data['status']=False
         return JsonResponse(data)
     request.session.flush()#删除会话
     # 或者使用下面的方法
