@@ -8,8 +8,7 @@ from django.views.decorators.csrf import csrf_exempt,csrf_protect
 # Create your views here.
 
 def index(request):
-    pass
-    return render(request, 'login/index.html')
+    return HttpResponse("This is index")
 
 
 @csrf_exempt
@@ -79,21 +78,34 @@ def check(request):#判断是否登录
 
 
 def register(request):
-    pass
-    return render(request, 'login/register.html')
+    data={
+        'status':False,
+        'message':''
+    }
+    if request.session.get('is_login', None):#若已经登录
+        data['status','message'] = (True,"您已经登陆")
+
+        return JsonResponse(data)
 
 
 def logout(request):
+    data={
+        'status':False,
+        'message':''
+    }
     if not request.session.get('is_login', None):
         # 如果本来就未登录，也就没有登出一说
-        return redirect("/login/")
+        data['message']='您未登录'
+        return JsonResponse(data)
     request.session.flush()#删除会话
     # 或者使用下面的方法
     # del request.session['is_login']
     # del request.session['user_id']
     # del request.session['user_name']
-    return redirect("/login/")
+    data['message']='退出！'
+    return JsonResponse(data)
 
 def verify(request):
-    pass
-    return render(request, 'login/verify.html')
+    data={
+        ''
+    }
