@@ -22,7 +22,8 @@ urlpatterns = [
     path('', views.index),
     path('api/index/', views.index),
     path('api/login/', views.login),
-    path('api/login/check/', views.check),
+    path('api/check/', views.check),#确认登录状态
+
     path('api/register/', views.register),
     path('api/logout/', views.logout),
     path('api/verify/',views.verify),

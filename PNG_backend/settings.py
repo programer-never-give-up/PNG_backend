@@ -130,3 +130,10 @@ EMAIL_HOST = 'smtp.qq.com'
 EMAIL_PORT = 25
 EMAIL_HOST_USER = '1040214708@qq.com'
 EMAIL_HOST_PASSWORD = 'jljvzpchjrkqbdgf'
+
+CACHES={
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', #缓存到本地内存中
+        'TIMEOUT': 60,
+    }
+}
