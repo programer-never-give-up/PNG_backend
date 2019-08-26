@@ -31,7 +31,7 @@ urlpatterns = [
     path('api/mail/sendMail/', views.sendMail),
     path('api/mail/checkMail/', views.checkMail),
 
-    path('api/showActivity/', views.show_activity),
-    path('api/createActivity', views.create_activity),
+    path('api/showActivity/', views.showActivity),
+    path('api/createActivity', views.createActivity),
 
 ]

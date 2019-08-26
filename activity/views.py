@@ -10,7 +10,7 @@ import hashlib
 
 # Create your views here.
 
-def show_activity(request):
+def showActivity(request):
     data = {
         "message": '',
         "name": '',
@@ -50,7 +50,7 @@ def show_activity(request):
             return JsonResponse(data)
 
 
-def create_activity(request):
+def createActivity(request):
     data = {
         "message": '',
     }
