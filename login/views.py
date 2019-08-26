@@ -10,6 +10,11 @@ import datetime
 import hashlib
 import uuid
 from django.core.mail import send_mail
+from django.core.files.storage import default_storage
+import globals
+from django.core.files.base import ContentFile
+import os
+import filetype
 # Create your views here.
 
 def index(request):
@@ -53,7 +58,7 @@ def login(request):
                 request.session.set_expiry(0)#关闭浏览器过期
                 print(username, password)
                 data['status']=True
-
+                data['message']='登录成功！'
                 return JsonResponse(data)
             else:
                 message = '密码不正确！'
@@ -67,26 +72,25 @@ def login(request):
 
     #login_form=forms.UserForm    #空表单
     data['status'] = False
+    data['message']='空表单'
     return JsonResponse(data)
 
-
+@csrf_exempt
 def check(request):#判断是否登录
     data = {
         "status": True,
+        'message':''
     }
     if request.session.get('is_login', None):  # 不允许重复登录
+        data['message']='您已登录！'
         return JsonResponse(data)
     else:
         data['status'] = False
+        data['message']="您还未登录！"
         return JsonResponse(data)
 
 
-def register(request):
-    pass
-
-    return JsonResponse('')
-
-
+@csrf_exempt
 def logout(request):
     data={
         'status':True,
@@ -94,7 +98,7 @@ def logout(request):
     }
     if not request.session.get('is_login', None):
         # 如果本来就未登录，也就没有登出一说
-        data['message']='您未登录'
+        data['message']='您未登录！'
         data['status']=False
         return JsonResponse(data)
     request.session.flush()#删除会话
@@ -105,12 +109,12 @@ def logout(request):
     data['message']='退出！'
     return JsonResponse(data)
 
-def verify(request):
+@csrf_exempt
+def sendMail(request):
     data={
-        'status':False,
+        'isSended':False,
+        'status_email':False,#邮箱的注册状态，False为未注册
         'message':'',
-        'status_email':False,
-        'status_verify':False,
     }
     if request.method=='POST':
         email=request.POST.get('email')
@@ -118,25 +122,143 @@ def verify(request):
         if email:
             same_email_user=models.User.objects.filter(email=email)#确认邮箱是否重复
             if same_email_user:
-                data['message']='此邮箱已被注册'
+                data['message']='此邮箱已被注册！'
                 data['status_email']=True
                 return JsonResponse(data)
             code=get_random_str()#生成验证码
             send_mail(
                 '会议系统验证码',
-                "您的验证码为 "+email,
+                "您的验证码为 "+code,
                 '1040214708@qq.com',
                 [email],
             )#发送邮件
-            request.session.set_expiry(60)#60秒过期
-            request.session['code'] =code
+            request.session['code'] = code
+            request.session.set_expiry(120)#120秒过期
+            data['isSended']=True
+            data['message']='邮件已发送！'
+            return JsonResponse(data)
 
-            if request.POST.get('code')==request.session.get('code'):
-                data['status_email','status_verify']=(True,True)#注册成功
-                new_user = models.User()
-                new_user.email = email
-                new_user.save()
+@csrf_exempt
+def checkMail(request):
+    data={
+        'status_check':False,#是否验证成功
+        'message':'',
+    }
+    if request.method=='POST':
+        code=request.POST.get('code')#获取用户输入的验证码
+        if code:
+            if code==request.session.get('code'):
+                data['status_check']=True
+                data['message']='验证成功！'
                 return JsonResponse(data)
+            else:
+                data['status_check'] = False
+                data['message'] = '验证失败！'
+                return JsonResponse(data)
+
+@csrf_exempt
+def register(request):
+    data={
+        'status':False,#注册状态，true为数据填入成功
+        'status_username':False,#False为用户名不重复
+        'message':'',
+    }
+
+
+    if request.method=='POST':
+        username = request.POST.get('username', None)
+        if username:
+            same_name_user=models.User.objects.filter(username=username)#确认用户名是否重复
+            if same_name_user:
+                data['message']='此用户名已被注册！'
+                data['status_username']=True
+                return JsonResponse(data)
+
+        avatar=request.FILES.get('avatar',None)
+        import uuid
+        uuid=uuid.uuid1()
+        #将文件保存到本地并改名
+        destination=open(os.path.join(globals.PATH_AVATAR,avatar.name),'wb+')
+        for chunk in avatar.chunks():
+            destination.write(chunk)
+        destination.close()
+       #改名
+        path_avatar = os.path.join(globals.PATH_AVATAR, avatar.name)
+        extension = '.'+avatar.name.split('.')[-1]
+        # fileType=filetype.guess(avatar)
+        # print(type.extension)
+        #extension='.'+str(filetype.guess(avatar).extension)
+        new_name= str(uuid) + extension
+        new_file = os.path.join(globals.PATH_AVATAR,new_name)
+        os.rename(path_avatar, new_file)
+        #获取其他数据
+        type=request.POST.get('type',None)
+        address = request.POST.get('address', None)
+        profession = request.POST.get('profession', None)
+        company=request.POST.get('company',None)
+        email=request.POST.get('email',None)
+        gender = request.POST.get('gender', None)
+
+        phone_number = request.POST.get('phone_number', None)
+        introduction = request.POST.get('introduction', None)
+        password = request.POST.get('password', None)
+        #填入数据
+        new_user=models.User()
+        new_user.avatar=new_name
+        new_user.uuid=uuid
+        new_user.username=username
+        new_user.password=password
+        new_user.type=type
+        new_user.address=address
+        new_user.profession=profession
+        new_user.company=company
+        new_user.email=email
+        new_user.gender=gender
+        new_user.phone_number=phone_number
+        new_user.introduction=introduction
+        new_user.save()
+        data['status']=True
+        data['message']='注册成功！'
+        return JsonResponse(data)
+
+
+
+    return JsonResponse(data)
+#内容： request{ avatar, username, password, phoneNumber, company, profession, address, introduction}
+
+
+# def verify(request):
+#     data={
+#         'status':False,
+#         'message':'',
+#         'status_email':False,
+#         'status_verify':False,
+#     }
+#     if request.method=='POST':
+#         email=request.POST.get('email')
+#
+#         if email:
+#             same_email_user=models.User.objects.filter(email=email)#确认邮箱是否重复
+#             if same_email_user:
+#                 data['message']='此邮箱已被注册'
+#                 data['status_email']=True
+#                 return JsonResponse(data)
+#             code=get_random_str()#生成验证码
+#             send_mail(
+#                 '会议系统验证码',
+#                 "您的验证码为 "+email,
+#                 '1040214708@qq.com',
+#                 [email],
+#             )#发送邮件
+#             request.session.set_expiry(60)#60秒过期
+#             request.session['code'] =code
+#
+#             if request.POST.get('code')==request.session.get('code'):
+#                 data['status_email','status_verify']=(True,True)#注册成功
+#                 new_user = models.User()
+#                 new_user.email = email
+#                 new_user.save()
+#                 return JsonResponse(data)
 
 
 # 生成验证码
