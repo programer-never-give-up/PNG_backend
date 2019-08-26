@@ -9,8 +9,6 @@ from django.db import models
 
 class User(models.Model):
 
-
-
     username = models.CharField(max_length=128, unique=True,null=True, blank=True)#长度128，不可重复
     password = models.CharField(max_length=256,null=True, blank=True)
     email = models.EmailField(unique=True,null=True, blank=True)#django内置邮箱类型，唯一
