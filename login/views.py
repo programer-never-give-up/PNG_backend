@@ -58,7 +58,7 @@ def login(request):
                 request.session.set_expiry(0)#关闭浏览器过期
                 print(username, password)
                 data['status']=True
-
+                data['message']='登录成功！'
                 return JsonResponse(data)
             else:
                 message = '密码不正确！'
@@ -72,17 +72,21 @@ def login(request):
 
     #login_form=forms.UserForm    #空表单
     data['status'] = False
+    data['message']='空表单'
     return JsonResponse(data)
 
 
 def check(request):#判断是否登录
     data = {
         "status": True,
+        'message':''
     }
     if request.session.get('is_login', None):  # 不允许重复登录
+        data['message']='您已登录！'
         return JsonResponse(data)
     else:
         data['status'] = False
+        data['message']="您还未登录！"
         return JsonResponse(data)
 
 
@@ -96,7 +100,7 @@ def logout(request):
     }
     if not request.session.get('is_login', None):
         # 如果本来就未登录，也就没有登出一说
-        data['message']='您未登录'
+        data['message']='您未登录！'
         data['status']=False
         return JsonResponse(data)
     request.session.flush()#删除会话
@@ -119,7 +123,7 @@ def sendMail(request):
         if email:
             same_email_user=models.User.objects.filter(email=email)#确认邮箱是否重复
             if same_email_user:
-                data['message']='此邮箱已被注册'
+                data['message']='此邮箱已被注册！'
                 data['status_email']=True
                 return JsonResponse(data)
             code=get_random_str()#生成验证码
@@ -132,18 +136,20 @@ def sendMail(request):
             request.session['code'] = code
             request.session.set_expiry(120)#120秒过期
             data['isSended']=True
-            data['message']='邮件已发送'
+            data['message']='邮件已发送！'
             return JsonResponse(data)
 
 def checkMail(request):
     data={
         'status_check':False,#是否验证成功
+        'message':'',
     }
     if request.method=='POST':
         code=request.POST.get('code')#获取用户输入的验证码
         if code:
             if code==request.session.get('code'):
                 data['status_check']=True
+                data['message']='验证成功！'
                 return JsonResponse(data)
 
 
@@ -161,7 +167,7 @@ def register(request):
         if username:
             same_name_user=models.User.objects.filter(username=username)#确认用户名是否重复
             if same_name_user:
-                data['message']='此用户名已被注册'
+                data['message']='此用户名已被注册！'
                 data['status_username']=True
                 return JsonResponse(data)
 
@@ -206,7 +212,7 @@ def register(request):
         new_user.introduction=introduction
         new_user.save()
         data['status']=True
-        data['message']='注册成功'
+        data['message']='注册成功！'
         return JsonResponse(data)
 
 
