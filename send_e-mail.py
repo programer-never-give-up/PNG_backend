@@ -18,7 +18,7 @@ def get_random_str():
 if __name__ == '__main__':
     uuid = uuid.uuid1()
 
-    #print(uuid)
+    print(uuid)
     # send_mail(
     #     '来自Inderway的测试邮件',
     #     '此为邮件正文',
@@ -26,18 +26,18 @@ if __name__ == '__main__':
     #     ['213170713@seu.edu.cn'],
     # )
 
-    avatar = os.path.join(globals.PATH_AVATAR, "PNG.png")
-
-    #print(avatar)
-    type=filetype.guess(avatar)
-    #print(type.extension)
-    # 分离文件名和目录
-    dirname, filename = os.path.split(avatar)
-    # print(dirname, filename)
-
-    # 改名
-    new_file = os.path.join(dirname,str(uuid)+'.'+str(type.extension))
-    # print(new_file)
-    os.rename(avatar, new_file)
+    # avatar = os.path.join(globals.PATH_AVATAR, "PNG.png")
+    #
+    # #print(avatar)
+    # type=filetype.guess(avatar)
+    # #print(type.extension)
+    # # 分离文件名和目录
+    # dirname, filename = os.path.split(avatar)
+    # # print(dirname, filename)
+    #
+    # # 改名
+    # new_file = os.path.join(dirname,str(uuid)+'.'+str(type.extension))
+    # # print(new_file)
+    # os.rename(avatar, new_file)
 
 

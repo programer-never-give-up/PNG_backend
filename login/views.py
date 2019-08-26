@@ -151,9 +151,20 @@ def checkMail(request):
 def register(request):
     data={
         'status':False,#注册状态，true为数据填入成功
+        'status_username':False,#False为用户名不重复
         'message':'',
     }
+
+
     if request.method=='POST':
+        username = request.POST.get('username', None)
+        if username:
+            same_name_user=models.User.objects.filter(username=username)#确认用户名是否重复
+            if same_name_user:
+                data['message']='此用户名已被注册'
+                data['status_username']=True
+                return JsonResponse(data)
+
         avatar=request.FILES.get('avatar',None)
         import uuid
         uuid=uuid.uuid1()
@@ -175,7 +186,7 @@ def register(request):
         company=request.POST.get('company',None)
         email=request.POST.get('email',None)
         gender = request.POST.get('gender', None)
-        username = request.POST.get('username', None)
+
         phone_number = request.POST.get('phonenumber', None)
         introduction = request.POST.get('introduction', None)
         password = request.POST.get('password', None)
