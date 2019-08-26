@@ -75,7 +75,7 @@ def login(request):
     data['message']='空表单'
     return JsonResponse(data)
 
-
+@csrf_exempt
 def check(request):#判断是否登录
     data = {
         "status": True,
@@ -92,7 +92,7 @@ def check(request):#判断是否登录
 
 
 
-
+@csrf_exempt
 def logout(request):
     data={
         'status':True,
@@ -111,6 +111,7 @@ def logout(request):
     data['message']='退出！'
     return JsonResponse(data)
 
+@csrf_exempt
 def sendMail(request):
     data={
         'isSended':False,
@@ -139,6 +140,7 @@ def sendMail(request):
             data['message']='邮件已发送！'
             return JsonResponse(data)
 
+@csrf_exempt
 def checkMail(request):
     data={
         'status_check':False,#是否验证成功
@@ -151,9 +153,12 @@ def checkMail(request):
                 data['status_check']=True
                 data['message']='验证成功！'
                 return JsonResponse(data)
+            else:
+                data['status_check'] = False
+                data['message'] = '验证失败！'
+                return JsonResponse(data)
 
-
-
+@csrf_exempt
 def register(request):
     data={
         'status':False,#注册状态，true为数据填入成功
@@ -181,7 +186,10 @@ def register(request):
         destination.close()
        #改名
         path_avatar = os.path.join(globals.PATH_AVATAR, avatar.name)
-        extension='.'+filetype.guess(avatar).extension
+        extension = '.'+avatar.name.split('.')[-1]
+        # fileType=filetype.guess(avatar)
+        # print(type.extension)
+        #extension='.'+str(filetype.guess(avatar).extension)
         new_name= str(uuid) + extension
         new_file = os.path.join(globals.PATH_AVATAR,new_name)
         os.rename(path_avatar, new_file)
@@ -193,7 +201,7 @@ def register(request):
         email=request.POST.get('email',None)
         gender = request.POST.get('gender', None)
 
-        phone_number = request.POST.get('phonenumber', None)
+        phone_number = request.POST.get('phone_number', None)
         introduction = request.POST.get('introduction', None)
         password = request.POST.get('password', None)
         #填入数据

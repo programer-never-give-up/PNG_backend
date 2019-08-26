@@ -26,6 +26,6 @@ urlpatterns = [
     path('api/register/', views.register),
     path('api/logout/', views.logout),
 
-    path('api/mail/sendMail',views.sendMail),
-    path('api/mail/checkMail',views.checkMail),
+    path('api/mail/sendMail/',views.sendMail),
+    path('api/mail/checkMail/',views.checkMail),
 ]

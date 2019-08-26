@@ -30,7 +30,7 @@ if __name__ == '__main__':
     #
     # #print(avatar)
     # type=filetype.guess(avatar)
-    # #print(type.extension)
+    #print(type.extension)
     # # 分离文件名和目录
     # dirname, filename = os.path.split(avatar)
     # # print(dirname, filename)
