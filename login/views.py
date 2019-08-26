@@ -90,8 +90,6 @@ def check(request):#判断是否登录
         return JsonResponse(data)
 
 
-
-
 @csrf_exempt
 def logout(request):
     data={
@@ -263,12 +261,7 @@ def register(request):
 #                 return JsonResponse(data)
 
 
-
-
-
-
-
-#生成验证码
+# 生成验证码
 def get_random_str():
     uuid_val = uuid.uuid4()
     uuid_str = str(uuid_val).encode("utf-8")

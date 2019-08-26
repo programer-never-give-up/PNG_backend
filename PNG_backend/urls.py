@@ -16,16 +16,22 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from login import views
+from activity import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index),
     path('api/index/', views.index),
     path('api/login/', views.login),
-    path('api/check/', views.check),#确认登录状态
+
+    path('api/check/', views.check),  # 确认登录状态
     path('api/register/', views.register),
     path('api/logout/', views.logout),
 
-    path('api/mail/sendMail/',views.sendMail),
-    path('api/mail/checkMail/',views.checkMail),
+    path('api/mail/sendMail/', views.sendMail),
+    path('api/mail/checkMail/', views.checkMail),
+
+    path('api/showActivity/', views.show_activity),
+    path('api/createActivity', views.create_activity),
+
 ]
