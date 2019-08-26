@@ -22,6 +22,7 @@ class User(models.Model):
     phone_number=models.CharField(max_length=256,null=True, blank=True)#电话号码
     introduction=models.CharField(max_length=256,null=True, blank=True)#个人介绍
     avatar=models.CharField(max_length=256,null=True, blank=True)#头像链接
+    uuid = models.CharField(max_length=128, unique=True, null=True, blank=True)  # 长度128，不可重复
 
     c_time = models.DateTimeField(auto_now_add=True)
 
