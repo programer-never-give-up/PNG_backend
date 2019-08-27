@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'login',
     'activity',
+    'personal_center',
 ]
 
 MIDDLEWARE = [
@@ -127,7 +128,7 @@ USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+STATIC_URL = '/static/'
 
 #发邮件
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

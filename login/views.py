@@ -52,7 +52,7 @@ def login(request):
                 #在session字典加入用户状态
 
                 request.session['is_login']=True
-                request.session['user_id'] = user.id
+               # request.session['user_uuid'] = str(user.uuid)
                 request.session['user_name'] = user.username
                 request.session.set_expiry(0)#关闭浏览器过期
                 print(username, password)
@@ -198,7 +198,7 @@ def register(request):
         gender = request.POST.get('gender', None)
 
         phone_number = request.POST.get('phone_number', None)
-        introduction = request.POST.get('introduction', None)
+        #introduction = request.POST.get('introduction', None)
         password = request.POST.get('password', None)
         #填入数据
 
@@ -213,7 +213,7 @@ def register(request):
         new_user.email=email
         new_user.gender=gender
         new_user.phone_number=phone_number
-        new_user.introduction=introduction
+        #new_user.introduction=introduction
         new_user.save()
         data['status']=True
         data['message']='注册成功！'

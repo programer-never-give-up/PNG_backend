@@ -4,7 +4,7 @@
 
 from django.db import models
 import uuid
-
+import globals
 
 
 class User(models.Model):

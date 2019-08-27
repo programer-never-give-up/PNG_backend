@@ -33,6 +33,6 @@ urlpatterns = [
     path('api/mail/checkMail/', views_login.checkMail),
 
     path("api/activity/", include("activity.urls")),
-
+    path('api/personal_center/',include('personal_center.urls')),
 
 ]
