@@ -30,6 +30,7 @@ def showInfo(request):
             except:
                 data['message'] = '不存在的用户'
                 return JsonResponse(data)
+            data['username'] = user.username
             data['avatar']=user.avatar
             data['gender']=user.gender
             data['email']=user.email
@@ -100,7 +101,7 @@ def editInfo(request):
             if password:
                 user.password=password
             data['message']='修改成功！'
-            return JsonResponse('data')
+            return JsonResponse(data)
 
         else:
             data['message']='未接收到用户名！'
