@@ -1,6 +1,4 @@
-from django.core.cache import cache
-from django.shortcuts import render
-from django.shortcuts import redirect
+
 from django.http import HttpResponse
 from django.http import JsonResponse
 from . import models
@@ -48,8 +46,13 @@ def login(request):
                 #在session字典加入用户状态
 
                 request.session['is_login']=True
+<<<<<<< Updated upstream
                 request.session['user_id'] = user.id
                 request.session['user_name'] = user.username
+=======
+               # request.session['user_uuid'] = str(user.uuid)
+                request.session['username'] = user.username
+>>>>>>> Stashed changes
                 request.session.set_expiry(0)#关闭浏览器过期
                 print(username, password)
                 data['status']=True

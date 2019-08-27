@@ -24,10 +24,17 @@ def show_activity(request):
         "introduction": ''
     }
     if request.method == 'POST':
+<<<<<<< Updated upstream
         activity_id = request.POST.get('id')
         if activity_id:
             try:
                 activity = models.Activity.objects.get(id=activity_id)
+=======
+        activity_uuid = request.POST.get('uuid')
+        if activity_uuid:
+            try:
+                activity = models.Activity.objects.get(uuid=activity_uuid)
+>>>>>>> Stashed changes
             except:
                 message = '不存在的活动！'
                 data['message'] = message
@@ -56,9 +63,16 @@ def create_activity(request):
     }
 
     if request.method == 'POST':
+<<<<<<< Updated upstream
         avatar = request.FILES.get('avatar', None)
         import uuid
         new_uuid = uuid.uuid1()
+=======
+
+        new_activity = models.Activity()  # 创建默认uuid
+
+        logo = request.FILES.get('logo', None)
+>>>>>>> Stashed changes
         # 将文件保存到本地并改名
         destination = open(os.path.join(globals.PATH_AVATAR, avatar.name), 'wb+')
         for chunk in avatar.chunks():
