@@ -1,6 +1,4 @@
-from django.core.cache import cache
-from django.shortcuts import render
-from django.shortcuts import redirect
+
 from django.http import HttpResponse
 from django.http import JsonResponse
 from . import models
@@ -53,7 +51,7 @@ def login(request):
 
                 request.session['is_login']=True
                # request.session['user_uuid'] = str(user.uuid)
-                request.session['user_name'] = user.username
+                request.session['username'] = user.username
                 request.session.set_expiry(0)#关闭浏览器过期
                 print(username, password)
                 data['status']=True
