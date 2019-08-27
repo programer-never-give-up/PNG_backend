@@ -19,7 +19,7 @@ class User(models.Model):
     profession=models.CharField(max_length=256,null=True, blank=True)#职业
     phone_number=models.CharField(max_length=256,null=True, blank=True)#电话号码
     introduction=models.CharField(max_length=256,null=True, blank=True,default='这个人很懒，什么都没写。')#个人介绍
-    avatar=models.CharField(max_length=256,null=True, blank=True)#头像链接
+    avatar=models.CharField(max_length=256,default='default.png',null=True, blank=True)#头像链接
     uuid = models.UUIDField(max_length=64,primary_key=True, auto_created=True, default=uuid.uuid1, editable=False)  # uuid为主键
 
     c_time = models.DateTimeField(auto_now_add=True)

@@ -182,7 +182,7 @@ def register(request):
         for chunk in avatar.chunks():
             destination.write(chunk)
         destination.close()
-       #改名
+        #改名
         path_avatar = os.path.join(globals.PATH_AVATAR, avatar.name)
         extension = '.'+avatar.name.split('.')[-1]
 
