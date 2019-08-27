@@ -4,7 +4,6 @@ from django.shortcuts import redirect
 from django.http import HttpResponse
 from django.http import JsonResponse
 from . import models
-from . import forms
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 import datetime
 import hashlib
@@ -173,10 +172,11 @@ def register(request):
                 data['message']='此用户名已被注册！'
                 data['status_username']=True
                 return JsonResponse(data)
+        #开始注册
+        new_user = models.User()#创建new_user,默认创建uuid
 
         avatar=request.FILES.get('avatar',None)
-        import uuid
-        uuid=uuid.uuid1()
+
         #将文件保存到本地并改名
         destination=open(os.path.join(globals.PATH_AVATAR,avatar.name),'wb+')
         for chunk in avatar.chunks():
@@ -185,10 +185,8 @@ def register(request):
        #改名
         path_avatar = os.path.join(globals.PATH_AVATAR, avatar.name)
         extension = '.'+avatar.name.split('.')[-1]
-        # fileType=filetype.guess(avatar)
-        # print(type.extension)
-        #extension='.'+str(filetype.guess(avatar).extension)
-        new_name= str(uuid) + extension
+
+        new_name= str(new_user.uuid) + extension
         new_file = os.path.join(globals.PATH_AVATAR,new_name)
         os.rename(path_avatar, new_file)
         #获取其他数据
@@ -203,9 +201,9 @@ def register(request):
         introduction = request.POST.get('introduction', None)
         password = request.POST.get('password', None)
         #填入数据
-        new_user=models.User()
+
         new_user.avatar=new_name
-        new_user.uuid=uuid
+        #new_user.uuid=uuid
         new_user.username=username
         new_user.password=password
         new_user.type=type
@@ -227,38 +225,7 @@ def register(request):
 #内容： request{ avatar, username, password, phoneNumber, company, profession, address, introduction}
 
 
-# def verify(request):
-#     data={
-#         'status':False,
-#         'message':'',
-#         'status_email':False,
-#         'status_verify':False,
-#     }
-#     if request.method=='POST':
-#         email=request.POST.get('email')
-#
-#         if email:
-#             same_email_user=models.User.objects.filter(email=email)#确认邮箱是否重复
-#             if same_email_user:
-#                 data['message']='此邮箱已被注册'
-#                 data['status_email']=True
-#                 return JsonResponse(data)
-#             code=get_random_str()#生成验证码
-#             send_mail(
-#                 '会议系统验证码',
-#                 "您的验证码为 "+email,
-#                 '1040214708@qq.com',
-#                 [email],
-#             )#发送邮件
-#             request.session.set_expiry(60)#60秒过期
-#             request.session['code'] =code
-#
-#             if request.POST.get('code')==request.session.get('code'):
-#                 data['status_email','status_verify']=(True,True)#注册成功
-#                 new_user = models.User()
-#                 new_user.email = email
-#                 new_user.save()
-#                 return JsonResponse(data)
+
 
 
 # 生成验证码

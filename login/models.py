@@ -1,9 +1,9 @@
-from django.db import models
+
 
 # Create your models here.
 
 from django.db import models
-
+import uuid
 
 
 
@@ -20,7 +20,7 @@ class User(models.Model):
     phone_number=models.CharField(max_length=256,null=True, blank=True)#电话号码
     introduction=models.CharField(max_length=256,null=True, blank=True,default='这个人很懒，什么都没写。')#个人介绍
     avatar=models.CharField(max_length=256,null=True, blank=True)#头像链接
-    uuid = models.CharField(max_length=128, unique=True, null=True, blank=True)  # 长度128，不可重复
+    uuid = models.UUIDField(max_length=64,primary_key=True, auto_created=True, default=uuid.uuid1, editable=False)  # uuid为主键
 
     c_time = models.DateTimeField(auto_now_add=True)
 
