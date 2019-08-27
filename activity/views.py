@@ -82,8 +82,6 @@ def createActivity(request):
 
         if name and start_time and end_time and location and organizer:
             # 填入数据
-
-
             new_activity.logo = new_name
 
             new_activity.name = name
