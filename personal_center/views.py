@@ -48,6 +48,7 @@ def showInfo(request):
         data['message']='无数据!'
         return JsonResponse(data)
 
+@csrf_exempt
 def editInfo(request):
     data={
         'message':'',

@@ -23,10 +23,10 @@ def showActivity(request):
         "introduction": ''
     }
     if request.method == 'POST':
-        activity_name = request.POST.get('name')
-        if activity_name:
+        activity_uuid = request.POST.get('uuid')
+        if activity_uuid:
             try:
-                activity= models.Activity.objects.get(name=activity_name)
+                activity= models.Activity.objects.get(uuid=activity_uuid)
             except:
                 message = '不存在的活动！'
                 data['message'] = message
