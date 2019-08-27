@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.http import JsonResponse
 import globals
 import os
+
 # Create your views here.
 
 
@@ -22,7 +23,7 @@ def showInfo(request):
        'message':'',
     }
     if request.method=='POST':
-        username=request.POST.get('username',None)
+        username=request.session['username']
         if username:
             try:
                 user= models_login.User.objects.get(username=username)
@@ -52,7 +53,7 @@ def editInfo(request):
         'message':'',
     }
     if request.method=='POST':
-        username = request.POST.get('username', None)
+        username = request.session['username']
         if username:
             try:
                 user= models_login.User.objects.get(username=username)
