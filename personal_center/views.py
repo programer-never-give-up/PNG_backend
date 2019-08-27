@@ -22,7 +22,7 @@ def showInfo(request):
        'introduction':'',
        'message':'',
     }
-    if request.method=='POST':
+    if request.method=='GET':
         username=request.session['username']
         if username:
             try:
