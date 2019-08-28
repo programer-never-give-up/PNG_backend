@@ -5,3 +5,4 @@
 
 PATH_AVATAR = 'D:/Github/MeetingSystemFrontEnd/avatar/'
 PATH_LOGO = 'D:/Github/MeetingSystemFrontEnd/logo/'
+PATH_FILE = 'D:/Github/MeetingSystemFrontEnd/file/'

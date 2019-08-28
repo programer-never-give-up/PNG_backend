@@ -59,6 +59,7 @@ def createActivity(request):
     if request.method == 'POST':
 
         new_activity = models.Activity()  # 创建默认uuid
+        data['uuid'] = new_activity.uuid
 
         logo = request.FILES.get('logo', None)
         # 将文件保存到本地并改名
@@ -99,7 +100,36 @@ def createActivity(request):
 
             data['message'] = '会议创建成功！'
             data['status'] = True
+
             return JsonResponse(data)
         else:
             data['message'] = '信息尚未完善！'
             return JsonResponse(data)
+
+
+def uploadFile(request):
+    data = {
+        'status': False,
+        'message': '',
+    }
+
+    if request.method == 'POST':
+
+        act_uuid = request.POST.get('act_uuid')
+        new_file = request.FILES.get('new_file', None)
+
+        # 将文件保存到本地并改名
+        destination = open(os.path.join(globals.PATH_FILE, new_file.name), 'wb+')
+        for chunk in new_file.chunks():
+            destination.write(chunk)
+        destination.close()
+        # 改名
+        path_file = os.path.join(globals.PATH_FILE, new_file.name)
+        extension = '.' + new_file.name.split('.')[-1]
+        new_name = str(act_uuid) + extension
+        new_file = os.path.join(globals.PATH_FILE, new_name)
+        os.rename(path_file, new_file)
+
+        data['status'] = True
+        data['message'] = '上传成功！'
+        return JsonResponse(data)
