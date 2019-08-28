@@ -10,7 +10,8 @@ class Activity(models.Model):
     start_time = models.CharField(max_length=64,null=True, blank=True)  # 开始时间
     end_time = models.CharField(max_length=64,null=True, blank=True)  # 结束时间
     location = models.CharField(max_length=128, null=True, blank=True)  # 会议地点
-    organizer = models.CharField(max_length=128, null=True, blank=True)  # 会议地点
+    organizer = models.CharField(max_length=128, null=True, blank=True)  # 主办方
+    username = models.CharField(max_length=128, null=True, blank=True)  # 创建者
     logo = models.CharField(max_length=256, null=True, blank=True)  # 会议logo
     introduction = models.CharField(max_length=256, default='这个人很懒，什么都没有留下。', null=True,
                                     blank=True)  # 会议介绍
