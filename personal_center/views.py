@@ -179,7 +179,7 @@ def history_organize(request):
         username=request.session['username']#取出session中username
         if username:
             try:
-                record= models_activity.Activity.objects.filter(organizer=username)#待改
+                record= models_activity.Activity.objects.filter(username=username)
                 #筛选出这个username创建的所有记录
             except:
                 data['message'] = '不存在的记录'
