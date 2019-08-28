@@ -51,12 +51,14 @@ def showActivity(request):
 @csrf_exempt
 def createActivity(request):
     data = {
-        "message": '',
+        'uuid': '',
+        'status': False,
+        'message': '',
     }
 
     if request.method == 'POST':
 
-        new_activity = models.Activity()#创建默认uuid
+        new_activity = models.Activity()  # 创建默认uuid
 
         logo = request.FILES.get('logo', None)
         # 将文件保存到本地并改名
@@ -73,7 +75,7 @@ def createActivity(request):
 
         # 获取其他数据
         name = request.POST.get('name', None)
-        activity_type = request.POST.get('type',None)
+        activity_type = request.POST.get('type', None)
         start_time = request.POST.get('start_time', None)
         end_time = request.POST.get('end_time', None)
         location = request.POST.get('location', None)
@@ -96,6 +98,7 @@ def createActivity(request):
             new_activity.save()
 
             data['message'] = '会议创建成功！'
+            data['status'] = True
             return JsonResponse(data)
         else:
             data['message'] = '信息尚未完善！'
