@@ -52,6 +52,7 @@ def login(request):
                 request.session['is_login']=True
                # request.session['user_uuid'] = str(user.uuid)
                 request.session['username'] = user.username
+                request.session['uuid']=str(user.uuid)
                 request.session.set_expiry(0)#关闭浏览器过期
                 print(username, password)
                 data['status']=True
