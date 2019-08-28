@@ -124,7 +124,7 @@ def uploadFile(request):
 
         new_record = models.UploadRecord()
 
-        act_uuid = request.POST.get('act_uuid')
+        act_uuid = request.POST.get('act_uuid', None)
         userfile = request.FILES.get('userfile', None)
 
         file_path = globals.PATH_ACTIVITY + str(act_uuid) + '/'
