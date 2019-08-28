@@ -161,8 +161,7 @@ def register(request):
         'message':'',
     }
 
-
-    if request.method=='POST':
+    if request.method == 'POST':
         username = request.POST.get('username', None)
         if username:
             same_name_user=models.User.objects.filter(username=username)#确认用户名是否重复
@@ -216,15 +215,35 @@ def register(request):
         data['status']=True
         data['message']='注册成功！'
         return JsonResponse(data)
-
-
-
     return JsonResponse(data)
-#内容： request{ avatar, username, password, phoneNumber, company, profession, address, introduction}
+    # 内容： request{ avatar, username, password, phoneNumber, company, profession, address, introduction}
 
+def findPassword(request):
+    data = {
+        'message': '',
+        'status': False,  # 修改密码状态 成功or失败
+    }
 
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        new_password = request.POST.get('new_password')
+        try:
+            user = models.User.objects.get(username=username)
+        except:
+            message = '用户不存在！'
+            data['message'] = message
+            return JsonResponse(data)
+        if new_password:
+            user.password = new_password
+            data['status'] = True
+            data['message'] = '修改密码成功！请用新密码登陆！'
+            return JsonResponse(data)
+        else:
+            data['message'] = '新密码不能为空！'
+            return JsonResponse(data)
 
-
+    data['message'] = '空表单'
+    return JsonResponse(data)
 
 # 生成验证码
 def get_random_str():

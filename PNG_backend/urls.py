@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/check/', views_login.check),  # 确认登录状态
     path('api/register/', views_login.register),
     path('api/logout/', views_login.logout),
+    path('api/findPassword', views_login.findPassword),
 
     path('api/mail/sendMail/', views_login.sendMail),
     path('api/mail/checkMail/', views_login.checkMail),
