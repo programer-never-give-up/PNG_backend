@@ -27,6 +27,7 @@ def showInfo(request):
         if username:
             try:
                 user= models_login.User.objects.get(username=username)
+                print('取得用户')
             except:
                 data['message'] = '不存在的用户'
                 return JsonResponse(data)
@@ -35,6 +36,7 @@ def showInfo(request):
             data['gender']=user.gender
             data['email']=user.email
             data['phone_number']=user.phone_number
+            print(user.phone_number)
             data['type']=user.type
             data['address']=user.address
             data['company']=user.company
@@ -55,10 +57,12 @@ def editInfo(request):
         'message':'',
     }
     if request.method=='POST':
+        #print('收到post')
         username = request.session['username']
         if username:
             try:
-                user= models_login.User.objects.get(username=username)
+                user= models_login.User.objects.filter(username=username)
+                #print('获得user')
             except:
                 data['message'] = '不存在的用户'
                 return JsonResponse(data)
@@ -69,8 +73,10 @@ def editInfo(request):
             company = request.POST.get('company', None)
             gender = request.POST.get('gender', None)
             phone_number = request.POST.get('phone_number', None)
+            #print(phone_number)
             introduction = request.POST.get('introduction', None)
             password = request.POST.get('password', None)
+
 
             if avatar:
                 # 将文件保存到本地并改名
@@ -84,22 +90,33 @@ def editInfo(request):
                 new_name = str(user.uuid) + extension
                 new_file = os.path.join(globals.PATH_AVATAR, new_name)
                 os.rename(path_avatar, new_file)
-            if type:
-                user.type=type
             if address:
                 user.address=address
+                user.update(address=address)
             if profession:
                 user.profession=profession
+                user.update(profession=profession)
             if company:
                 user.company=company
+                user.update(company=company)
             if gender:
                 user.gender=gender
+                user.update(gender=gender)
             if phone_number:
                 user.phone_number=phone_number
+                print('第二次电话'+user.phone_number)
+                for i in range(len(user)):
+                    print(user[i].uuid)
+                user.update(phone_number=phone_number)
             if introduction:
                 user.introduction=introduction
+                user.update(introduction=introduction)
             if password:
                 user.password=password
+                user.update(password=password)
+            #user.save()
+
+
             data['message']='修改成功！'
             return JsonResponse(data)
 
