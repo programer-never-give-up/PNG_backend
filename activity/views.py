@@ -5,7 +5,9 @@ import os
 import datetime
 import hashlib
 import globals
-from django.views.decorators.csrf import csrf_exempt,csrf_protect
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+
+
 # Create your views here.
 
 @csrf_exempt
@@ -26,7 +28,7 @@ def showActivity(request):
         activity_uuid = request.POST.get('uuid')
         if activity_uuid:
             try:
-                activity= models.Activity.objects.get(uuid=activity_uuid)
+                activity = models.Activity.objects.get(uuid=activity_uuid)
             except:
                 message = '不存在的活动！'
                 data['message'] = message
@@ -48,10 +50,10 @@ def showActivity(request):
             data['message'] = '活动名为空！！'
             return JsonResponse(data)
 
+
 @csrf_exempt
 def createActivity(request):
     data = {
-        'uuid': '',
         'status': False,
         'message': '',
     }
@@ -59,20 +61,23 @@ def createActivity(request):
     if request.method == 'POST':
 
         new_activity = models.Activity()  # 创建默认uuid
-        data['uuid'] = new_activity.uuid
 
         logo = request.FILES.get('logo', None)
+        logo_path = globals.PATH_ACTIVITY + str(new_activity.uuid) + '/'
+
+        isExists = os.path.exists(logo_path)
+
+        # 判断结果
+        if not isExists:
+            # 如果不存在则创建目录
+            # 创建目录操作函数
+            os.makedirs(logo_path)
+
         # 将文件保存到本地并改名
-        destination = open(os.path.join(globals.PATH_LOGO, logo.name), 'wb+')
+        destination = open(os.path.join(logo_path, logo.name), 'wb+')
         for chunk in logo.chunks():
             destination.write(chunk)
         destination.close()
-        # 改名
-        path_logo = os.path.join(globals.PATH_LOGO, logo.name)
-        extension = '.'+logo.name.split('.')[-1]
-        new_name = str(new_activity.uuid) + extension
-        new_file = os.path.join(globals.PATH_LOGO,new_name)
-        os.rename(path_logo, new_file)
 
         # 获取其他数据
         name = request.POST.get('name', None)
@@ -85,7 +90,7 @@ def createActivity(request):
 
         if name and start_time and end_time and location and organizer:
             # 填入数据
-            new_activity.logo = new_name
+            new_activity.logo = logo.name
 
             new_activity.name = name
             new_activity.type = activity_type
@@ -115,20 +120,32 @@ def uploadFile(request):
 
     if request.method == 'POST':
 
+        new_record = models.UploadRecord()
+
         act_uuid = request.POST.get('act_uuid')
         new_file = request.FILES.get('new_file', None)
 
+        file_path = globals.PATH_ACTIVITY + str(act_uuid) + '/'
+
+        isExists = os.path.exists(file_path)
+
+        # 判断结果
+        if not isExists:
+            # 如果不存在则创建目录
+            # 创建目录操作函数
+            os.makedirs(file_path)
+
         # 将文件保存到本地并改名
-        destination = open(os.path.join(globals.PATH_FILE, new_file.name), 'wb+')
+        destination = open(os.path.join(file_path, new_file.name), 'wb+')
         for chunk in new_file.chunks():
             destination.write(chunk)
         destination.close()
-        # 改名
-        path_file = os.path.join(globals.PATH_FILE, new_file.name)
-        extension = '.' + new_file.name.split('.')[-1]
-        new_name = str(act_uuid) + extension
-        new_file = os.path.join(globals.PATH_FILE, new_name)
-        os.rename(path_file, new_file)
+
+        new_record.act_uuid = act_uuid
+        new_record.file_name = new_file.name
+        new_record.file_path = file_path
+
+        new_record.save()
 
         data['status'] = True
         data['message'] = '上传成功！'

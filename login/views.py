@@ -1,8 +1,7 @@
-
 from django.http import HttpResponse
 from django.http import JsonResponse
 from . import models
-from django.views.decorators.csrf import csrf_exempt,csrf_protect
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 import datetime
 import hashlib
 import uuid
@@ -12,6 +11,8 @@ import globals
 from django.core.files.base import ContentFile
 import os
 import filetype
+
+
 # Create your views here.
 
 def index(request):
@@ -22,10 +23,10 @@ def index(request):
 def login(request):
     data = {
         "status": True,
-        "message":''
-    }#登录信息
+        "message": ''
+    }  # 登录信息
     if request.method == 'POST':
-        #login_form = forms.UserForm(request.POST)
+        # login_form = forms.UserForm(request.POST)
         username = request.POST.get('username')
         password = request.POST.get('password')
         message = '请检查填写的内容！'
@@ -33,190 +34,195 @@ def login(request):
             # 用户名字符合法性验证
             # 密码长度验证
             # 更多的其它验证.....
-        # #if login_form.is_valid():
-        #     username = login_form.cleaned_data.get('username')#获取表单值
-        #     password = login_form.cleaned_data.get('password')
-
+            # #if login_form.is_valid():
+            #     username = login_form.cleaned_data.get('username')#获取表单值
+            #     password = login_form.cleaned_data.get('password')
 
             try:
                 user = models.User.objects.get(username=username)
-            except :
+            except:
                 message = '用户不存在！'
-                data['message']=message
-                data['status'] = False
-                return JsonResponse(data)
-
-            if user.password == password:
-                #在session字典加入用户状态
-
-                request.session['is_login']=True
-               # request.session['user_uuid'] = str(user.uuid)
-                request.session['username'] = user.username
-                request.session.set_expiry(0)#关闭浏览器过期
-                print(username, password)
-                data['status']=True
-                data['message']='登录成功！'
-                return JsonResponse(data)
-            else:
-                message = '密码不正确！'
                 data['message'] = message
                 data['status'] = False
                 return JsonResponse(data)
 
-        else:
-            data['status']=False
-            return JsonResponse(data)#若验证不通过
+            if user.password == password:
+                # 在session字典加入用户状态
 
-    #login_form=forms.UserForm    #空表单
+                request.session['is_login'] = True
+                # request.session['user_uuid'] = str(user.uuid)
+                request.session['username'] = user.username
+                request.session.set_expiry(0)  # 关闭浏览器过期
+                print(username, password)
+                data['status'] = True
+                data['message'] = '登录成功！'
+                return JsonResponse(data)
+        else:
+            message = '密码不正确！'
+            data['message'] = message
+            data['status'] = False
+            return JsonResponse(data)
+
+    else:
+        data['status'] = False
+        return JsonResponse(data)  # 若验证不通过
+
+
+    # login_form=forms.UserForm    #空表单
     data['status'] = False
-    data['message']='空表单'
+    data['message'] = '空表单'
     return JsonResponse(data)
 
+
 @csrf_exempt
-def check(request):#判断是否登录
+def check(request):  # 判断是否登录
     data = {
         "status": True,
-        'message':''
+        'message': ''
     }
     if request.session.get('is_login', None):  # 不允许重复登录
-        data['message']='您已登录！'
+        data['message'] = '您已登录！'
         return JsonResponse(data)
     else:
         data['status'] = False
-        data['message']="您还未登录！"
+        data['message'] = "您还未登录！"
         return JsonResponse(data)
 
 
 @csrf_exempt
 def logout(request):
-    data={
-        'status':True,
-        'message':''
+    data = {
+        'status': True,
+        'message': ''
     }
     if not request.session.get('is_login', None):
         # 如果本来就未登录，也就没有登出一说
-        data['message']='您未登录！'
-        data['status']=False
+        data['message'] = '您未登录！'
+        data['status'] = False
         return JsonResponse(data)
-    request.session.flush()#删除会话
+    request.session.flush()  # 删除会话
     # 或者使用下面的方法
     # del request.session['is_login']
     # del request.session['user_id']
     # del request.session['user_name']
-    data['message']='退出！'
+    data['message'] = '退出！'
     return JsonResponse(data)
+
 
 @csrf_exempt
 def sendMail(request):
-    data={
-        'isSended':False,
-        'status_email':False,#邮箱的注册状态，False为未注册
-        'message':'',
+    data = {
+        'isSended': False,
+        'status_email': False,  # 邮箱的注册状态，False为未注册
+        'message': '',
     }
-    if request.method=='POST':
-        email=request.POST.get('email')
+    if request.method == 'POST':
+        email = request.POST.get('email')
 
         if email:
-            same_email_user=models.User.objects.filter(email=email)#确认邮箱是否重复
+            same_email_user = models.User.objects.filter(email=email)  # 确认邮箱是否重复
             if same_email_user:
-                data['message']='此邮箱已被注册！'
-                data['status_email']=True
+                data['message'] = '此邮箱已被注册！'
+                data['status_email'] = True
                 return JsonResponse(data)
-            code=get_random_str()#生成验证码
+            code = get_random_str()  # 生成验证码
             send_mail(
                 '会议系统验证码',
-                "您的验证码为 "+code,
+                "您的验证码为 " + code,
                 '1040214708@qq.com',
                 [email],
-            )#发送邮件
+            )  # 发送邮件
             request.session['code'] = code
-            request.session.set_expiry(120)#120秒过期
-            data['isSended']=True
-            data['message']='邮件已发送！'
+            request.session.set_expiry(120)  # 120秒过期
+            data['isSended'] = True
+            data['message'] = '邮件已发送！'
             return JsonResponse(data)
+
 
 @csrf_exempt
 def checkMail(request):
-    data={
-        'status_check':False,#是否验证成功
-        'message':'',
+    data = {
+        'status_check': False,  # 是否验证成功
+        'message': '',
     }
-    if request.method=='POST':
-        code=request.POST.get('code')#获取用户输入的验证码
+    if request.method == 'POST':
+        code = request.POST.get('code')  # 获取用户输入的验证码
         if code:
-            if code==request.session.get('code'):
-                data['status_check']=True
-                data['message']='验证成功！'
+            if code == request.session.get('code'):
+                data['status_check'] = True
+                data['message'] = '验证成功！'
                 return JsonResponse(data)
             else:
                 data['status_check'] = False
                 data['message'] = '验证失败！'
                 return JsonResponse(data)
 
+
 @csrf_exempt
 def register(request):
-    data={
-        'status':False,#注册状态，true为数据填入成功
-        'status_username':False,#False为用户名不重复
-        'message':'',
+    data = {
+        'status': False,  # 注册状态，true为数据填入成功
+        'status_username': False,  # False为用户名不重复
+        'message': '',
     }
 
     if request.method == 'POST':
         username = request.POST.get('username', None)
         if username:
-            same_name_user=models.User.objects.filter(username=username)#确认用户名是否重复
+            same_name_user = models.User.objects.filter(username=username)  # 确认用户名是否重复
             if same_name_user:
-                data['message']='此用户名已被注册！'
-                data['status_username']=True
+                data['message'] = '此用户名已被注册！'
+                data['status_username'] = True
                 return JsonResponse(data)
-        #开始注册
-        new_user = models.User()#创建new_user,默认创建uuid
+        # 开始注册
+        new_user = models.User()  # 创建new_user,默认创建uuid
 
-        avatar=request.FILES.get('avatar',None)
+        avatar = request.FILES.get('avatar', None)
 
-        #将文件保存到本地并改名
-        destination=open(os.path.join(globals.PATH_AVATAR,avatar.name),'wb+')
+        # 将文件保存到本地并改名
+        destination = open(os.path.join(globals.PATH_AVATAR, avatar.name), 'wb+')
         for chunk in avatar.chunks():
             destination.write(chunk)
         destination.close()
-        #改名
+        # 改名
         path_avatar = os.path.join(globals.PATH_AVATAR, avatar.name)
-        extension = '.'+avatar.name.split('.')[-1]
+        extension = '.' + avatar.name.split('.')[-1]
 
-        new_name= str(new_user.uuid) + extension
-        new_file = os.path.join(globals.PATH_AVATAR,new_name)
+        new_name = str(new_user.uuid) + extension
+        new_file = os.path.join(globals.PATH_AVATAR, new_name)
         os.rename(path_avatar, new_file)
-        #获取其他数据
-        type=request.POST.get('type',None)
+        # 获取其他数据
+        type = request.POST.get('type', None)
         address = request.POST.get('address', None)
         profession = request.POST.get('profession', None)
-        company=request.POST.get('company',None)
-        email=request.POST.get('email',None)
+        company = request.POST.get('company', None)
+        email = request.POST.get('email', None)
         gender = request.POST.get('gender', None)
 
         phone_number = request.POST.get('phone_number', None)
-        #introduction = request.POST.get('introduction', None)
+        # introduction = request.POST.get('introduction', None)
         password = request.POST.get('password', None)
-        #填入数据
+        # 填入数据
 
-        new_user.avatar=new_name
-        #new_user.uuid=uuid
-        new_user.username=username
-        new_user.password=password
-        new_user.type=type
-        new_user.address=address
-        new_user.profession=profession
-        new_user.company=company
-        new_user.email=email
-        new_user.gender=gender
-        new_user.phone_number=phone_number
-        #new_user.introduction=introduction
+        new_user.avatar = new_name
+        # new_user.uuid=uuid
+        new_user.username = username
+        new_user.password = password
+        new_user.type = type
+        new_user.address = address
+        new_user.profession = profession
+        new_user.company = company
+        new_user.email = email
+        new_user.gender = gender
+        new_user.phone_number = phone_number
+        # new_user.introduction=introduction
         new_user.save()
-        data['status']=True
-        data['message']='注册成功！'
+        data['status'] = True
+        data['message'] = '注册成功！'
         return JsonResponse(data)
     return JsonResponse(data)
     # 内容： request{ avatar, username, password, phoneNumber, company, profession, address, introduction}
+
 
 def findPassword(request):
     data = {
@@ -235,7 +241,7 @@ def findPassword(request):
             return JsonResponse(data)
         if new_password:
 
-            user.password=new_password
+            user.password = new_password
             user.update(password=new_password)
             data['status'] = True
             data['message'] = '修改密码成功！请用新密码登陆！'
@@ -246,6 +252,7 @@ def findPassword(request):
 
     data['message'] = '空表单'
     return JsonResponse(data)
+
 
 # 生成验证码
 def get_random_str():
