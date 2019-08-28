@@ -54,6 +54,7 @@ def showActivity(request):
 @csrf_exempt
 def createActivity(request):
     data = {
+        'uuid': '',
         'status': False,
         'message': '',
     }
@@ -61,6 +62,7 @@ def createActivity(request):
     if request.method == 'POST':
 
         new_activity = models.Activity()  # 创建默认uuid
+        data['uuid'] = str(new_activity.uuid)
 
         logo = request.FILES.get('logo', None)
         logo_path = globals.PATH_ACTIVITY + str(new_activity.uuid) + '/'
@@ -123,7 +125,7 @@ def uploadFile(request):
         new_record = models.UploadRecord()
 
         act_uuid = request.POST.get('act_uuid')
-        new_file = request.FILES.get('new_file', None)
+        userfile = request.FILES.get('userfile', None)
 
         file_path = globals.PATH_ACTIVITY + str(act_uuid) + '/'
 
@@ -136,13 +138,13 @@ def uploadFile(request):
             os.makedirs(file_path)
 
         # 将文件保存到本地并改名
-        destination = open(os.path.join(file_path, new_file.name), 'wb+')
-        for chunk in new_file.chunks():
+        destination = open(os.path.join(file_path, userfile.name), 'wb+')
+        for chunk in userfile.chunks():
             destination.write(chunk)
         destination.close()
 
         new_record.act_uuid = act_uuid
-        new_record.file_name = new_file.name
+        new_record.file_name = userfile.name
         new_record.file_path = file_path
 
         new_record.save()
