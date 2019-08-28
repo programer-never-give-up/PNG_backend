@@ -111,7 +111,7 @@ def createActivity(request):
             data['message'] = '信息尚未完善！'
             return JsonResponse(data)
 
-
+@csrf_exempt
 def uploadFile(request):
     data = {
         'status': False,
