@@ -1,9 +1,11 @@
 from login import models as models_login
+from activity import models as models_activity
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.http import JsonResponse
 import globals
 import os
-
+import uuid
+from . import  models
 # Create your views here.
 
 
@@ -125,4 +127,76 @@ def editInfo(request):
 
     else:
         data['message']='无数据！'
+        return JsonResponse(data)
+
+@csrf_exempt
+def history_attend(request):
+    data={
+        'list_activity':[],#字典嵌套列表再嵌套字典
+        'message':'',
+    }
+    if request.method=='POST':
+        uuid_user=uuid.UUID(request.session['uuid'])#session中的string转uuid
+        if uuid_user:
+            try:
+                record= models.On_site.objects.filter(uuid_user=uuid_user)
+                #筛选出这个uuid对应的所有条目
+                #print('获得user')
+            except:
+                data['message'] = '不存在的记录'
+                return JsonResponse(data)
+            activity={
+                'uuid_act':'',
+                'name_act':'',
+            }
+            for entry in range(len(record)):
+                activity['uuid_act']=str(record[entry].uuid_act)
+                #进入activity表根据uuid获取会议名
+                try:
+                    tmp_activity=models_activity.Activity.objects.get(uuid=record[entry].uuid_act)
+                except:
+                    data['message']='无此活动！'
+                    return JsonResponse(data)
+                activity['name_act']=tmp_activity.name
+                #将字典activity加入列表
+                data['list_activity'].append(activity)
+            return JsonResponse(data)
+        else:
+            data['message']='无uuid!'
+            return JsonResponse(data)
+    else:
+        data['message']='空表单'
+        return JsonResponse(data)
+
+
+@csrf_exempt
+def history_organize(request):
+    data={
+        'list_activity': [],  # 字典嵌套列表再嵌套字典
+        'message': '',
+    }
+    if request.method=='POST':
+        username=request.session['username']#取出session中username
+        if username:
+            try:
+                record= models_activity.Activity.objects.filter(organizer=username)#待改
+                #筛选出这个username创建的所有记录
+            except:
+                data['message'] = '不存在的记录'
+                return JsonResponse(data)
+            activity={
+                'uuid_act':'',
+                'name_act':'',
+            }
+            for entry in range(len(record)):
+                activity['uuid_act']=str(record[entry].uuid)
+                activity['name_act']=record[entry].name
+                #将字典activity加入列表
+                data['list_activity'].append(activity)
+            return JsonResponse(data)
+        else:
+            data['message']='无username!'
+            return JsonResponse(data)
+    else:
+        data['message']='空表单'
         return JsonResponse(data)
