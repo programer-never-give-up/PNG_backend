@@ -228,13 +228,15 @@ def findPassword(request):
         username = request.POST.get('username')
         new_password = request.POST.get('new_password')
         try:
-            user = models.User.objects.get(username=username)
+            user = models.User.objects.filter(username=username)
         except:
             message = '用户不存在！'
             data['message'] = message
             return JsonResponse(data)
         if new_password:
-            user.password = new_password
+
+            user.password=new_password
+            user.update(password=new_password)
             data['status'] = True
             data['message'] = '修改密码成功！请用新密码登陆！'
             return JsonResponse(data)
