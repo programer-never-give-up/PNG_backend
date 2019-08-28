@@ -4,4 +4,4 @@
 
 
 PATH_AVATAR = 'D:/Github/MeetingSystemFrontEnd/avatar/'
-PATH_LOGO = 'D:/Github/MeetingSystemFrontEnd/logo/'
+PATH_ACTIVITY = 'D:/Github/MeetingSystemFrontEnd/activity/'
