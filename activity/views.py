@@ -24,7 +24,7 @@ def showActivity(request):
         "introduction": '',
         'files': [],
     }
-    print('创建data')
+
     if request.method == 'POST':
         activity_uuid = request.POST.get('uuid')
 
@@ -50,13 +50,17 @@ def showActivity(request):
             data['logo'] = activity.logo
             data['introduction'] = activity.introduction
 
-            files = models.UploadRecord.objects.filter(act_uuid=activity_uuid)
-            for i in files:
-                dictionary = {}
-                dictionary[i.file_name] = i.file_path
-                data['files'].append(dictionary)
-
-            return JsonResponse(data)
+            try:
+                files = models.UploadRecord.objects.filter(act_uuid=activity_uuid)
+                for i in files:
+                    print(i.file_name)
+                    dictionary = {}
+                    dictionary[i.file_name] = i.file_path
+                    data['files'].append(dictionary)
+                    return JsonResponse(data)
+            except:
+                data['message'] = '该活动没有文件！'
+                return JsonResponse(data)
 
         else:
             data['message'] = '活动名为空！！'
