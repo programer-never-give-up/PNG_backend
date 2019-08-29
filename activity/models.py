@@ -27,7 +27,7 @@ class Activity(models.Model):
         verbose_name_plural = "活动"
 
 class UploadRecord(models.Model):
-    act_uuid = models.UUIDField(max_length=64, primary_key=True)  # uuid为主键
+    act_uuid = models.CharField(max_length=64, null=True, blank=True)
     file_name = models.CharField(max_length=128, null=True, blank=True)
     file_path = models.CharField(max_length=256, null=True, blank=True)
 

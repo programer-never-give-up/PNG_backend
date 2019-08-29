@@ -64,11 +64,12 @@ def createActivity(request):
         new_activity = models.Activity()  # 创建默认uuid
         data['uuid'] = str(new_activity.uuid)
 
+        username = request.session['username']
         logo = request.FILES.get('logo', None)
         logo_path = globals.PATH_ACTIVITY + str(new_activity.uuid) + '/'
-
+        print(logo_path)
         isExists = os.path.exists(logo_path)
-
+        print(isExists)
         # 判断结果
         if not isExists:
             # 如果不存在则创建目录
@@ -90,6 +91,7 @@ def createActivity(request):
         organizer = request.POST.get('organizer', None)
         introduction = request.POST.get('introduction', None)
 
+
         if name and start_time and end_time and location and organizer:
             # 填入数据
             new_activity.logo = logo.name
@@ -102,6 +104,7 @@ def createActivity(request):
             new_activity.location = location
             new_activity.organizer = organizer
             new_activity.introduction = introduction
+            new_activity.username = username
 
             new_activity.save()
 
@@ -125,11 +128,13 @@ def uploadFile(request):
         new_record = models.UploadRecord()
 
         act_uuid = request.POST.get('act_uuid', None)
+        print(act_uuid)
         userfile = request.FILES.get('userfile', None)
 
         file_path = globals.PATH_ACTIVITY + str(act_uuid) + '/'
-
+        print(file_path)
         isExists = os.path.exists(file_path)
+        print(isExists)
 
         # 判断结果
         if not isExists:
