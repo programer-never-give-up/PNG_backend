@@ -137,23 +137,29 @@ def history_attend(request):
     }
     if request.method=='POST':
         print('收到post')
+
         uuid_user=uuid.UUID(request.session['uuid'])#session中的string转uuid
         print(uuid_user)
         if uuid_user:
             try:
                 record= models.On_site.objects.filter(uuid_user=uuid_user)
+
                 #筛选出这个uuid对应的所有条目
                 #print('获得user')
             except:
                 data['message'] = '不存在的记录'
                 return JsonResponse(data)
+            print('找到了user')
             activity={
                 'uuid_act':'',
                 'name_act':'',
                 'start_time':'',
                 'end_time':'',
             }
+            print('创建了act')
+            print(len(record))
             for entry in range(len(record)):
+                print('进入了for')
                 activity['uuid_act']=str(record[entry].uuid_act)
                 #进入activity表根据uuid获取会议名
                 try:
@@ -161,12 +167,14 @@ def history_attend(request):
                 except:
                     data['message']='无此活动！'
                     return JsonResponse(data)
+                print(tmp_activity.name)
                 activity['name_act']=tmp_activity.name
                 activity['start_time']=tmp_activity.start_time
                 activity['end_time']=tmp_activity.end_time
                 #将字典activity加入列表
+
                 data['list_activity'].append(activity)
-                print(data)
+
             return JsonResponse(data)
         else:
             data['message']='无uuid!'
