@@ -45,6 +45,7 @@ def showInfo(request):
             data['profession']=user.profession
             data['introduction']=user.introduction
             data['message']='提取信息完毕！'
+            print(data)
             return JsonResponse(data)
         else:
             data['message']='未接收到用户名'
@@ -137,34 +138,44 @@ def history_attend(request):
     }
     if request.method=='POST':
         print('收到post')
-        uuid_user=uuid.UUID(request.session['uuid'])#session中的string转uuid
+
+        uuid_user=request.session['uuid']#session中的string转uuid
         print(uuid_user)
+        print('227af7b8-c7fc-11e9-ba32-887873aca633')
         if uuid_user:
             try:
                 record= models.On_site.objects.filter(uuid_user=uuid_user)
+
                 #筛选出这个uuid对应的所有条目
                 #print('获得user')
             except:
                 data['message'] = '不存在的记录'
+                print('未找到！')
                 return JsonResponse(data)
+            print('找到了user')
             activity={
                 'uuid_act':'',
                 'name_act':'',
                 'start_time':'',
                 'end_time':'',
             }
+            print('创建了act')
+            print(len(record))
             for entry in range(len(record)):
-                activity['uuid_act']=str(record[entry].uuid_act)
+                print('进入了for')
+                activity['uuid_act']=record[entry].uuid_act
                 #进入activity表根据uuid获取会议名
                 try:
                     tmp_activity=models_activity.Activity.objects.get(uuid=record[entry].uuid_act)
                 except:
                     data['message']='无此活动！'
                     return JsonResponse(data)
+                print(tmp_activity.name)
                 activity['name_act']=tmp_activity.name
                 activity['start_time']=tmp_activity.start_time
                 activity['end_time']=tmp_activity.end_time
                 #将字典activity加入列表
+
                 data['list_activity'].append(activity)
                 print(data)
             return JsonResponse(data)
