@@ -65,10 +65,10 @@ def createActivity(request):
         data['uuid'] = str(new_activity.uuid)
 
         logo = request.FILES.get('logo', None)
-        logo_path = globals.PATH_ACTIVITY + str(new_activity.uuid) + '/'
-
+        logo_path = globals.PATH_ACTIVITY + str(new_activity.uuid)
+        print(logo_path)
         isExists = os.path.exists(logo_path)
-
+        print(isExists)
         # 判断结果
         if not isExists:
             # 如果不存在则创建目录
@@ -125,11 +125,13 @@ def uploadFile(request):
         new_record = models.UploadRecord()
 
         act_uuid = request.POST.get('act_uuid', None)
+        print(act_uuid)
         userfile = request.FILES.get('userfile', None)
 
-        file_path = globals.PATH_ACTIVITY + str(act_uuid) + '/'
-
+        file_path = globals.PATH_ACTIVITY + str(act_uuid)
+        print(file_path)
         isExists = os.path.exists(file_path)
+        print(isExists)
 
         # 判断结果
         if not isExists:
