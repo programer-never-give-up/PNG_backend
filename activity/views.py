@@ -22,7 +22,8 @@ def showActivity(request):
         "location": '',
         "organizer": '',
         "logo": '',
-        "introduction": ''
+        "introduction": '',
+        'files': [],
     }
     if request.method == 'POST':
         activity_uuid = request.POST.get('uuid')
@@ -43,6 +44,12 @@ def showActivity(request):
             data['organizer'] = activity.organizer
             data['logo'] = activity.logo
             data['introduction'] = activity.introduction
+
+            files = models.UploadRecord.objects.filter(uuid=activity_uuid)
+            for i in files:
+                dictionary = {}
+                dictionary[i.file_name] = i.file_path
+                data['files'].append(dictionary)
 
             return JsonResponse(data)
 
@@ -76,7 +83,7 @@ def createActivity(request):
             # 创建目录操作函数
             os.makedirs(logo_path)
 
-        if logo == None:
+        if logo is None:
             logo_path = logo_path + 'default.jpg'
             default = open(globals.PATH_DEFAULT, 'rb+')
             logo = open(logo_path, 'wb+')
