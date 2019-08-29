@@ -66,21 +66,33 @@ def createActivity(request):
 
         username = request.session['username']
         logo = request.FILES.get('logo', None)
+
         logo_path = globals.PATH_ACTIVITY + str(new_activity.uuid) + '/'
-        print(logo_path)
         isExists = os.path.exists(logo_path)
-        print(isExists)
+
         # 判断结果
         if not isExists:
             # 如果不存在则创建目录
             # 创建目录操作函数
             os.makedirs(logo_path)
 
+        if logo == None:
+            logo_path = logo_path + 'default.jpg'
+            default = open(globals.PATH_DEFAULT, 'rb+')
+            logo = open(logo_path, 'wb+')
+            logo.write(default.read())
+            default.close()
+            logo.close()
+
+            new_activity.logo = 'default.jpg'
+
         # 将文件保存到本地并改名
-        destination = open(os.path.join(logo_path, logo.name), 'wb+')
-        for chunk in logo.chunks():
-            destination.write(chunk)
-        destination.close()
+        else:
+            new_activity.logo = logo.name
+            destination = open(os.path.join(logo_path, logo.name), 'wb+')
+            for chunk in logo.chunks():
+                destination.write(chunk)
+            destination.close()
 
         # 获取其他数据
         name = request.POST.get('name', None)
@@ -94,7 +106,6 @@ def createActivity(request):
 
         if name and start_time and end_time and location and organizer:
             # 填入数据
-            new_activity.logo = logo.name
 
             new_activity.name = name
             new_activity.type = activity_type
@@ -128,13 +139,11 @@ def uploadFile(request):
         new_record = models.UploadRecord()
 
         act_uuid = request.POST.get('act_uuid', None)
-        print(act_uuid)
         userfile = request.FILES.get('userfile', None)
 
         file_path = globals.PATH_ACTIVITY + str(act_uuid) + '/'
-        print(file_path)
         isExists = os.path.exists(file_path)
-        print(isExists)
+
 
         # 判断结果
         if not isExists:
