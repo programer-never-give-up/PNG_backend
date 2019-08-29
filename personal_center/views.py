@@ -4,7 +4,6 @@ from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from django.http import JsonResponse
 import globals
 import os
-import uuid
 from . import  models
 # Create your views here.
 
@@ -152,17 +151,17 @@ def history_attend(request):
                 data['message'] = '不存在的记录'
                 print('未找到！')
                 return JsonResponse(data)
-            print('找到了user')
-            activity={
-                'uuid_act':'',
-                'name_act':'',
-                'start_time':'',
-                'end_time':'',
-            }
-            print('创建了act')
-            print(len(record))
+            #print('找到了user')
+            #print('创建了act')
+            #print(len(record))
             for entry in range(len(record)):
-                print('进入了for')
+                activity = {
+                    'uuid_act': '',
+                    'name_act': '',
+                    'start_time': '',
+                    'end_time': '',
+                }
+                #print('进入了for')
                 activity['uuid_act']=record[entry].uuid_act
                 #进入activity表根据uuid获取会议名
                 try:
@@ -170,14 +169,14 @@ def history_attend(request):
                 except:
                     data['message']='无此活动！'
                     return JsonResponse(data)
-                print(tmp_activity.name)
+                #print(tmp_activity.name)
                 activity['name_act']=tmp_activity.name
                 activity['start_time']=tmp_activity.start_time
                 activity['end_time']=tmp_activity.end_time
                 #将字典activity加入列表
 
                 data['list_activity'].append(activity)
-                print(data)
+                #print(data)
             return JsonResponse(data)
         else:
             data['message']='无uuid!'
@@ -202,19 +201,23 @@ def history_organize(request):
             except:
                 data['message'] = '不存在的记录'
                 return JsonResponse(data)
-            activity={
-                'uuid_act':'',
-                'name_act':'',
-                'start_time': '',
-                'end_time': '',
-            }
             for entry in range(len(record)):
+                activity = {
+                    'uuid_act': '',
+                    'name_act': '',
+                    'start_time': '',
+                    'end_time': '',
+                }
+                #print(entry)
                 activity['uuid_act']=str(record[entry].uuid)
                 activity['name_act']=record[entry].name
+                #print(activity['name_act'])
                 activity['start_time']=record[entry].start_time
                 activity['end_time']=record[entry].end_time
+                #print(activity)
                 #将字典activity加入列表
                 data['list_activity'].append(activity)
+                #print( data['list_activity'])
             return JsonResponse(data)
         else:
             data['message']='无username!'

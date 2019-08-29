@@ -1,6 +1,5 @@
 from django.http import JsonResponse
 from . import models
-import uuid
 import os
 import datetime
 import hashlib
@@ -25,8 +24,10 @@ def showActivity(request):
         "introduction": '',
         'files': [],
     }
-    if request.method == 'POST':
-        activity_uuid = request.POST.get('uuid')
+    print('创建data')
+    if request.method == 'GET':
+        activity_uuid = request.GET.get('uuid')
+        print("huode")
         if activity_uuid:
             try:
                 activity = models.Activity.objects.get(uuid=activity_uuid)

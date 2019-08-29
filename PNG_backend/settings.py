@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'login',
     'activity',
     'personal_center',
+    'yw',
 ]
 
 MIDDLEWARE = [
