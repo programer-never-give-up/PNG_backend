@@ -28,8 +28,6 @@ def showActivity(request):
     if request.method == 'POST':
         activity_uuid = request.POST.get('uuid')
 
-        print(activity_uuid)
-
         if activity_uuid:
             try:
                 activity = models.Activity.objects.get(uuid=activity_uuid)
@@ -53,9 +51,9 @@ def showActivity(request):
             try:
                 files = models.UploadRecord.objects.filter(act_uuid=activity_uuid)
                 for i in files:
-                    print(i.file_name)
                     dictionary = {}
-                    dictionary[i.file_name] = i.file_path
+                    dictionary['fileName'] = i.file_name
+                    dictionary['fileSrc'] = i.file_path
                     data['files'].append(dictionary)
                     return JsonResponse(data)
             except:
