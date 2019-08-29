@@ -171,9 +171,9 @@ def uploadFile(request):
             destination.write(chunk)
         destination.close()
 
-        file_path = file_path.strip('D:/Github/MeetingSystemFrontEnd/')
-        file_path = file_path + '/'
-
+        file_path = file_path.strip('D:/FRONTEND/MeetingSystemFrontEnd/')
+        file_path = file_path + os.path.sep
+        print(file_path)
         new_record.act_uuid = act_uuid
         new_record.file_name = userfile.name
         new_record.file_path = file_path
