@@ -138,6 +138,7 @@ def history_attend(request):
     if request.method=='POST':
         print('收到post')
         uuid_user=uuid.UUID(request.session['uuid'])#session中的string转uuid
+        print(uuid_user)
         if uuid_user:
             try:
                 record= models.On_site.objects.filter(uuid_user=uuid_user)
@@ -165,6 +166,7 @@ def history_attend(request):
                 activity['end_time']=tmp_activity.end_time
                 #将字典activity加入列表
                 data['list_activity'].append(activity)
+                print(data)
             return JsonResponse(data)
         else:
             data['message']='无uuid!'

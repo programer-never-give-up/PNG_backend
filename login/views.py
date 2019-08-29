@@ -142,7 +142,9 @@ def sendMail(request):
             data['isSended'] = True
             data['message'] = '邮件已发送！'
             return JsonResponse(data)
-
+        else:
+            data['message']='邮箱为空！'
+            return JsonResponse(data)
 
 @csrf_exempt
 def checkMail(request):
