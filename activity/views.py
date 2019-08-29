@@ -25,18 +25,22 @@ def showActivity(request):
         'files': [],
     }
     print('创建data')
-    if request.method == 'GET':
-        activity_uuid = request.GET.get('uuid')
-        print("huode")
+    if request.method == 'POST':
+        activity_uuid = request.POST.get('uuid')
+
+        print(activity_uuid)
+
         if activity_uuid:
             try:
                 activity = models.Activity.objects.get(uuid=activity_uuid)
             except:
                 message = '不存在的活动！'
+
                 data['message'] = message
                 return JsonResponse(data)
 
             data['name'] = activity.name
+
             data['type'] = activity.type
             data['status'] = activity.status
             data['start_time'] = activity.start_time
@@ -46,7 +50,7 @@ def showActivity(request):
             data['logo'] = activity.logo
             data['introduction'] = activity.introduction
 
-            files = models.UploadRecord.objects.filter(uuid=activity_uuid)
+            files = models.UploadRecord.objects.filter(act_uuid=activity_uuid)
             for i in files:
                 dictionary = {}
                 dictionary[i.file_name] = i.file_path
