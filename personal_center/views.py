@@ -136,6 +136,7 @@ def history_attend(request):
         'message':'',
     }
     if request.method=='POST':
+        print('收到post')
         uuid_user=uuid.UUID(request.session['uuid'])#session中的string转uuid
         if uuid_user:
             try:
