@@ -148,6 +148,8 @@ def history_attend(request):
             activity={
                 'uuid_act':'',
                 'name_act':'',
+                'start_time':'',
+                'end_time':'',
             }
             for entry in range(len(record)):
                 activity['uuid_act']=str(record[entry].uuid_act)
@@ -158,6 +160,8 @@ def history_attend(request):
                     data['message']='无此活动！'
                     return JsonResponse(data)
                 activity['name_act']=tmp_activity.name
+                activity['start_time']=tmp_activity.start_time
+                activity['end_time']=tmp_activity.end_time
                 #将字典activity加入列表
                 data['list_activity'].append(activity)
             return JsonResponse(data)
@@ -187,10 +191,14 @@ def history_organize(request):
             activity={
                 'uuid_act':'',
                 'name_act':'',
+                'start_time': '',
+                'end_time': '',
             }
             for entry in range(len(record)):
                 activity['uuid_act']=str(record[entry].uuid)
                 activity['name_act']=record[entry].name
+                activity['start_time']=record[entry].start_time
+                activity['end_time']=record[entry].end_time
                 #将字典activity加入列表
                 data['list_activity'].append(activity)
             return JsonResponse(data)
