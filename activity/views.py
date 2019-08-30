@@ -71,29 +71,31 @@ def showActivity(request):
 def createActivity(request):
     data = {
         'uuid': '',
-        'status': False,
+        'status': False,  # 是否成功创建活动
         'message': '',
     }
 
     if request.method == 'POST':
 
-        new_activity = models.Activity()  # 创建默认uuid
+        new_activity = models.Activity()  # 创建活动，默认uuid
         data['uuid'] = str(new_activity.uuid)
-
+        # 获取活动创建者用户名
         username = request.session['username']
+        # 获取活动logo
         logo = request.FILES.get('logo', None)
-
+        # 新建logo保存路径
         logo_path = globals.PATH_ACTIVITY + str(new_activity.uuid) + '/'
         isExists = os.path.exists(logo_path)
 
-        # 判断结果
+        # 判断路径是否存在
         if not isExists:
             # 如果不存在则创建目录
             # 创建目录操作函数
             os.makedirs(logo_path)
-
+        # 如果未上传logo，设置默认logo，default.jpg
         if logo is None:
             new_activity.logo = logo_path.strip('D:/FRONTEND/MeetingSystemFrontEnd/')+'/default.jpg'
+            # 写入logo文件
             logo_path = logo_path + 'default.jpg'
             default = open(globals.PATH_DEFAULT, 'rb+')
             logo = open(logo_path, 'wb+')
@@ -101,12 +103,10 @@ def createActivity(request):
             default.close()
             logo.close()
 
-            print(new_activity.logo)
-
-        # 将文件保存到本地并改名
+        # 如果上传了logo，将logo保存到本地
         else:
             new_activity.logo = logo_path.strip('D:/FRONTEND/MeetingSystemFrontEnd/') + '/' + logo.name
-            print(new_activity.logo)
+
             destination = open(os.path.join(logo_path, logo.name), 'wb+')
             for chunk in logo.chunks():
                 destination.write(chunk)
@@ -123,7 +123,7 @@ def createActivity(request):
         organizer = request.POST.get('organizer', None)
         introduction = request.POST.get('introduction', None)
 
-
+        # 如果有数据未填写，数据库中不会保存会议记录
         if name and start_time and end_time and location and organizer:
             # 填入数据
 
@@ -149,42 +149,181 @@ def createActivity(request):
 @csrf_exempt
 def uploadFile(request):
     data = {
-        'status': False,
+        'status': False,  # 是否成功上传文件
         'message': '',
     }
 
     if request.method == 'POST':
-
+        # 新建一条文件记录
         new_record = models.UploadRecord()
-
+        # 获取活动id、要上传的文件
         act_uuid = request.POST.get('act_uuid', None)
         userfile = request.FILES.get('userfile', None)
-
+        # 新建文件保存路径
         file_path = globals.PATH_ACTIVITY + str(act_uuid) + '/'
         isExists = os.path.exists(file_path)
-
-
-        # 判断结果
+        # 判断路径是否存在
         if not isExists:
             # 如果不存在则创建目录
             # 创建目录操作函数
             os.makedirs(file_path)
 
-        # 将文件保存到本地并改名
+        # 将文件保存到本地
         destination = open(os.path.join(file_path, userfile.name), 'wb+')
         for chunk in userfile.chunks():
             destination.write(chunk)
         destination.close()
-
+        # 文件前端下载路径
         file_path = file_path.strip('D:/FRONTEND/MeetingSystemFrontEnd/')
         file_path = file_path + os.path.sep
-
+        # 新建文件记录的相关属性
         new_record.act_uuid = act_uuid
         new_record.file_name = userfile.name
         new_record.file_path = file_path
-
+        # 保存
         new_record.save()
 
         data['status'] = True
         data['message'] = '上传成功！'
+        return JsonResponse(data)
+
+
+def pageDisplay(request):
+    data = {
+        'pageNum': 0,  # 总页数
+        'activities': [],  # 活动列表
+        'message': '',
+    }
+
+    if request.method == 'POST':
+        username = request.session['username']
+        acts = models.Activity.objects.filter(username=username)
+
+        btn_type = request.POST.get('btn-type')
+        page_id = request.POST.get('page-id')
+        per_page = request.POST.get('per-page')
+
+        if btn_type == 'management-unpublished':
+            count = 0
+            for act in acts:
+                if act.status_publish == 'unpublished':
+                    if (page_id - 1) * per_page <= count < per_page * page_id:
+                        dictionary = {}
+                        dictionary['logoSrc'] = act.logo
+                        dictionary['activityName'] = act.name
+                        dictionary['location'] = act.location
+                        dictionary['startTime'] = act.start_time
+                        dictionary['endTime'] = act.end_time
+                        dictionary['id'] = act.uuid
+                        data['activities'].append(dictionary)
+                    count += 1
+            data['pageNum'] = int(count / per_page) + 1
+            if data['pageNum'] == 0:
+                data['message'] = '不存在未发布的活动！'
+            else:
+                data['message'] = '成功！'
+            return JsonResponse(data)
+
+        elif btn_type == 'management-published':
+            count = 0
+            for act in acts:
+                if act.status_publish == 'published':
+                    if (page_id - 1) * per_page <= count < per_page * page_id:
+                        dictionary = {}
+                        dictionary['logoSrc'] = act.logo
+                        dictionary['activityName'] = act.name
+                        dictionary['location'] = act.location
+                        dictionary['startTime'] = act.start_time
+                        dictionary['endTime'] = act.end_time
+                        dictionary['id'] = act.uuid
+                        data['activities'].append(dictionary)
+                    count += 1
+            data['pageNum'] = int(count / per_page) + 1
+            if data['pageNum'] == 0:
+                data['message'] = '不存在已发布的活动！'
+            else:
+                data['message'] = '成功！'
+            return JsonResponse(data)
+
+        elif btn_type == 'management-processing':
+            count = 0
+            for act in acts:
+                if act.status_process == 'processing':
+                    if (page_id - 1) * per_page <= count < per_page * page_id:
+                        dictionary = {}
+                        dictionary['logoSrc'] = act.logo
+                        dictionary['activityName'] = act.name
+                        dictionary['location'] = act.location
+                        dictionary['startTime'] = act.start_time
+                        dictionary['endTime'] = act.end_time
+                        dictionary['id'] = act.uuid
+                        data['activities'].append(dictionary)
+                    count += 1
+            data['pageNum'] = int(count / per_page) + 1
+            if data['pageNum'] == 0:
+                data['message'] = '不存在进行中的活动！'
+            else:
+                data['message'] = '成功！'
+            return JsonResponse(data)
+
+        elif btn_type == 'management-finished':
+            count = 0
+            for act in acts:
+                if act.status_process == 'finished':
+                    if (page_id - 1) * per_page <= count < per_page * page_id:
+                        dictionary = {}
+                        dictionary['logoSrc'] = act.logo
+                        dictionary['activityName'] = act.name
+                        dictionary['location'] = act.location
+                        dictionary['startTime'] = act.start_time
+                        dictionary['endTime'] = act.end_time
+                        dictionary['id'] = act.uuid
+                        data['activities'].append(dictionary)
+                    count += 1
+            data['pageNum'] = int(count / per_page) + 1
+            if data['pageNum'] == 0:
+                data['message'] = '不存在已完成的会议！'
+            else:
+                data['message'] = '成功！'
+            return JsonResponse(data)
+
+        elif btn_type == 'management-to_be_audited':
+            count = 0
+            for act in acts:
+                if act.status_publish == 'to_be_audited':
+                    if (page_id - 1) * per_page <= count < per_page * page_id:
+                        dictionary = {}
+                        dictionary['logoSrc'] = act.logo
+                        dictionary['activityName'] = act.name
+                        dictionary['location'] = act.location
+                        dictionary['startTime'] = act.start_time
+                        dictionary['endTime'] = act.end_time
+                        dictionary['id'] = act.uuid
+                        data['activities'].append(dictionary)
+                    count += 1
+            data['pageNum'] = int(count / per_page) + 1
+            if data['pageNum'] == 0:
+                data['message'] = '不存在待审核的会议！'
+            else:
+                data['message'] = '成功！'
+            return JsonResponse(data)
+
+        elif btn_type == 'my-not_start':
+            return JsonResponse(data)
+        elif btn_type == 'my-processing':
+            return JsonResponse(data)
+        elif btn_type == 'my-finished':
+            return JsonResponse(data)
+        elif btn_type == 'fav-not_start':
+            return JsonResponse(data)
+        elif btn_type == 'fav-processing':
+            return JsonResponse(data)
+        elif btn_type == 'fav-finished':
+            return JsonResponse(data)
+
+        else:
+            data['message'] = '不存在的会议状态！'
+            return JsonResponse(data)
+    else:
+        data['message'] = '空表单'
         return JsonResponse(data)
