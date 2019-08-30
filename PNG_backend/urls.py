@@ -28,13 +28,13 @@ urlpatterns = [
     path('api/check/', views_login.check),  # 确认登录状态
     path('api/register/', views_login.register),
     path('api/logout/', views_login.logout),
-    path('api/findPassword', views_login.findPassword),
+    path('api/findPassword/', views_login.findPassword),
 
     path('api/mail/sendMail/', views_login.sendMail),
     path('api/mail/checkMail/', views_login.checkMail),
 
     path("api/activity/", include("activity.urls")),
     path('api/personal_center/',include('personal_center.urls')),
-    path('api/yw/',include('yw.urls')),
+    path('api/yw/', include('yw.urls')),
 
 ]

@@ -194,14 +194,19 @@ def pageDisplay(request):
         'activities': [],  # 活动列表
         'message': '',
     }
+    print('fsdfds')
 
     if request.method == 'POST':
         username = request.session['username']
+        print(username)
         acts = models.Activity.objects.filter(username=username)
 
         btn_type = request.POST.get('btn-type')
         page_id = request.POST.get('page-id')
         per_page = request.POST.get('per-page')
+        print(btn_type)
+        print(per_page)
+        print(page_id)
 
         if btn_type == 'management-unpublished':
             count = 0
