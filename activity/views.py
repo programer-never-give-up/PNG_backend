@@ -187,7 +187,7 @@ def uploadFile(request):
         data['message'] = '上传成功！'
         return JsonResponse(data)
 
-
+@csrf_exempt
 def pageDisplay(request):
     data = {
         'pageNum': 0,  # 总页数
@@ -196,14 +196,14 @@ def pageDisplay(request):
     }
     print('fsdfds')
 
-    if request.method == 'POST':
+    if request.method == 'GET':
         username = request.session['username']
         print(username)
         acts = models.Activity.objects.filter(username=username)
 
-        btn_type = request.POST.get('btn-type')
-        page_id = request.POST.get('page-id')
-        per_page = request.POST.get('per-page')
+        btn_type = request.GET.get('btn-type')
+        page_id = int(request.GET.get('page-id'))
+        per_page = int(request.GET.get('per-page'))
         print(btn_type)
         print(per_page)
         print(page_id)
