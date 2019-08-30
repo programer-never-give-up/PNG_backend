@@ -17,12 +17,13 @@ class Activity(models.Model):
                                     blank=True)  # 会议介绍
     uuid = models.CharField(max_length=64, primary_key=True, auto_created=True, default=uuid.uuid1,
                             editable=False)  # uuid为主键
+    c_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        ordering = ["-uuid"]
+        ordering = ["-c_time"]
         verbose_name = "活动"
         verbose_name_plural = "活动"
 
