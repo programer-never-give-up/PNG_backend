@@ -93,6 +93,7 @@ def createActivity(request):
             os.makedirs(logo_path)
 
         if logo is None:
+            new_activity.logo = logo_path.strip('D:/FRONTEND/MeetingSystemFrontEnd/')+'/default.jpg'
             logo_path = logo_path + 'default.jpg'
             default = open(globals.PATH_DEFAULT, 'rb+')
             logo = open(logo_path, 'wb+')
@@ -100,11 +101,12 @@ def createActivity(request):
             default.close()
             logo.close()
 
-            new_activity.logo = 'default.jpg'
+            print(new_activity.logo)
 
         # 将文件保存到本地并改名
         else:
-            new_activity.logo = logo.name
+            new_activity.logo = logo_path.strip('D:/FRONTEND/MeetingSystemFrontEnd/') + '/' + logo.name
+            print(new_activity.logo)
             destination = open(os.path.join(logo_path, logo.name), 'wb+')
             for chunk in logo.chunks():
                 destination.write(chunk)
