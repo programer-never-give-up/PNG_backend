@@ -23,7 +23,7 @@ class Activity(models.Model):
         return self.name
 
     class Meta:
-        ordering = ["-c_time"]
+        ordering = ('-c_time',)
         verbose_name = "活动"
         verbose_name_plural = "活动"
 
