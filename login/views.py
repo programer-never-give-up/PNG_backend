@@ -185,19 +185,33 @@ def register(request):
         new_user = models.User()  # 创建new_user,默认创建uuid
 
         avatar = request.FILES.get('avatar', None)
+        #新建avatar路径
+        path = globals.PATH_USER + str(new_user.uuid) + '/'
+        isExists = os.path.exists(path)
+        # 判断路径是否存在
+        if not isExists:
+            # 如果不存在则创建目录
+            # 创建目录操作函数
+            os.makedirs(path)
+        # 如果未上传avatar，设置默认avatar，default.jpg
+        if avatar is None:
+            new_user.avatar = path.strip('D:/FRONTEND/MeetingSystemFrontEnd/') + '/default.jpg'
+            # 写入avatar文件
+            path = path + 'default.jpg'
+            default = open(globals.PATH_DEFAULT, 'rb+')
+            avatar = open(path, 'wb+')
+            avatar.write(default.read())
+            default.close()
+            avatar.close()
+        # 如果上传了avatar，将avatar保存到本地
+        else:
+            new_user.avatar = path.strip('D:/FRONTEND/MeetingSystemFrontEnd/') + '/' + avatar.name
 
-        # 将文件保存到本地并改名
-        destination = open(os.path.join(globals.PATH_AVATAR, avatar.name), 'wb+')
-        for chunk in avatar.chunks():
-            destination.write(chunk)
-        destination.close()
-        # 改名
-        path_avatar = os.path.join(globals.PATH_AVATAR, avatar.name)
-        extension = '.' + avatar.name.split('.')[-1]
+            destination = open(os.path.join(path, avatar.name), 'wb+')
+            for chunk in avatar.chunks():
+                destination.write(chunk)
+            destination.close()
 
-        new_name = str(new_user.uuid) + extension
-        new_file = os.path.join(globals.PATH_AVATAR, new_name)
-        os.rename(path_avatar, new_file)
         # 获取其他数据
         type = request.POST.get('type', None)
         address = request.POST.get('address', None)
@@ -210,9 +224,6 @@ def register(request):
         # introduction = request.POST.get('introduction', None)
         password = request.POST.get('password', None)
         # 填入数据
-
-        new_user.avatar = new_name
-        # new_user.uuid=uuid
         new_user.username = username
         new_user.password = password
         new_user.type = type

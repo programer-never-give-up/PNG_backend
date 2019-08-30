@@ -6,6 +6,9 @@ import uuid
 import hashlib
 import globals
 import filetype
+from PIL import Image
+import qrcode
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'PNG_backend.settings'
 
 def get_random_str():
@@ -15,10 +18,23 @@ def get_random_str():
     md5.update(uuid_str)
     return md5.hexdigest()
 
-if __name__ == '__main__':
-    uuid = uuid.uuid1()
+#生成二维码图片
+def make_qr(str,save):
+  qr=qrcode.QRCode(
+    version=4, #生成二维码尺寸的大小 1-40 1:21*21（21+(n-1)*4）
+    error_correction=qrcode.constants.ERROR_CORRECT_M, #L:7% M:15% Q:25% H:30%
+    box_size=10, #每个格子的像素大小
+    border=2, #边框的格子宽度大小
+  )
+  qr.add_data(str)
+  qr.make(fit=True)
+  image=qr.make_image()
+  image.save(save)
 
-    print(uuid)
+if __name__ == '__main__':
+    #uuid = uuid.uuid1()
+
+    #print(uuid)
     # send_mail(
     #     '来自Inderway的测试邮件',
     #     '此为邮件正文',
@@ -40,4 +56,9 @@ if __name__ == '__main__':
     # # print(new_file)
     # os.rename(avatar, new_file)
 
+    save_path = 'C:/Users/hp/Pictures/theqrcode.png'  # 生成后的保存文件
+
+    str ='这是一个二维码生成的测试'
+
+    make_qr(str,save_path)
 
