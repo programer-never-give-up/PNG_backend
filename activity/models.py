@@ -6,7 +6,8 @@ class Activity(models.Model):
 
     name = models.CharField(max_length=128, null=True, blank=True)  # 会议名称，长度128，可重复
     type = models.CharField(max_length=64, null=True, blank=True, default='其他')  # 会议类型
-    status = models.CharField(max_length=64, null=True, blank=True)  # 会议状态
+    status_process = models.CharField(max_length=64, null=True, blank=True, default='not_start')  # 会议状态
+    status_publish = models.CharField(max_length=64, null=True, blank=True, default='unpublished')  # 会议状态
     start_time = models.CharField(max_length=64, null=True, blank=True)  # 开始时间
     end_time = models.CharField(max_length=64, null=True, blank=True)  # 结束时间
     location = models.CharField(max_length=128, null=True, blank=True)  # 会议地点
@@ -18,7 +19,6 @@ class Activity(models.Model):
     uuid = models.CharField(max_length=64, primary_key=True, auto_created=True, default=uuid.uuid1,
                             editable=False)  # uuid为主键
     c_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-
 
     def __str__(self):
         return self.name

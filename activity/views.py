@@ -12,16 +12,17 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 @csrf_exempt
 def showActivity(request):
     data = {
-        "message": '',
-        "name": '',
-        "type": '',
-        "status": '',
-        "start_time": '',
-        "end_time": '',
-        "location": '',
-        "organizer": '',
-        "logo": '',
-        "introduction": '',
+        'message': '',
+        'name': '',
+        'type': '',
+        'status_process': '',
+        'status_publish': '',
+        'start_time': '',
+        'end_time': '',
+        'location': '',
+        'organizer': '',
+        'logo': '',
+        'introduction': '',
         'files': [],
     }
 
@@ -40,7 +41,8 @@ def showActivity(request):
             data['name'] = activity.name
 
             data['type'] = activity.type
-            data['status'] = activity.status
+            data['status_process'] = activity.status_process
+            data['status_publish'] = activity.status_publish
             data['start_time'] = activity.start_time
             data['end_time'] = activity.end_time
             data['location'] = activity.location
@@ -112,7 +114,9 @@ def createActivity(request):
         name = request.POST.get('name', None)
         activity_type = request.POST.get('type', None)
         start_time = request.POST.get('start_time', None)
+        start_time = start_time.replace('T', ' ')
         end_time = request.POST.get('end_time', None)
+        end_time = end_time.replace('T', ' ')
         location = request.POST.get('location', None)
         organizer = request.POST.get('organizer', None)
         introduction = request.POST.get('introduction', None)
@@ -123,7 +127,6 @@ def createActivity(request):
 
             new_activity.name = name
             new_activity.type = activity_type
-            new_activity.status = '未发布'
             new_activity.start_time = start_time
             new_activity.end_time = end_time
             new_activity.location = location
