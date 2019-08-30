@@ -18,6 +18,7 @@ class Activity(models.Model):
     uuid = models.CharField(max_length=64, primary_key=True, auto_created=True, default=uuid.uuid1,
                             editable=False)  # uuid为主键
     c_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    
 
     def __str__(self):
         return self.name
