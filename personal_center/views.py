@@ -193,13 +193,16 @@ def history_organize(request):
         'message': '',
     }
     if request.method=='POST':
+
         username=request.session['username']#取出session中username
         if username:
             try:
                 record= models_activity.Activity.objects.filter(username=username)
+
                 #筛选出这个username创建的所有记录
             except:
                 data['message'] = '不存在的记录'
+
                 return JsonResponse(data)
             for entry in range(len(record)):
                 activity = {
