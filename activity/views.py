@@ -194,19 +194,14 @@ def pageDisplay(request):
         'activities': [],  # 活动列表
         'message': '',
     }
-    print('fsdfds')
 
     if request.method == 'GET':
         username = request.session['username']
-        print(username)
         acts = models.Activity.objects.filter(username=username)
 
         btn_type = request.GET.get('btn-type')
         page_id = int(request.GET.get('page-id'))
         per_page = int(request.GET.get('per-page'))
-        print(btn_type)
-        print(per_page)
-        print(page_id)
 
         if btn_type == 'management-unpublished':
             count = 0
@@ -226,14 +221,11 @@ def pageDisplay(request):
                     print(count)
                     count += 1
             import math
-            print(count / per_page)
             data['pageNum'] = math.ceil(count / per_page)
-            print(data['pageNum'])
             if data['pageNum'] == 0:
                 data['message'] = '不存在未发布的活动！'
             else:
                 data['message'] = '成功！'
-            print(data['message'])
             return JsonResponse(data)
 
         elif btn_type == 'management-published':
