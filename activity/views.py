@@ -26,7 +26,7 @@ def showActivity(request):
         'files': [],
     }
 
-    if request.method == 'POST':
+    if request.method == 'GET':
         activity_uuid = request.POST.get('uuid')
 
         if activity_uuid:
