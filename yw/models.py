@@ -10,3 +10,6 @@ class activity_sign_up(models.Model):
 class user_collection(models.Model):
     uuid_act = models.CharField(max_length=64, null=True, blank=True)
     uuid_user = models.CharField(max_length=64, null=True, blank=True)
+
+class recent_activity(models.Model):
+    uuid_act = models.CharField(max_length=64, null=True, blank=True)
