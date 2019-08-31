@@ -195,7 +195,7 @@ def register(request):
             os.makedirs(path)
         # 如果未上传avatar，设置默认avatar，default.jpg
         if avatar is None:
-            new_user.avatar = path.strip('D:/FRONTEND/MeetingSystemFrontEnd/') + '/default.jpg'
+            new_user.avatar = str(new_user.uuid) + '/default.jpg'
             # 写入avatar文件
             path = path + 'default.jpg'
             default = open(globals.PATH_DEFAULT, 'rb+')
@@ -205,7 +205,7 @@ def register(request):
             avatar.close()
         # 如果上传了avatar，将avatar保存到本地
         else:
-            new_user.avatar = path.strip('D:/FRONTEND/MeetingSystemFrontEnd/') + '/' + avatar.name
+            new_user.avatar = str(new_user.uuid) + '/' + avatar.name
 
             destination = open(os.path.join(path, avatar.name), 'wb+')
             for chunk in avatar.chunks():
