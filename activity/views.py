@@ -339,3 +339,6 @@ def pageDisplay(request):
         data['message'] = '空表单'
         return JsonResponse(data)
 
+
+@csrf_exempt
+def pageDisplay(request):
