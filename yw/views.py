@@ -5,12 +5,49 @@ from . import models
 import qrcode
 import os
 import globals
-
+from activity import models as models_activity
 # Create your views here.
 
 @csrf_exempt
 def showRecent(request):
-    pass
+    data={
+        'list_activity': [],  # 字典嵌套列表再嵌套字典
+        'message': '',
+    }
+    if request.method == 'GET':
+        try:
+            record=models.recent_activity.objects.filter()
+        except:
+            data['message']='无记录！'
+            return JsonResponse(data)
+        for entry in range(len(record)):
+            activity = {
+                'uuid_act': '',
+                'name_act': '',
+                'start_time': '',
+                'end_time': '',
+            }
+            # print('进入了for')
+            activity['uuid_act'] = record[entry].uuid_act
+            # 进入activity表根据uuid获取会议名
+            try:
+                tmp_activity = models_activity.Activity.objects.get(uuid=record[entry].uuid_act)
+            except:
+                data['message'] = '无此活动！'
+                return JsonResponse(data)
+            # print(tmp_activity.name)
+            activity['name_act'] = tmp_activity.name
+            activity['start_time'] = tmp_activity.start_time
+            activity['end_time'] = tmp_activity.end_time
+            # 将字典activity加入列表
+
+            data['list_activity'].append(activity)
+        data['message']='查询成功！'
+        return JsonResponse(data)
+
+    else:
+        data['message'] = '空表单'
+        return JsonResponse(data)
 
 #用户申请参加会议，将用户加入会议申请表,前端需post活动uuid
 @csrf_exempt
