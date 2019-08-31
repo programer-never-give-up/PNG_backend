@@ -341,7 +341,6 @@ def pageDisplay(request):
 
 
 @csrf_exempt
-<<<<<<< HEAD
 def editActivity(request):
     data = {
         'status': False,
@@ -471,6 +470,3 @@ def editActivity(request):
         data['status'] = True
 
         return JsonResponse(data)
-=======
-def pageDisplay(request):
->>>>>>> f0d8055ad44abae1f1deba61d21d4fb7367cb3a6
