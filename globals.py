@@ -4,4 +4,4 @@
 PATH_USER = 'D:/FRONTEND/MeetingSystemFrontEnd/user/'
 PATH_ACTIVITY = 'D:/FRONTEND/MeetingSystemFrontEnd/activity/'
 PATH_DEFAULT = 'D:/FRONTEND/MeetingSystemFrontEnd/default.jpg'
-
+PATH = 'D:/FRONTEND/MeetingSystemFrontEnd/'

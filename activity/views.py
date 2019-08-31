@@ -28,7 +28,7 @@ def showActivity(request):
     }
 
     if request.method == 'GET':
-        activity_uuid = request.POST.get('uuid')
+        activity_uuid = request.GET.get('uuid')
 
         if activity_uuid:
             try:
@@ -101,7 +101,7 @@ def createActivity(request):
             os.makedirs(logo_path)
         # 如果未上传logo，设置默认logo，default.jpg
         if logo is None:
-            new_activity.logo = logo_path.strip('D:/FRONTEND/MeetingSystemFrontEnd/')+'/default.jpg'
+            new_activity.logo = logo_path.strip(globals.PATH)+'/default.jpg'
             # 写入logo文件
             logo_path = logo_path + 'default.jpg'
             default = open(globals.PATH_DEFAULT, 'rb+')
@@ -112,7 +112,7 @@ def createActivity(request):
 
         # 如果上传了logo，将logo保存到本地
         else:
-            new_activity.logo = logo_path.strip('D:/FRONTEND/MeetingSystemFrontEnd/') + '/' + logo.name
+            new_activity.logo = logo_path.strip(globals.PATH) + '/' + logo.name
 
             destination = open(os.path.join(logo_path, logo.name), 'wb+')
             for chunk in logo.chunks():
@@ -181,7 +181,7 @@ def uploadFile(request):
             destination.write(chunk)
         destination.close()
         # 文件前端下载路径
-        file_path = file_path.strip('D:/FRONTEND/MeetingSystemFrontEnd/')
+        file_path = file_path.strip(globals.PATH)
         file_path = file_path + os.path.sep
         # 新建文件记录的相关属性
         new_record.act_uuid = act_uuid
@@ -339,3 +339,138 @@ def pageDisplay(request):
         data['message'] = '空表单'
         return JsonResponse(data)
 
+
+@csrf_exempt
+<<<<<<< HEAD
+def editActivity(request):
+    data = {
+        'status': False,
+        'message': '',
+        'change': [],
+    }
+
+    if request.method == 'POST':
+
+        # 获取活动创建者用户名
+        uuid = request.POST.get('uuid', None)
+
+        try:
+            activity = models.Activity.objects.get(uuid=uuid)
+
+            editor = request.session['username']
+            if activity.username != editor:
+                data['message'] = '你没有权限修改该活动！'
+                return JsonResponse(data)
+
+        except:
+            data['message'] = '该活动不存在！'
+            return JsonResponse(data)
+        # 获取活动logo
+
+        os.remove(globals.PATH + activity.logo)
+
+        logo = request.FILES.get('logo', None)
+        # 新建logo保存路径
+        logo_path = globals.PATH_ACTIVITY + str(activity.uuid) + '/'
+        isExists = os.path.exists(logo_path)
+
+        # 判断路径是否存在
+        if not isExists:
+            # 如果不存在则创建目录
+            # 创建目录操作函数
+            os.makedirs(logo_path)
+        # 如果未上传logo，设置默认logo，default.jpg
+        if logo is None:
+            activity.logo = logo_path.strip(globals.PATH)+'/default.jpg'
+            # 写入logo文件
+            logo_path = logo_path + 'default.jpg'
+            default = open(globals.PATH_DEFAULT, 'rb+')
+            logo = open(logo_path, 'wb+')
+            logo.write(default.read())
+            default.close()
+            logo.close()
+
+        # 如果上传了logo，将logo保存到本地
+        else:
+            activity.logo = logo_path.strip(globals.PATH) + '/' + logo.name
+
+            destination = open(os.path.join(logo_path, logo.name), 'wb+')
+            for chunk in logo.chunks():
+                destination.write(chunk)
+            destination.close()
+
+        # 获取其他数据
+        name = request.POST.get('name', None)
+        activity_type = request.POST.get('type', None)
+        start_time = request.POST.get('start_time', None)
+        start_time = start_time.replace('T', ' ')
+        end_time = request.POST.get('end_time', None)
+        end_time = end_time.replace('T', ' ')
+        location = request.POST.get('location', None)
+        organizer = request.POST.get('organizer', None)
+        introduction = request.POST.get('introduction', None)
+
+        if activity.name != name and name:
+            activity.name = name
+            dictionary = {
+                'item': 'name',
+                'old': activity.name,
+                'new': name,
+            }
+            data['change'].append(dictionary)
+        if activity.type != activity_type and activity_type:
+            activity.type = activity_type
+            dictionary = {
+                'item': 'type',
+                'old': activity.type,
+                'new': activity_type,
+            }
+            data['change'].append(dictionary)
+        if activity.start_time != start_time and start_time:
+            activity.start_time = start_time
+            dictionary = {
+                'item': 'start_time',
+                'old': activity.start_time,
+                'new': start_time,
+            }
+            data['change'].append(dictionary)
+        if activity.end_time != end_time and end_time:
+            activity.end_time = end_time
+            dictionary = {
+                'item': 'end_time',
+                'old': activity.end_time,
+                'new': end_time,
+            }
+            data['change'].append(dictionary)
+        if activity.location != location and location:
+            activity.location = location
+            dictionary = {
+                'item': 'location',
+                'old': activity.location,
+                'new': location,
+            }
+            data['change'].append(dictionary)
+        if activity.organizer != organizer and organizer:
+            activity.organizer = organizer
+            dictionary = {
+                'item': 'organizer',
+                'old': activity.organizer,
+                'new': organizer,
+            }
+            data['change'].append(dictionary)
+        if activity.introduction != introduction and introduction:
+            activity.introduction = introduction
+            dictionary = {
+                'item': 'introduction',
+                'old': activity.introduction,
+                'new': introduction,
+            }
+            data['change'].append(dictionary)
+
+        data['message'] = '会议信息修改成功！'
+        data['status'] = True
+
+        return JsonResponse(data)
+=======
+def pageDisplay(request):
+>>>>>>> f0d8055ad44abae1f1deba61d21d4fb7367cb3a6
