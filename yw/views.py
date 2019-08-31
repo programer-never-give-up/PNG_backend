@@ -64,7 +64,34 @@ def apply(request):
 
 @csrf_exempt
 def collect(request):
-    pass
+    data={
+        'message':'',
+    }
+    if request.method == 'POST':
+        username = request.session['username']
+        if username:
+            try:
+                user = models_login.User.objects.get(username=username)
+            except:
+                data['message'] = '不存在的用户'
+                return JsonResponse(data)
+            uuid_act = request.POST.get('uuid_act', None)
+            if uuid_act:
+                new_record = models.user_collection()
+                new_record.uuid_act = user.uuid
+                new_record.uuid_act = uuid_act
+                new_record.save()
+                data['message'] = '收藏成功！'
+                return JsonResponse(data)
+            else:
+                data['message'] = '未获得uuid！'
+                return JsonResponse(data)
+        else:
+            data['message'] = '未接收到用户名！'
+            return JsonResponse(data)
+    else:
+        data['message'] = '无数据！'
+        return JsonResponse(data)
 
 
 #生成二维码图片
