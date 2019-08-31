@@ -135,7 +135,7 @@ def history_attend(request):
         'list_activity':[],#字典嵌套列表再嵌套字典
         'message':'',
     }
-    if request.method=='POST':
+    if request.method=='GET':
         print('收到post')
 
         uuid_user=request.session['uuid']#session中的string转uuid
@@ -192,14 +192,17 @@ def history_organize(request):
         'list_activity': [],  # 字典嵌套列表再嵌套字典
         'message': '',
     }
-    if request.method=='POST':
+    if request.method=='GET':
+
         username=request.session['username']#取出session中username
         if username:
             try:
                 record= models_activity.Activity.objects.filter(username=username)
+
                 #筛选出这个username创建的所有记录
             except:
                 data['message'] = '不存在的记录'
+
                 return JsonResponse(data)
             for entry in range(len(record)):
                 activity = {

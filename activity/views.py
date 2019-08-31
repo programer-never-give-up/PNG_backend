@@ -26,12 +26,13 @@ def showActivity(request):
         'files': [],
     }
 
-    if request.method == 'POST':
+    if request.method == 'GET':
         activity_uuid = request.POST.get('uuid')
 
         if activity_uuid:
             try:
                 activity = models.Activity.objects.get(uuid=activity_uuid)
+
             except:
                 message = '不存在的活动！'
 
@@ -57,9 +58,10 @@ def showActivity(request):
                     dictionary['fileName'] = i.file_name
                     dictionary['fileSrc'] = i.file_path
                     data['files'].append(dictionary)
-                    return JsonResponse(data)
+                return JsonResponse(data)
             except:
                 data['message'] = '该活动没有文件！'
+
                 return JsonResponse(data)
 
         else:
