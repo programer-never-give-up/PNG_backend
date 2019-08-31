@@ -24,6 +24,7 @@ def showActivity(request):
         'logo': '',
         'introduction': '',
         'files': [],
+        'isHold': False,
     }
 
     if request.method == 'GET':
@@ -32,6 +33,10 @@ def showActivity(request):
         if activity_uuid:
             try:
                 activity = models.Activity.objects.get(uuid=activity_uuid)
+
+                viewer = request.session['username']
+                if activity.username == viewer:
+                    data['isHold'] = True
 
             except:
                 message = '不存在的活动！'
@@ -333,3 +338,7 @@ def pageDisplay(request):
     else:
         data['message'] = '空表单'
         return JsonResponse(data)
+
+
+@csrf_exempt
+def pageDisplay(request):
