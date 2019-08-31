@@ -62,6 +62,10 @@ def apply(request):
         data['message']='无数据！'
         return JsonResponse(data)
 
+@csrf_exempt
+def collect(request):
+    pass
+
 
 #生成二维码图片
 def make_qr(str,save):
