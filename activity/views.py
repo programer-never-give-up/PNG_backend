@@ -28,7 +28,7 @@ def showActivity(request):
     }
 
     if request.method == 'GET':
-        activity_uuid = request.POST.get('uuid')
+        activity_uuid = request.GET.get('uuid')
 
         if activity_uuid:
             try:
