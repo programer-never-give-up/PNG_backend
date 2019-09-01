@@ -24,7 +24,7 @@ def showActivity(request):
         'logo': '',
         'introduction': '',
         'files': [],
-        'isHold': False,
+        'roleType': 0,
     }
 
     if request.method == 'GET':
@@ -35,8 +35,11 @@ def showActivity(request):
                 activity = models.Activity.objects.get(uuid=activity_uuid)
 
                 viewer = request.session['username']
-                if activity.username == viewer:
-                    data['isHold'] = True
+                print(viewer)
+                if viewer and activity.username == viewer:
+                    data['roleType'] = 2
+                elif viewer:
+                    data['roleType'] = 1
 
             except:
                 message = '不存在的活动！'
@@ -408,6 +411,12 @@ def editActivity(request):
         location = request.POST.get('location', None)
         organizer = request.POST.get('organizer', None)
         introduction = request.POST.get('introduction', None)
+
+        if activity.status_publish == 'published':
+            print(0)
+
+        elif activity.status_publish == 'to_be_audited':
+            print(1)
 
         if activity.name != name and name:
             activity.name = name
