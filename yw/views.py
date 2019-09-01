@@ -26,6 +26,8 @@ def showRecent(request):
                 'name_act': '',
                 'start_time': '',
                 'end_time': '',
+                'logo':'',
+                'location':'',
             }
             # print('进入了for')
             activity['uuid_act'] = record[entry].uuid_act
@@ -39,6 +41,8 @@ def showRecent(request):
             activity['name_act'] = tmp_activity.name
             activity['start_time'] = tmp_activity.start_time
             activity['end_time'] = tmp_activity.end_time
+            activity['logo']=tmp_activity.logo
+            activity['location']=tmp_activity.location
             # 将字典activity加入列表
 
             data['list_activity'].append(activity)
@@ -65,26 +69,31 @@ def apply(request):
                 return JsonResponse(data)
             uuid_act=request.POST.get('uuid_act',None)
             if uuid_act:
-                new_record=models.activity_sign_up()
-                new_record.uuid_act=user.uuid
-                new_record.uuid_act=uuid_act
-                #用uuid生成二维码并存入用户文件夹
-                path_code = globals.PATH_USER + user.uuid_user + '/qrcode/'
-                isExists = os.path.exists(path_code)
-                # 判断路径是否存在
-                if not isExists:
-                    # 如果不存在则创建目录
-                    # 创建目录操作函数
-                    os.makedirs(path_code)
+                same_application=models.activity_sign_up.objects.filter(uuid_act=uuid_act,uuid_user=user.uuid)
+                if same_application:
+                    data['message']='重复报名！'
+                    return JsonResponse(data)
+                else:
+                    new_record=models.activity_sign_up()
+                    new_record.uuid_user=user.uuid
+                    new_record.uuid_act=uuid_act
+                    #用uuid生成二维码并存入用户文件夹
+                    path_code = globals.PATH_USER + user.uuid + '/qrcode/'
+                    isExists = os.path.exists(path_code)
+                    # 判断路径是否存在
+                    if not isExists:
+                        # 如果不存在则创建目录
+                        # 创建目录操作函数
+                        os.makedirs(path_code)
 
-                make_qr(uuid_act,path_code)#在本地生成二维码
+                    make_qr(uuid_act,path_code+'/'+uuid_act+'.png')#在本地生成二维码
 
 
-                path_code = path_code.strip('D:/FRONTEND/MeetingSystemFrontEnd/') + '/' +uuid_act+'.png' # 改变路径存入数据库
-                new_record.qr_code=path_code
-                new_record.save()
-                data['message']='申请成功！'
-                return  JsonResponse(data)
+                    path_code = path_code.strip('D:/FRONTEND/MeetingSystemFrontEnd/') + '/' +user.uuid+'/qrcode/'+uuid_act+'.png' # 改变路径存入数据库
+                    new_record.qr_code=path_code
+                    new_record.save()
+                    data['message']='申请成功！'
+                    return  JsonResponse(data)
 
 
 
@@ -113,13 +122,19 @@ def collect(request):
                 data['message'] = '不存在的用户'
                 return JsonResponse(data)
             uuid_act = request.POST.get('uuid_act', None)
+
             if uuid_act:
-                new_record = models.user_collection()
-                new_record.uuid_act = user.uuid
-                new_record.uuid_act = uuid_act
-                new_record.save()
-                data['message'] = '收藏成功！'
-                return JsonResponse(data)
+                same_collection=models.user_collection.objects.filter(uuid_act=uuid_act,uuid_user=user.uuid)
+                if same_collection:
+                    data['message']='重复收藏！'
+                    return JsonResponse(data)
+                else:
+                    new_record = models.user_collection()
+                    new_record.uuid_user = user.uuid
+                    new_record.uuid_act = uuid_act
+                    new_record.save()
+                    data['message'] = '收藏成功！'
+                    return JsonResponse(data)
             else:
                 data['message'] = '未获得uuid！'
                 return JsonResponse(data)
@@ -130,6 +145,31 @@ def collect(request):
         data['message'] = '无数据！'
         return JsonResponse(data)
 
+@csrf_exempt
+def publish(request):
+    """发布会议"""
+    data={
+        'message':'',
+    }
+    if request.method == 'POST':
+        uuid_act=request.POST.filter('uuid_act',None)
+        if uuid_act:
+            try:
+                activity=models_activity.Activity.objects.filter(uuid=uuid_act)
+            except:
+                data['message']='不存在的会议！'
+                return JsonResponse(data)
+            activity.status_publish='待审核'
+            activity.update(status_publish='待审核')
+            data['message']='请等待审核！'
+            return JsonResponse(data)
+
+        else:
+            data['message']='未取得活动uuid！'
+            return JsonResponse(data)
+    else:
+        data['message'] = '无数据！'
+        return JsonResponse(data)
 
 #生成二维码图片
 def make_qr(str,save):
