@@ -186,8 +186,7 @@ def uploadFile(request):
             destination.write(chunk)
         destination.close()
         # 文件前端下载路径
-        file_path = file_path.strip(globals.PATH)
-        file_path = file_path + os.path.sep
+        file_path = file_path.strip(globals.PATH) + '/'
         # 新建文件记录的相关属性
         new_record.act_uuid = act_uuid
         new_record.file_name = userfile.name
@@ -347,7 +346,6 @@ def pageDisplay(request):
 @csrf_exempt
 def editActivity(request):
     data = {
-        'status': False,
         'message': '',
         'change': [],
     }
@@ -490,6 +488,5 @@ def editActivity(request):
 
         activity.save()
         data['message'] = '会议信息修改成功！'
-        data['status'] = True
 
         return JsonResponse(data)
