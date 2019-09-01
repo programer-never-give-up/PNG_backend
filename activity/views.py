@@ -106,7 +106,7 @@ def createActivity(request):
             os.makedirs(logo_path)
         # 如果未上传logo，设置默认logo，default.jpg
         if logo is None:
-            new_activity.logo = logo_path.strip(globals.PATH)+'/default.jpg'
+            new_activity.logo = logo_path.split(globals.PATH)[1]+'/default.jpg'
             # 写入logo文件
             logo_path = logo_path + 'default.jpg'
             default = open(globals.PATH_DEFAULT, 'rb+')
@@ -117,7 +117,7 @@ def createActivity(request):
 
         # 如果上传了logo，将logo保存到本地
         else:
-            new_activity.logo = logo_path.strip(globals.PATH) + '/' + logo.name
+            new_activity.logo = logo_path.split(globals.PATH)[1] + '/' + logo.name
 
             destination = open(os.path.join(logo_path, logo.name), 'wb+')
             for chunk in logo.chunks():
@@ -186,7 +186,7 @@ def uploadFile(request):
             destination.write(chunk)
         destination.close()
         # 文件前端下载路径
-        file_path = file_path.strip(globals.PATH) + '/'
+        file_path = file_path.split(globals.PATH)[1] + '/'
         # 新建文件记录的相关属性
         new_record.act_uuid = act_uuid
         new_record.file_name = userfile.name
@@ -381,7 +381,7 @@ def editActivity(request):
                 os.makedirs(logo_path)
             # 如果未上传logo，设置默认logo，default.jpg
             if logo is None:
-                activity.logo = logo_path.strip(globals.PATH) + '/default.jpg'
+                activity.logo = logo_path.split(globals.PATH)[1] + '/default.jpg'
                 # 写入logo文件
                 logo_path = logo_path + 'default.jpg'
                 default = open(globals.PATH_DEFAULT, 'rb+')
@@ -392,7 +392,7 @@ def editActivity(request):
 
             # 如果上传了logo，将logo保存到本地
             else:
-                activity.logo = logo_path.strip(globals.PATH) + '/' + logo.name
+                activity.logo = logo_path.split(globals.PATH)[1] + '/' + logo.name
                 destination = open(os.path.join(logo_path, logo.name), 'wb+')
                 for chunk in logo.chunks():
                     destination.write(chunk)
