@@ -29,13 +29,15 @@ def showActivity(request):
 
     if request.method == 'GET':
         activity_uuid = request.GET.get('uuid')
-
         if activity_uuid:
             try:
                 activity = models.Activity.objects.get(uuid=activity_uuid)
 
-                viewer = request.session['username']
-                print(viewer)
+                if 'username' in request.session.keys():
+                    viewer = request.session['username']
+                else:
+                    viewer = None
+
                 if viewer and activity.username == viewer:
                     data['roleType'] = 2
                 elif viewer:
@@ -228,7 +230,6 @@ def pageDisplay(request):
                         data['activities'].append(dictionary)
 
                         print(dictionary['activityName'])
-                    print(count)
                     count += 1
             import math
             data['pageNum'] = math.ceil(count / per_page)
@@ -353,8 +354,7 @@ def editActivity(request):
 
     if request.method == 'POST':
 
-        # 获取活动创建者用户名
-        uuid = request.POST.get('uuid', None)
+        uuid = request.POST.get('act_uuid', None)
 
         try:
             activity = models.Activity.objects.get(uuid=uuid)
@@ -369,37 +369,48 @@ def editActivity(request):
             return JsonResponse(data)
         # 获取活动logo
 
-        os.remove(globals.PATH + activity.logo)
-
         logo = request.FILES.get('logo', None)
-        # 新建logo保存路径
-        logo_path = globals.PATH_ACTIVITY + str(activity.uuid) + '/'
-        isExists = os.path.exists(logo_path)
+        if logo:
+            os.remove(globals.PATH + activity.logo)
+            # 新建logo保存路径
+            logo_path = globals.PATH_ACTIVITY + str(activity.uuid) + '/'
+            isExists = os.path.exists(logo_path)
 
-        # 判断路径是否存在
-        if not isExists:
-            # 如果不存在则创建目录
-            # 创建目录操作函数
-            os.makedirs(logo_path)
-        # 如果未上传logo，设置默认logo，default.jpg
-        if logo is None:
-            activity.logo = logo_path.strip(globals.PATH)+'/default.jpg'
-            # 写入logo文件
-            logo_path = logo_path + 'default.jpg'
-            default = open(globals.PATH_DEFAULT, 'rb+')
-            logo = open(logo_path, 'wb+')
-            logo.write(default.read())
-            default.close()
-            logo.close()
+            # 判断路径是否存在
+            if not isExists:
+                # 如果不存在则创建目录
+                # 创建目录操作函数
+                os.makedirs(logo_path)
+            # 如果未上传logo，设置默认logo，default.jpg
+            if logo is None:
+                activity.logo = logo_path.strip(globals.PATH) + '/default.jpg'
+                # 写入logo文件
+                logo_path = logo_path + 'default.jpg'
+                default = open(globals.PATH_DEFAULT, 'rb+')
+                logo = open(logo_path, 'wb+')
+                logo.write(default.read())
+                default.close()
+                logo.close()
 
-        # 如果上传了logo，将logo保存到本地
-        else:
-            activity.logo = logo_path.strip(globals.PATH) + '/' + logo.name
+            # 如果上传了logo，将logo保存到本地
+            else:
+                activity.logo = logo_path.strip(globals.PATH) + '/' + logo.name
+                destination = open(os.path.join(logo_path, logo.name), 'wb+')
+                for chunk in logo.chunks():
+                    destination.write(chunk)
+                destination.close()
 
-            destination = open(os.path.join(logo_path, logo.name), 'wb+')
-            for chunk in logo.chunks():
-                destination.write(chunk)
-            destination.close()
+        # 删除文件
+        import json
+        delete_files = request.POST.get('delete_files', None)
+        delete_files = json.loads(delete_files)
+
+        for filename in delete_files:
+            os.remove(globals.PATH + 'activity/' + activity.uuid + '/' + filename)
+            files = models.UploadRecord.objects.filter(act_uuid=activity.uuid)
+            for file in files:
+                if file.file_name == filename:
+                    file.delete()
 
         # 获取其他数据
         name = request.POST.get('name', None)
@@ -414,9 +425,11 @@ def editActivity(request):
 
         if activity.status_publish == 'published':
             print(0)
+            activity.status_publish = 'to_be_audited'
 
         elif activity.status_publish == 'to_be_audited':
             print(1)
+            activity.status_publish = 'published'
 
         if activity.name != name and name:
             activity.name = name
@@ -475,6 +488,7 @@ def editActivity(request):
             }
             data['change'].append(dictionary)
 
+        activity.save()
         data['message'] = '会议信息修改成功！'
         data['status'] = True
 
