@@ -7,5 +7,6 @@ urlpatterns = [
     path("createActivity/", views.createActivity),
     path("uploadFile/", views.uploadFile),
     path("pageDisplay/", views.pageDisplay),
+    path("editActivity/", views.editActivity),
 
 ]
