@@ -86,7 +86,7 @@ def editInfo(request):
                     for chunk in avatar.chunks():
                         destination.write(chunk)
                     destination.close()
-                    user.update(avatar='user'+user[entry].uuid + '/' + avatar.name)
+                    user.update(avatar='user/'+user[entry].uuid + '/' + avatar.name)
                 # # 改名
                 # path_avatar = os.path.join(globals.PATH_USER+user.uuid+'/', avatar.name)
                 # extension = '.' + avatar.name.split('.')[-1]
@@ -189,7 +189,7 @@ def history_organize(request):
         'message': '',
     }
     if request.method=='GET':
-
+        print('获得')
         username=request.session['username']#取出session中username
         if username:
             try:

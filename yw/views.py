@@ -170,6 +170,26 @@ def publish(request):
         data['message'] = '无数据！'
         return JsonResponse(data)
 
+@csrf_exempt
+def inspect(request):
+    """管理员对请求发布，修改，删除的管理"""
+    data={
+        'message':'',
+    }
+    #需要前端的请求类型1：发布 2：修改 3：删除
+    #发布：需要result,uuid_user（用于发邮件）,uuid_act
+
+def handle_publish(result,uuid_user,uuid_act):
+    #如果同意发布
+    if result==True:
+        activity=models_activity.Activity.objects.filter(uuid=uuid_act)
+        activity.update(status_publish='已发布')
+        return '审核通过！'
+    else:#不同意发布
+        return '审核未通过！'
+
+
+
 #生成二维码图片
 def make_qr(str,save):
   qr=qrcode.QRCode(
@@ -182,3 +202,4 @@ def make_qr(str,save):
   qr.make(fit=True)
   image=qr.make_image()
   image.save(save)
+
