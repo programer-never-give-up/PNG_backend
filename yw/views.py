@@ -6,6 +6,8 @@ import qrcode
 import os
 import globals
 from activity import models as models_activity
+from django.core.mail import send_mail
+from login import models as models_login
 # Create your views here.
 
 @csrf_exempt
@@ -178,14 +180,41 @@ def inspect(request):
     }
     #需要前端的请求类型1：发布 2：修改 3：删除
     #发布：需要result,uuid_user（用于发邮件）,uuid_act
+    if request.method=='POST':
+        type=request.POST.get('type')
+        result=request.POST.get('result')
+        uuid_user=request.POST.get('uuid_user')
+        uuid_act=request.POST.get('uuid_act')
+        if type==1:#发布审核
+            data['message']=handle_publish(result,uuid_user,uuid_act)
+        elif type==2:#修改审核
+            pass
+        elif type==3:
+            pass
+        else:
+            data['message']='无type'
+            return JsonResponse(data)
+    else:
+        data['message']='未post'
+        return JsonResponse(data)
 
 def handle_publish(result,uuid_user,uuid_act):
     #如果同意发布
+    try:
+        target=models_login.User.objects.get(uuid=uuid_user)
+    except:
+        return '无user'
     if result==True:
         activity=models_activity.Activity.objects.filter(uuid=uuid_act)
         activity.update(status_publish='已发布')
+        title='审核结果'
+        contents='您提交的活动已通过审核并发布！'
+        sendMail(target,title,contents)
         return '审核通过！'
     else:#不同意发布
+        title = '审核结果'
+        contents = '您提交的活动未通过审核，请检查活动内容是否违法违规！'
+        sendMail(target, title, contents)
         return '审核未通过！'
 
 
@@ -203,3 +232,10 @@ def make_qr(str,save):
   image=qr.make_image()
   image.save(save)
 
+def sendMail(target,title,contents):
+    send_mail(
+        title,
+        contents,
+        '1040214708@qq.com',
+        [target],
+    )
