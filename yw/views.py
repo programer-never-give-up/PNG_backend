@@ -91,7 +91,7 @@ def apply(request):
                     make_qr(uuid_act,path_code+'/'+uuid_act+'.png')#在本地生成二维码
 
 
-                    path_code = path_code.strip('D:/FRONTEND/MeetingSystemFrontEnd/') + '/' +user.uuid+'/qrcode/'+uuid_act+'.png' # 改变路径存入数据库
+                    path_code = 'user/' +user.uuid+'/qrcode/'+uuid_act+'.png' # 改变路径存入数据库
                     new_record.qr_code=path_code
                     new_record.save()
                     data['message']='申请成功！'
