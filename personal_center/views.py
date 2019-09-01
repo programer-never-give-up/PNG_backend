@@ -28,23 +28,21 @@ def showInfo(request):
         if username:
             try:
                 user= models_login.User.objects.get(username=username)
-                print('取得用户')
             except:
                 data['message'] = '不存在的用户'
                 return JsonResponse(data)
             data['username'] = user.username
             data['avatar']=user.avatar
+            print(user.avatar)
             data['gender']=user.gender
             data['email']=user.email
             data['phone_number']=user.phone_number
-            print(user.phone_number)
             data['type']=user.type
             data['address']=user.address
             data['company']=user.company
             data['profession']=user.profession
             data['introduction']=user.introduction
             data['message']='提取信息完毕！'
-            print(data)
             return JsonResponse(data)
         else:
             data['message']='未接收到用户名'
@@ -81,40 +79,40 @@ def editInfo(request):
 
 
             if avatar:
-                # 将文件保存到本地并改名
-                destination = open(os.path.join(globals.PATH_AVATAR, avatar.name), 'wb+')
-                for chunk in avatar.chunks():
-                    destination.write(chunk)
-                destination.close()
-                # 改名
-                path_avatar = os.path.join(globals.PATH_AVATAR, avatar.name)
-                extension = '.' + avatar.name.split('.')[-1]
-                new_name = str(user.uuid) + extension
-                new_file = os.path.join(globals.PATH_AVATAR, new_name)
-                os.rename(path_avatar, new_file)
+                # 将文件保存到本地并更改avatar
+                for entry in range(len(user)):
+                    print(user[entry].uuid)
+                    destination = open(os.path.join(globals.PATH_USER+user[entry].uuid+'/', avatar.name), 'wb+')
+                    for chunk in avatar.chunks():
+                        destination.write(chunk)
+                    destination.close()
+                    user.update(avatar='user'+user[entry].uuid + '/' + avatar.name)
+                # # 改名
+                # path_avatar = os.path.join(globals.PATH_USER+user.uuid+'/', avatar.name)
+                # extension = '.' + avatar.name.split('.')[-1]
+                # new_name = str(user.username) + extension
+                # new_file = os.path.join(globals.PATH_USER+user.uuid+'/', new_name)
+                # os.rename(path_avatar, new_file)
             if address:
-                user.address=address
+                #user.address=address
                 user.update(address=address)
             if profession:
-                user.profession=profession
+                #user.profession=profession
                 user.update(profession=profession)
             if company:
-                user.company=company
+                #user.company=company
                 user.update(company=company)
             if gender:
-                user.gender=gender
+                #user.gender=gender
                 user.update(gender=gender)
             if phone_number:
-                user.phone_number=phone_number
-                print('第二次电话'+user.phone_number)
-                for i in range(len(user)):
-                    print(user[i].uuid)
+                #user.phone_number=phone_number
                 user.update(phone_number=phone_number)
             if introduction:
-                user.introduction=introduction
+                #user.introduction=introduction
                 user.update(introduction=introduction)
             if password:
-                user.password=password
+                #user.password=password
                 user.update(password=password)
             #user.save()
 
@@ -139,8 +137,6 @@ def history_attend(request):
         print('收到post')
 
         uuid_user=request.session['uuid']#session中的string转uuid
-        print(uuid_user)
-        print('227af7b8-c7fc-11e9-ba32-887873aca633')
         if uuid_user:
             try:
                 record= models.On_site.objects.filter(uuid_user=uuid_user)
