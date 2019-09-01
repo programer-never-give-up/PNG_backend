@@ -152,14 +152,13 @@ def publish(request):
         'message':'',
     }
     if request.method == 'POST':
-        uuid_act=request.POST.filter('uuid_act',None)
+        uuid_act=request.POST.get('uuid_act',None)
         if uuid_act:
             try:
                 activity=models_activity.Activity.objects.filter(uuid=uuid_act)
             except:
                 data['message']='不存在的会议！'
                 return JsonResponse(data)
-            activity.status_publish='待审核'
             activity.update(status_publish='待审核')
             data['message']='请等待审核！'
             return JsonResponse(data)
