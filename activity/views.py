@@ -228,7 +228,6 @@ def pageDisplay(request):
                         dictionary['id'] = act.uuid
                         data['activities'].append(dictionary)
 
-                        print(dictionary['activityName'])
                     count += 1
             import math
             data['pageNum'] = math.ceil(count / per_page)
@@ -366,7 +365,7 @@ def editActivity(request):
             data['message'] = '该活动不存在！'
             return JsonResponse(data)
         # 获取活动logo
-
+        old_logo = activity.logo
         logo = request.FILES.get('logo', None)
         if logo:
             os.remove(globals.PATH + activity.logo)
@@ -422,8 +421,30 @@ def editActivity(request):
         introduction = request.POST.get('introduction', None)
 
         if activity.status_publish == 'published':
-            print(0)
             activity.status_publish = 'to_be_audited'
+            old_info = models.OldInfo()
+            old_info.uuid = activity.uuid
+            old_info.name = activity.name
+            old_info.type = activity.type
+            old_info.start_time = activity.start_time
+            old_info.end_time = activity.end_time
+            old_info.organizer = activity.organizer
+            old_info.location = activity.location
+            old_info.introduction = activity.introduction
+            old_info.logo = old_logo
+            old_info.save()
+
+            new_info = models.NewInfo()
+            new_info.uuid = activity.uuid
+            new_info.name = name
+            new_info.type = activity_type
+            new_info.start_time = start_time
+            new_info.end_time = end_time
+            new_info.organizer = organizer
+            new_info.location = location
+            new_info.introduction = introduction
+            new_info.logo = activity.logo
+            new_info.save()
 
         elif activity.status_publish == 'to_be_audited':
             print(1)
@@ -490,3 +511,7 @@ def editActivity(request):
         data['message'] = '会议信息修改成功！'
 
         return JsonResponse(data)
+
+
+def deleteActivity(request):
+    print(' ')
