@@ -3,7 +3,6 @@ from django.utils import timezone
 import uuid
 # Create your models here.
 class Activity(models.Model):
-
     name = models.CharField(max_length=128, null=True, blank=True)  # 会议名称，长度128，可重复
     type = models.CharField(max_length=64, null=True, blank=True, default='其他')  # 会议类型
     status_process = models.CharField(max_length=64, null=True, blank=True, default='not_start')  # 会议状态
@@ -23,10 +22,6 @@ class Activity(models.Model):
     def __str__(self):
         return self.name
 
-    class Meta:
-        ordering = ['-start_time']
-        verbose_name = "活动"
-        verbose_name_plural = "活动"
 
 class UploadRecord(models.Model):
     act_uuid = models.CharField(max_length=64, null=True, blank=True)
@@ -35,3 +30,33 @@ class UploadRecord(models.Model):
 
     def __str__(self):
         return self.file_name
+
+class OldInfo(models.Model):
+    logo = models.CharField(max_length=256, null=True, blank=True)  # 会议logo
+    name = models.CharField(max_length=128, null=True, blank=True)  # 会议名称
+    type = models.CharField(max_length=64, null=True, blank=True)  # 会议类型
+    start_time = models.CharField(max_length=64, null=True, blank=True)  # 开始时间
+    end_time = models.CharField(max_length=64, null=True, blank=True)  # 结束时间
+    location = models.CharField(max_length=128, null=True, blank=True)  # 会议地点
+    organizer = models.CharField(max_length=128, null=True, blank=True)  # 主办方
+    introduction = models.CharField(max_length=256, null=True, blank=True)  # 会议介绍
+    uuid = models.CharField(max_length=64, null=True, blank=True)  # uuid
+    c_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+class NewInfo(models.Model):
+    logo = models.CharField(max_length=256, null=True, blank=True)  # 会议logo
+    name = models.CharField(max_length=128, null=True, blank=True)  # 会议名称
+    type = models.CharField(max_length=64, null=True, blank=True)  # 会议类型
+    start_time = models.CharField(max_length=64, null=True, blank=True)  # 开始时间
+    end_time = models.CharField(max_length=64, null=True, blank=True)  # 结束时间
+    location = models.CharField(max_length=128, null=True, blank=True)  # 会议地点
+    organizer = models.CharField(max_length=128, null=True, blank=True)  # 主办方
+    introduction = models.CharField(max_length=256, null=True, blank=True)  # 会议介绍
+    uuid = models.CharField(max_length=64, null=True, blank=True)  # uuid
+    c_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    def __str__(self):
+        return self.name

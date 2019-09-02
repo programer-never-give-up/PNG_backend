@@ -208,7 +208,7 @@ def pageDisplay(request):
 
     if request.method == 'GET':
         username = request.session['username']
-        acts = models.Activity.objects.filter(username=username)
+        acts = models.Activity.objects.filter(username=username).order_by('start_time')
 
         btn_type = request.GET.get('btn-type')
         page_id = int(request.GET.get('page-id'))
