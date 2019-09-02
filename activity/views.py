@@ -346,7 +346,6 @@ def pageDisplay(request):
 def editActivity(request):
     data = {
         'message': '',
-        'change': [],
     }
 
     if request.method == 'POST':
@@ -420,6 +419,7 @@ def editActivity(request):
         organizer = request.POST.get('organizer', None)
         introduction = request.POST.get('introduction', None)
 
+        # 已发布的会议，需提交管理员审核
         if activity.status_publish == 'published':
             activity.status_publish = 'to_be_audited'
             old_info = models.OldInfo()
@@ -434,21 +434,10 @@ def editActivity(request):
             old_info.logo = old_logo
             old_info.save()
 
-            new_info = models.NewInfo()
-            new_info.uuid = activity.uuid
-            new_info.name = name
-            new_info.type = activity_type
-            new_info.start_time = start_time
-            new_info.end_time = end_time
-            new_info.organizer = organizer
-            new_info.location = location
-            new_info.introduction = introduction
-            new_info.logo = activity.logo
-            new_info.save()
-
+        # 管理员审核过的会议，修改会议状态，并发送邮件
         elif activity.status_publish == 'to_be_audited':
-            print(1)
             activity.status_publish = 'published'
+            # sendmail
 
         if activity.name != name and name:
             activity.name = name
@@ -514,4 +503,31 @@ def editActivity(request):
 
 
 def deleteActivity(request):
-    print(' ')
+    data = {
+        'message': ''
+    }
+
+    if request.method == 'POST':
+
+        uuid = request.POST.get('act_uuid', None)
+
+        try:
+            activity = models.Activity.objects.get(uuid=uuid)
+
+            editor = request.session['username']
+            if activity.username != editor:
+                data['message'] = '你没有权限删除该活动！'
+                return JsonResponse(data)
+
+        except:
+            data['message'] = '该活动不存在！'
+            return JsonResponse(data)
+
+        if activity.status_publish == 'unpublished':
+            import shutil
+            shutil.rmtree(globals.PATH + 'activity/' + activity.uuid)
+            activity.delete()
+        elif activity.status_publish == 'published':
+            activity.status_publish = 'to_be_audited'
+            activity.save()
+            data['message'] = '已向管理员提交申请'
