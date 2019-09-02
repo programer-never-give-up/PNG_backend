@@ -526,8 +526,123 @@ def deleteActivity(request):
         if activity.status_publish == 'unpublished':
             import shutil
             shutil.rmtree(globals.PATH + 'activity/' + activity.uuid)
+            models.UploadRecord.objects.filter(uuid=activity.uuid).delete()
             activity.delete()
+            data['message'] = '活动已删除！'
+            return JsonResponse(data)
         elif activity.status_publish == 'published':
             activity.status_publish = 'to_be_audited'
+            activity.name = activity.name + '（删除请求待审核）'
             activity.save()
+            new_admin_activity = models.AdminActivity()
+            new_admin_activity.uuid = activity.uuid
+            new_admin_activity.action = 'delete'
+            new_admin_activity.save()
+
             data['message'] = '已向管理员提交申请'
+            return JsonResponse(data)
+
+
+def adminAgreeDelete(request):
+    data = {
+        'message': ''
+    }
+
+    if request.method == 'POST':
+
+        uuid = request.POST.get('act_uuid', None)
+
+        activity = models.Activity.objects.get(uuid=uuid)
+
+        import shutil
+        shutil.rmtree(globals.PATH + 'activity/' + activity.uuid)
+        models.UploadRecord.objects.filter(uuid=activity.uuid).delete()
+        activity.delete()
+        data['message'] = '活动已删除！'
+        return JsonResponse(data)
+
+
+def adminRefuseDelete(request):
+    data = {
+        'message': '',
+    }
+
+    if request.method == 'POST':
+        uuid = request.POST.get('act_uuid', None)
+
+        activity = models.Activity.objects.get(uuid=uuid)
+        activity.status_publish = 'published'
+        activity.name = activity.name.split('（删除请求待审核）')[0]
+        activity.save()
+        admin_activity = models.Activity.objects.get(uuid=uuid)
+        admin_activity.delete()
+        data['message'] = '删除成功！'
+        return JsonResponse(data)
+
+
+def publishActivity(request):
+    data = {
+        'message': '',
+    }
+
+    if request.method == 'POST':
+        uuid = request.POST.get('act_uuid', None)
+
+        try:
+            activity = models.Activity.objects.get(uuid=uuid)
+
+            editor = request.session['username']
+            if activity.username != editor:
+                data['message'] = '你没有权限发布该活动！'
+                return JsonResponse(data)
+
+        except:
+            data['message'] = '该活动不存在！'
+            return JsonResponse(data)
+
+        activity.status_publish = 'to_be_audited'
+        activity.name = activity.name + '（发布请求待审核）'
+        activity.save()
+
+        new_admin_activity = models.AdminActivity()
+        new_admin_activity.uuid = activity.uuid
+        new_admin_activity.action = 'publish'
+
+        data['message'] = '已向管理员提交申请！'
+        return JsonResponse(data)
+
+
+def adminAgreePublish(request):
+    data = {
+        'message': '',
+    }
+
+    if request.method == 'POST':
+        uuid = request.POST.get('act_uuid', None)
+
+        activity = models.Activity.objects.get(uuid=uuid)
+        activity.status_publish = 'published'
+        activity.name = activity.name.split('（发布请求待审核）')[0]
+        activity.save()
+        admin_activity = models.Activity.objects.get(uuid=uuid)
+        admin_activity.delete()
+        data['message'] = '发布成功！'
+        return JsonResponse(data)
+
+
+def adminRefusePublish(request):
+    data = {
+        'message': '',
+    }
+
+    if request.method == 'POST':
+        uuid = request.POST.get('act_uuid', None)
+
+        activity = models.Activity.objects.get(uuid=uuid)
+        activity.status_publish = 'unpublished'
+        activity.name = activity.name.split('（发布请求待审核）')[0]
+        activity.save()
+        admin_activity = models.Activity.objects.get(uuid=uuid)
+        admin_activity.delete()
+        data['message'] = '拒绝发布请求！'
+        return JsonResponse(data)
