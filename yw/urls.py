@@ -6,4 +6,5 @@ urlpatterns=[
     path("showRecent/",views.showRecent),
     path('apply/',views.apply),
     path('collect/',views.collect),
+    path('showActivityList/',views.showActivityList)
 ]

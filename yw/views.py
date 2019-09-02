@@ -8,7 +8,7 @@ import globals
 from activity import models as models_activity
 from django.core.mail import send_mail
 from login import models as models_login
-from personal_center import models as models_person
+
 # Create your views here.
 
 @csrf_exempt
@@ -111,6 +111,10 @@ def apply(request):
         data['message']='无数据！'
         return JsonResponse(data)
 
+
+
+
+
 @csrf_exempt
 def collect(request):
     data={
@@ -148,6 +152,43 @@ def collect(request):
         data['message'] = '无数据！'
         return JsonResponse(data)
 
+def showActivityList(request):
+    data={
+        'list_activity':[],
+        'message':'',
+    }
+    if request.method=='GET':
+        try:
+            activitys=models_activity.AdminActivity.objects.filter()
+        except:
+            data['message']='未取得AdminActivity中的数据'
+            return  JsonResponse(data)
+        else:
+            for i in range(len(activitys)):
+                #根据uuid去activity表找数据
+                try:
+                    record_act=models_activity.Activity.objects.get(uuid=activitys[i].uuid)
+                except:
+                    data['message']='未取得uuid对应的活动'
+                    return JsonResponse(data)
+                else:
+                    activity={
+                        'uuid_act':record_act.uuid,
+                        'name_act':record_act.name,
+                        'location':record_act.location,
+                        'start_time':record_act.start_time,
+                        'end_time':record_act.end_time,
+                        'organizer':record_act.organizer,
+                        'action':activitys[i].action,
+                    }
+                    data['list_activity'].append(activity)
+            data['message'] = '已填入数据！'
+            return JsonResponse(data)
+    else:
+        data['message']='未收到get'
+        return JsonResponse(data)
+
+
 # @csrf_exempt
 # def publish(request):
 #     """发布会议"""
@@ -173,92 +214,93 @@ def collect(request):
 #         data['message'] = '无数据！'
 #         return JsonResponse(data)
 
-@csrf_exempt
-def inspect(request):
-    """管理员对请求发布，修改，删除的管理"""
-    data={
-        'message':'',
-    }
-    #需要前端的请求类型1：发布 2：修改 3：删除
-    #发布：需要result,uuid_user（用于发邮件）,uuid_act
-    if request.method=='POST':
-        type=request.POST.get('type')
-        result=request.POST.get('result')
-        uuid_act=request.POST.get('uuid_act')
-        try:
-            activity=models_activity.Activity.objects.get(uuid=uuid_act)
-        except:
-            data['message']='未获得uuid_act对应的activity'
-            return JsonResponse(data)
-        username=activity.username
-        if type==1:#发布审核
-            data['message']=handle_publish(result,username,uuid_act)
-        elif type==2:#修改审核
-            pass
-        elif type==3:
-            pass
-        else:
-            data['message']='无type'
-            return JsonResponse(data)
-    else:
-        data['message']='未post'
-        return JsonResponse(data)
+# @csrf_exempt
+# def inspect(request):
+#     """管理员对请求发布，修改，删除的管理"""
+#     data={
+#         'message':'',
+#     }
+#     #需要前端的请求类型1：发布 2：修改 3：删除
+#     #发布：需要result,uuid_user（用于发邮件）,uuid_act
+#     if request.method=='POST':
+#         type=request.POST.get('type')
+#         result=request.POST.get('result')
+#         uuid_act=request.POST.get('uuid_act')
+#         try:
+#             activity=models_activity.Activity.objects.get(uuid=uuid_act)
+#         except:
+#             data['message']='未获得uuid_act对应的activity'
+#             return JsonResponse(data)
+#         username=activity.username
+#         if type==1:#发布审核
+#             data['message']=handle_publish(result,username,uuid_act)
+#         elif type==2:#修改审核
+#             pass
+#         elif type==3:
+#             pass
+#         else:
+#             data['message']='无type'
+#             return JsonResponse(data)
+#     else:
+#         data['message']='未post'
+#         return JsonResponse(data)
+#
+# def handle_publish(result,username,uuid_act):
+#     try:
+#         user=models_login.User.objects.get(username=username)
+#     except:
+#         return '无user'
+#     #如果同意发布
+#     if result==True:
+#         activity=models_activity.Activity.objects.filter(uuid=uuid_act)
+#         activity.update(status_publish='已发布')
+#         title='发布审核结果'
+#         contents='您提交的活动已通过审核并发布！'
+#         sendMail(user.email,title,contents)
+#         return '发布审核通过！'
+#     else:#不同意发布
+#         title = '发布审核结果'
+#         contents = '您提交的活动未通过审核，请检查活动内容是否违法违规！'
+#         sendMail(user.email, title, contents)
+#         return '发布审核未通过！'
+#
+# def handle_delete(result,username,uuid_act):
+#     """已发布的会议删除需要进行审核，并向已报名的用户发送邮件通知"""
+#     #取得email
+#     try:
+#         user=models_login.User.objects.get(username=username)
+#     except:
+#         return '无user'
+#     #如果同意删除
+#     if result==True:
+#         try:
+#             activity=models_activity.Activity.objects.get(uuid=uuid_act)#获得活动
+#         except:
+#             return 'handle_delete:未获得uuid_act对应的活动'
+#
+#         name_act=activity.name#在会议删除前取得名字
+#         activity.delete()
+#         title='删除审核结果'
+#         contents='您申请删除的活动 %s 已成功删除。'%name_act
+#         sendMail(user.email,title,contents)
+#         #操作报名表
+#         records=models.activity_sign_up.objects.filter(uuid_act=uuid_act)
+#
+#         for i in range(len(records)):#对报名会议的所有用户进行操作
+#             try:
+#                 user=models_login.User.objects.get(uuid=records[i].uuid_user)
+#             except:
+#                 return 'handle_delete:未获得uuid_user对应的user'
+#             title="活动通知"
+#             contents='您报名参加的活动 %s 已被举办者取消，请留意主办方发布的相关消息。'%name_act
+#             sendMail(user.email,title,contents)
+#         return '删除审核通过！'
 
-def handle_publish(result,username,uuid_act):
-    try:
-        user=models_login.User.objects.get(username=username)
-    except:
-        return '无user'
-    #如果同意发布
-    if result==True:
-        activity=models_activity.Activity.objects.filter(uuid=uuid_act)
-        activity.update(status_publish='已发布')
-        title='发布审核结果'
-        contents='您提交的活动已通过审核并发布！'
-        sendMail(user.email,title,contents)
-        return '发布审核通过！'
-    else:#不同意发布
-        title = '发布审核结果'
-        contents = '您提交的活动未通过审核，请检查活动内容是否违法违规！'
-        sendMail(user.email, title, contents)
-        return '发布审核未通过！'
 
-def handle_delete(result,username,uuid_act):
-    """已发布的会议删除需要进行审核，并向已报名的用户发送邮件通知"""
-    #取得email
-    try:
-        user=models_login.User.objects.get(username=username)
-    except:
-        return '无user'
-    #如果同意删除
-    if result==True:
-        try:
-            activity=models_activity.Activity.objects.get(uuid=uuid_act)#获得活动
-        except:
-            return 'handle_delete:未获得uuid_act对应的活动'
-
-        name_act=activity.name#在会议删除前取得名字
-        activity.delete()
-        title='删除审核结果'
-        contents='您申请删除的活动 %s 已成功删除。'%name_act
-        sendMail(user.email,title,contents)
-        #操作报名表
-        records=models.activity_sign_up.objects.filter(uuid_act=uuid_act)
-
-        for i in range(len(records)):#对报名会议的所有用户进行操作
-            try:
-                user=models_login.User.objects.get(uuid=records[i].uuid_user)
-            except:
-                return 'handle_delete:未获得uuid_user对应的user'
-            title="活动通知"
-            contents='您报名参加的活动 %s 已被举办者取消，请留意主办方发布的相关消息。'%name_act
-            sendMail(user.email,title,contents)
-
-
-        return '删除审核通过！'
 
 
 #生成二维码图片
+
 def make_qr(str,save):
   qr=qrcode.QRCode(
     version=4, #生成二维码尺寸的大小 1-40 1:21*21（21+(n-1)*4）

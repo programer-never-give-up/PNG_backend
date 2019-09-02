@@ -64,7 +64,7 @@ if __name__ == '__main__':
     # make_qr(str,save_path)
 
     try:
-        activity=models_act.Activity.objects.filter(username='jacky')
+        activity=models_act.Activity.objects.filter()
     except:
         print('get()异常')
     else:
