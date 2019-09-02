@@ -502,6 +502,14 @@ def editActivity(request):
         return JsonResponse(data)
 
 
+def adminAgreeEdit(request):
+    print()
+
+
+def adminRefuseEdit(request):
+    print()
+
+
 def deleteActivity(request):
     data = {
         'message': ''
