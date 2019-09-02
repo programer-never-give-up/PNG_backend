@@ -8,8 +8,11 @@ import globals
 import filetype
 from PIL import Image
 import qrcode
+import django
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'PNG_backend.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'PNG_backend.settings'#配置环境变量，以在manage外运行django
+django.setup()
+from activity import models as models_act
 
 def get_random_str():
     uuid_val = uuid.uuid4()
@@ -56,9 +59,14 @@ if __name__ == '__main__':
     # # print(new_file)
     # os.rename(avatar, new_file)
 
-    save_path = 'C:/Users/hp/Pictures/theqrcode.png'  # 生成后的保存文件
+    # save_path = 'C:/Users/hp/Pictures/theqrcode.png'  # 生成后的保存文件
+    # str ='这是一个二维码生成的测试'
+    # make_qr(str,save_path)
 
-    str ='这是一个二维码生成的测试'
-
-    make_qr(str,save_path)
+    try:
+        activity=models_act.Activity.objects.filter(username='jacky')
+    except:
+        print('get()异常')
+    else:
+        print(activity)
 
