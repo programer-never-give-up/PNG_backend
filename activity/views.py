@@ -202,6 +202,7 @@ def uploadFile(request):
 def pageDisplay(request):
     data = {
         'pageNum': 0,  # 总页数
+        'sum': 0,  # 活动总数
         'activities': [],  # 活动列表
         'message': '',
     }
@@ -233,6 +234,7 @@ def pageDisplay(request):
                     count += 1
             import math
             data['pageNum'] = math.ceil(count / per_page)
+            data['sum'] = count
             if data['pageNum'] == 0:
                 data['message'] = '不存在未发布的活动！'
             else:
@@ -255,7 +257,9 @@ def pageDisplay(request):
                         admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                         dictionary['action'] = admin_activity.action
                     count += 1
-            data['pageNum'] = int(count / per_page) + 1
+            import math
+            data['pageNum'] = math.ceil(count / per_page)
+            data['sum'] = count
             if data['pageNum'] == 0:
                 data['message'] = '不存在已发布的活动！'
             else:
@@ -278,7 +282,9 @@ def pageDisplay(request):
                         dictionary['action'] = admin_activity.action
                         data['activities'].append(dictionary)
                     count += 1
-            data['pageNum'] = int(count / per_page) + 1
+            import math
+            data['pageNum'] = math.ceil(count / per_page)
+            data['sum'] = count
             if data['pageNum'] == 0:
                 data['message'] = '不存在进行中的活动！'
             else:
@@ -301,7 +307,9 @@ def pageDisplay(request):
                         dictionary['action'] = admin_activity.action
                         data['activities'].append(dictionary)
                     count += 1
-            data['pageNum'] = int(count / per_page) + 1
+            import math
+            data['pageNum'] = math.ceil(count / per_page)
+            data['sum'] = count
             if data['pageNum'] == 0:
                 data['message'] = '不存在已完成的会议！'
             else:
@@ -324,7 +332,9 @@ def pageDisplay(request):
                         dictionary['action'] = admin_activity.action
                         data['activities'].append(dictionary)
                     count += 1
-            data['pageNum'] = int(count / per_page) + 1
+            import math
+            data['pageNum'] = math.ceil(count / per_page)
+            data['sum'] = count
             if data['pageNum'] == 0:
                 data['message'] = '不存在待审核的会议！'
             else:
