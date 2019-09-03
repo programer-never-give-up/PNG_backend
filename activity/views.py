@@ -363,65 +363,132 @@ def editActivity(request):
         except:
             data['message'] = '该活动不存在！'
             return JsonResponse(data)
-        # 获取活动logo
-        old_logo = activity.logo
-        logo = request.FILES.get('logo', None)
-        if logo:
-            os.remove(globals.PATH + activity.logo)
-            # 新建logo保存路径
-            logo_path = globals.PATH_ACTIVITY + str(activity.uuid) + '/'
-            isExists = os.path.exists(logo_path)
 
+        if activity.status_publish == 'unpublished':
+
+            logo = request.FILES.get('logo', None)
+            if logo:
+                os.remove(globals.PATH + activity.logo)
+                # 新建logo保存路径
+                logo_path = globals.PATH_ACTIVITY + str(activity.uuid) + '/'
+                isExists = os.path.exists(logo_path)
+
+                # 判断路径是否存在
+                if not isExists:
+                    # 如果不存在则创建目录
+                    # 创建目录操作函数
+                    os.makedirs(logo_path)
+                # 如果未上传logo，设置默认logo，default.jpg
+                if logo is None:
+                    activity.logo = logo_path.split(globals.PATH)[1] + '/default.jpg'
+                    # 写入logo文件
+                    logo_path = logo_path + 'default.jpg'
+                    default = open(globals.PATH_DEFAULT, 'rb+')
+                    logo = open(logo_path, 'wb+')
+                    logo.write(default.read())
+                    default.close()
+                    logo.close()
+
+                # 如果上传了logo，将logo保存到本地
+                else:
+                    activity.logo = logo_path.split(globals.PATH)[1] + '/' + logo.name
+                    destination = open(os.path.join(logo_path, logo.name), 'wb+')
+                    for chunk in logo.chunks():
+                        destination.write(chunk)
+                    destination.close()
+
+            # 删除文件
+            import json
+            delete_files = request.POST.get('delete_files', None)
+            delete_files = json.loads(delete_files)
+
+            for filename in delete_files:
+                os.remove(globals.PATH + 'activity/' + activity.uuid + '/' + filename)
+                files = models.UploadRecord.objects.filter(act_uuid=activity.uuid)
+                for file in files:
+                    if file.file_name == filename:
+                        file.delete()
+
+            # 获取其他数据
+            name = request.POST.get('name', None)
+            activity_type = request.POST.get('type', None)
+            start_time = request.POST.get('start_time', None)
+            start_time = start_time.replace('T', ' ')
+            end_time = request.POST.get('end_time', None)
+            end_time = end_time.replace('T', ' ')
+            location = request.POST.get('location', None)
+            organizer = request.POST.get('organizer', None)
+            introduction = request.POST.get('introduction', None)
+
+            activity.name = name
+            activity.type = activity_type
+            activity.start_time = start_time
+            activity.end_time = end_time
+            activity.location = location
+            activity.organizer = organizer
+            activity.introduction = introduction
+
+            activity.save()
+            data['message'] = '会议信息修改成功！'
+
+            return JsonResponse(data)
+
+        elif activity.status_publish == 'published':
+            # 获取活动logo
+
+            old_path = globals.PATH_ADMIN + activity.uuid + '/'
+            isExists = os.path.exists(old_path)
             # 判断路径是否存在
             if not isExists:
                 # 如果不存在则创建目录
                 # 创建目录操作函数
-                os.makedirs(logo_path)
-            # 如果未上传logo，设置默认logo，default.jpg
-            if logo is None:
-                activity.logo = logo_path.split(globals.PATH)[1] + '/default.jpg'
-                # 写入logo文件
-                logo_path = logo_path + 'default.jpg'
-                default = open(globals.PATH_DEFAULT, 'rb+')
-                logo = open(logo_path, 'wb+')
-                logo.write(default.read())
-                default.close()
-                logo.close()
+                os.makedirs(old_path)
 
-            # 如果上传了logo，将logo保存到本地
-            else:
+            old_logo_path = globals.PATH + activity.logo
+            admin_logo_path = globals.PATH_ADMIN + activity.logo.split('activity/')[1]
+            old_logo = activity.logo.replace('activity', 'admin')
+
+            old = open(old_logo_path, 'rb+')
+            admin = open(admin_logo_path, 'wb+')
+            admin.write(old.read())
+            old.close()
+            admin.close()
+
+            logo = request.FILES.get('logo', None)
+            if logo:
+
+                os.remove(globals.PATH + activity.logo)
+                logo_path = globals.PATH_ACTIVITY + str(activity.uuid) + '/'
+
                 activity.logo = logo_path.split(globals.PATH)[1] + '/' + logo.name
                 destination = open(os.path.join(logo_path, logo.name), 'wb+')
                 for chunk in logo.chunks():
                     destination.write(chunk)
                 destination.close()
 
-        # 删除文件
-        import json
-        delete_files = request.POST.get('delete_files', None)
-        delete_files = json.loads(delete_files)
+            # 删除文件
+            import json
+            delete_files = request.POST.get('delete_files', None)
+            delete_files = json.loads(delete_files)
 
-        for filename in delete_files:
-            os.remove(globals.PATH + 'activity/' + activity.uuid + '/' + filename)
-            files = models.UploadRecord.objects.filter(act_uuid=activity.uuid)
-            for file in files:
-                if file.file_name == filename:
-                    file.delete()
+            for filename in delete_files:
+                os.remove(globals.PATH + 'activity/' + activity.uuid + '/' + filename)
+                files = models.UploadRecord.objects.filter(act_uuid=activity.uuid)
+                for file in files:
+                    if file.file_name == filename:
+                        file.delete()
 
-        # 获取其他数据
-        name = request.POST.get('name', None)
-        activity_type = request.POST.get('type', None)
-        start_time = request.POST.get('start_time', None)
-        start_time = start_time.replace('T', ' ')
-        end_time = request.POST.get('end_time', None)
-        end_time = end_time.replace('T', ' ')
-        location = request.POST.get('location', None)
-        organizer = request.POST.get('organizer', None)
-        introduction = request.POST.get('introduction', None)
+            # 获取其他数据
+            name = request.POST.get('name', None)
+            activity_type = request.POST.get('type', None)
+            start_time = request.POST.get('start_time', None)
+            start_time = start_time.replace('T', ' ')
+            end_time = request.POST.get('end_time', None)
+            end_time = end_time.replace('T', ' ')
+            location = request.POST.get('location', None)
+            organizer = request.POST.get('organizer', None)
+            introduction = request.POST.get('introduction', None)
 
-        # 已发布的会议，需提交管理员审核
-        if activity.status_publish == 'published':
-            activity.status_publish = 'to_be_audited'
             old_info = models.OldInfo()
             old_info.uuid = activity.uuid
             old_info.name = activity.name
@@ -434,79 +501,49 @@ def editActivity(request):
             old_info.logo = old_logo
             old_info.save()
 
-        # 管理员审核过的会议，修改会议状态，并发送邮件
-        elif activity.status_publish == 'to_be_audited':
-            activity.status_publish = 'published'
-            # sendmail
-
-        if activity.name != name and name:
-            activity.name = name
-            dictionary = {
-                'item': 'name',
-                'old': activity.name,
-                'new': name,
-            }
-            data['change'].append(dictionary)
-        if activity.type != activity_type and activity_type:
+            activity.status_publish = 'to_be_audited'
+            activity.name = name + '（修改请求待审核）'
             activity.type = activity_type
-            dictionary = {
-                'item': 'type',
-                'old': activity.type,
-                'new': activity_type,
-            }
-            data['change'].append(dictionary)
-        if activity.start_time != start_time and start_time:
             activity.start_time = start_time
-            dictionary = {
-                'item': 'start_time',
-                'old': activity.start_time,
-                'new': start_time,
-            }
-            data['change'].append(dictionary)
-        if activity.end_time != end_time and end_time:
             activity.end_time = end_time
-            dictionary = {
-                'item': 'end_time',
-                'old': activity.end_time,
-                'new': end_time,
-            }
-            data['change'].append(dictionary)
-        if activity.location != location and location:
             activity.location = location
-            dictionary = {
-                'item': 'location',
-                'old': activity.location,
-                'new': location,
-            }
-            data['change'].append(dictionary)
-        if activity.organizer != organizer and organizer:
             activity.organizer = organizer
-            dictionary = {
-                'item': 'organizer',
-                'old': activity.organizer,
-                'new': organizer,
-            }
-            data['change'].append(dictionary)
-        if activity.introduction != introduction and introduction:
             activity.introduction = introduction
-            dictionary = {
-                'item': 'introduction',
-                'old': activity.introduction,
-                'new': introduction,
-            }
-            data['change'].append(dictionary)
+            activity.save()
 
-        activity.save()
-        data['message'] = '会议信息修改成功！'
+            new_admin_activity = models.AdminActivity()
+            new_admin_activity.uuid = activity.uuid
+            new_admin_activity.action = 'modify'
+            new_admin_activity.save()
 
-        return JsonResponse(data)
+            data['message'] = '已提交管理员审核！'
 
+            return JsonResponse(data)
 
 def adminAgreeEdit(request):
-    print()
+    data = {
+        'message': ''
+    }
 
+    if request.method == 'POST':
+        uuid = request.POST.get('act_uuid', None)
+        activity = models.Activity.objects.get(uuid=uuid)
+        activity.status_publish = 'published'
+        activity.name = activity.name.split('（修改请求待审核）')[0]
+        activity.save()
+        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+        admin_activity.delete()
+
+        data['message'] = '活动信息已修改！'
+
+        change = []
+
+        # sendMail 发邮件
+        return JsonResponse(data)
 
 def adminRefuseEdit(request):
+    admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+    admin_activity.delete()
     print()
 
 
@@ -566,7 +603,12 @@ def adminAgreeDelete(request):
         shutil.rmtree(globals.PATH + 'activity/' + activity.uuid)
         models.UploadRecord.objects.filter(uuid=activity.uuid).delete()
         activity.delete()
+        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+        admin_activity.delete()
+
         data['message'] = '活动已删除！'
+
+        # sendMail 发邮件
         return JsonResponse(data)
 
 
@@ -582,8 +624,9 @@ def adminRefuseDelete(request):
         activity.status_publish = 'published'
         activity.name = activity.name.split('（删除请求待审核）')[0]
         activity.save()
-        admin_activity = models.Activity.objects.get(uuid=uuid)
+        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
+
         data['message'] = '删除成功！'
         return JsonResponse(data)
 
@@ -632,9 +675,13 @@ def adminAgreePublish(request):
         activity.status_publish = 'published'
         activity.name = activity.name.split('（发布请求待审核）')[0]
         activity.save()
-        admin_activity = models.Activity.objects.get(uuid=uuid)
+        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
+
         data['message'] = '发布成功！'
+
+        # sendMail发邮件
+
         return JsonResponse(data)
 
 
@@ -650,7 +697,8 @@ def adminRefusePublish(request):
         activity.status_publish = 'unpublished'
         activity.name = activity.name.split('（发布请求待审核）')[0]
         activity.save()
-        admin_activity = models.Activity.objects.get(uuid=uuid)
+        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
+
         data['message'] = '拒绝发布请求！'
         return JsonResponse(data)
