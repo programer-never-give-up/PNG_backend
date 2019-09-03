@@ -64,9 +64,12 @@ if __name__ == '__main__':
     # make_qr(str,save_path)
 
     try:
-        activity=models_act.Activity.objects.filter()
+        activity=models_act.Activity.objects.filter(status_publish='published').order_by('start_time')[:2]
+
     except:
         print('get()异常')
     else:
         print(activity)
+
+
 
