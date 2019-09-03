@@ -8,4 +8,5 @@ urlpatterns=[
     path('collect/',views.collect),
     path('showActivityList/',views.showActivityList),
     path('showModification/',views.showModification),
+    path('getQRcode/',views.getQRcode),
 ]
