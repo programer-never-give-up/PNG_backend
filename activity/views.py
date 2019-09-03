@@ -682,6 +682,7 @@ def adminAgreeDelete(request):
     if request.method == 'POST':
 
         uuid = request.POST.get('act_uuid', None)
+        print(uuid)
 
         activity = models.Activity.objects.get(uuid=uuid)
 
@@ -759,6 +760,7 @@ def adminAgreePublish(request):
 
     if request.method == 'POST':
         uuid = request.POST.get('act_uuid', None)
+        print(uuid)
 
         activity = models.Activity.objects.get(uuid=uuid)
         activity.status_publish = 'published'
