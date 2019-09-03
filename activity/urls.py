@@ -11,10 +11,10 @@ urlpatterns = [
     path("deleteActivity/", views.deleteActivity),
     path("publishActivity/", views.publishActivity),
     path("adminAgreeEdit/", views.adminAgreeEdit),
-    path("admin/refuseEdit/", views.adminRefuseEdit),
+    path("adminRefuseEdit/", views.adminRefuseEdit),
     path("adminAgreeDelete/", views.adminAgreeDelete),
-    path("admin/refuseDelete/", views.adminRefuseDelete),
+    path("adminRefuseDelete/", views.adminRefuseDelete),
     path("adminAgreePublish/", views.adminAgreePublish),
-    path("admin/refusePublish/", views.adminRefusePublish),
+    path("adminRefusePublish/", views.adminRefusePublish),
 
 ]

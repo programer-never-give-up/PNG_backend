@@ -322,6 +322,7 @@ def pageDisplay(request):
                         dictionary['id'] = act.uuid
                         admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                         dictionary['action'] = admin_activity.action
+                        print(dictionary['action'])
                         data['activities'].append(dictionary)
                     count += 1
             import math
@@ -743,6 +744,8 @@ def publishActivity(request):
         new_admin_activity = models.AdminActivity()
         new_admin_activity.uuid = activity.uuid
         new_admin_activity.action = 'publish'
+        print(new_admin_activity.action)
+        new_admin_activity.save()
 
         data['message'] = '已向管理员提交申请！'
         return JsonResponse(data)
