@@ -152,6 +152,7 @@ def collect(request):
         data['message'] = '无数据！'
         return JsonResponse(data)
 
+@csrf_exempt
 def showActivityList(request):
     data={
         'list_activity':[],
@@ -188,6 +189,71 @@ def showActivityList(request):
         data['message']='未收到get'
         return JsonResponse(data)
 
+@csrf_exempt
+def showModification(request):
+    data={
+        'message':'',
+        'name_old':'',
+        'name_new':'',
+        'type_old':'',
+        'type_new':'',
+        'start_time_old':'',
+        'start_time_new':'',
+        'end_time_old':'',
+        'end_time_new':'',
+        'location_old':'',
+        'location_new':'',
+        'organizer_old':'',
+        'organizer_new':'',
+        'logo_old':'',
+        'logo_new':'',
+        'introduction_old':'',
+        'introduction_new':'',
+        'files_new':'',
+        #旧文件已审核过，不显示
+    }
+    if request.method=='GET':
+        uuid=request.GET.get('uuid')
+        if uuid:
+            try:
+                activity_new=models_activity.Activity.objects.get(uuid=uuid)
+                activity_old=models_activity.OldInfo.objects.get(uuid=uuid)
+            except:
+                data['message']='获取会议信息错误'
+                return JsonResponse(data)
+            data['name_new']=activity_new.name
+            data['name_old']=activity_old.name
+            data['type_new']=activity_new.name
+            data['type_old']=activity_old.name
+            data['start_time_new']=activity_new.start_time
+            data['start_time_old']=activity_old.start_time
+            data['end_time_new']=activity_new.end_time
+            data['end_time_old']=activity_old.end_time
+            data['location_new']=activity_new.location
+            data['location_old']=activity_old.location
+            data['organizer_new']=activity_new.organizer
+            data['organizer_old']=activity_old.organizer
+            data['logo_new']=activity_new.logo
+            data['logo_old']=activity_old.logo
+            data['introduction_old']=activity_new.introduction
+            data['introduction_new']=activity_old.introduction
+            try:
+                files=models_activity.UploadRecord.objects.filter(act_uuid=uuid)
+                for i in files:
+                    dictionary = {}
+                    dictionary['fileName'] = i.file_name
+                    dictionary['fileSrc'] = i.file_path
+                    data['files_new'].append(dictionary)
+                return JsonResponse(data)
+            except:
+                data['message'] = '该活动没有文件！'
+                return JsonResponse(data)
+        else:
+            data['message']='未获得uuid'
+            return JsonResponse(data)
+    else:
+        data['message']='未收到GET'
+        return JsonResponse(data)
 
 # @csrf_exempt
 # def publish(request):
