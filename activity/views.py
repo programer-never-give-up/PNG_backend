@@ -542,9 +542,12 @@ def adminAgreeEdit(request):
         return JsonResponse(data)
 
 def adminRefuseEdit(request):
-    admin_activity = models.AdminActivity.objects.get(uuid=uuid)
-    admin_activity.delete()
-    print()
+    if request.method == 'POST':
+        uuid = request.POST.get('act_uuid', None)
+        activity = models.Activity.objects.get(uuid=uuid)
+
+        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+        admin_activity.delete()
 
 
 def deleteActivity(request):
