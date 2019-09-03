@@ -226,6 +226,8 @@ def pageDisplay(request):
                         dictionary['startTime'] = act.start_time
                         dictionary['endTime'] = act.end_time
                         dictionary['id'] = act.uuid
+                        admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
+                        dictionary['action'] = admin_activity.action
                         data['activities'].append(dictionary)
 
                     count += 1
@@ -250,6 +252,8 @@ def pageDisplay(request):
                         dictionary['endTime'] = act.end_time
                         dictionary['id'] = act.uuid
                         data['activities'].append(dictionary)
+                        admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
+                        dictionary['action'] = admin_activity.action
                     count += 1
             data['pageNum'] = int(count / per_page) + 1
             if data['pageNum'] == 0:
@@ -270,6 +274,8 @@ def pageDisplay(request):
                         dictionary['startTime'] = act.start_time
                         dictionary['endTime'] = act.end_time
                         dictionary['id'] = act.uuid
+                        admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
+                        dictionary['action'] = admin_activity.action
                         data['activities'].append(dictionary)
                     count += 1
             data['pageNum'] = int(count / per_page) + 1
@@ -291,6 +297,8 @@ def pageDisplay(request):
                         dictionary['startTime'] = act.start_time
                         dictionary['endTime'] = act.end_time
                         dictionary['id'] = act.uuid
+                        admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
+                        dictionary['action'] = admin_activity.action
                         data['activities'].append(dictionary)
                     count += 1
             data['pageNum'] = int(count / per_page) + 1
@@ -312,6 +320,8 @@ def pageDisplay(request):
                         dictionary['startTime'] = act.start_time
                         dictionary['endTime'] = act.end_time
                         dictionary['id'] = act.uuid
+                        admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
+                        dictionary['action'] = admin_activity.action
                         data['activities'].append(dictionary)
                     count += 1
             data['pageNum'] = int(count / per_page) + 1
@@ -371,31 +381,12 @@ def editActivity(request):
                 os.remove(globals.PATH + activity.logo)
                 # 新建logo保存路径
                 logo_path = globals.PATH_ACTIVITY + str(activity.uuid) + '/'
-                isExists = os.path.exists(logo_path)
 
-                # 判断路径是否存在
-                if not isExists:
-                    # 如果不存在则创建目录
-                    # 创建目录操作函数
-                    os.makedirs(logo_path)
-                # 如果未上传logo，设置默认logo，default.jpg
-                if logo is None:
-                    activity.logo = logo_path.split(globals.PATH)[1] + '/default.jpg'
-                    # 写入logo文件
-                    logo_path = logo_path + 'default.jpg'
-                    default = open(globals.PATH_DEFAULT, 'rb+')
-                    logo = open(logo_path, 'wb+')
-                    logo.write(default.read())
-                    default.close()
-                    logo.close()
-
-                # 如果上传了logo，将logo保存到本地
-                else:
-                    activity.logo = logo_path.split(globals.PATH)[1] + '/' + logo.name
-                    destination = open(os.path.join(logo_path, logo.name), 'wb+')
-                    for chunk in logo.chunks():
-                        destination.write(chunk)
-                    destination.close()
+                activity.logo = logo_path.split(globals.PATH)[1] + '/' + logo.name
+                destination = open(os.path.join(logo_path, logo.name), 'wb+')
+                for chunk in logo.chunks():
+                    destination.write(chunk)
+                destination.close()
 
             # 删除文件
             import json
@@ -502,7 +493,7 @@ def editActivity(request):
             old_info.save()
 
             activity.status_publish = 'to_be_audited'
-            activity.name = name + '（修改请求待审核）'
+            activity.name = name
             activity.type = activity_type
             activity.start_time = start_time
             activity.end_time = end_time
@@ -531,7 +522,6 @@ def adminAgreeEdit(request):
         uuid = request.POST.get('act_uuid', None)
         activity = models.Activity.objects.get(uuid=uuid)
         activity.status_publish = 'published'
-        activity.name = activity.name.split('（修改请求待审核）')[0]
         activity.save()
         admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
@@ -540,7 +530,55 @@ def adminAgreeEdit(request):
 
         change = []
         oldInfo = models.OldInfo.objects.get(uuid=uuid)
-
+        if activity.name != oldInfo.name:
+            dictionary = {
+                'item': 'name',
+                'old': oldInfo.name,
+                'new': activity.name,
+            }
+            change.append(dictionary)
+        if activity.type != oldInfo.type:
+            dictionary = {
+                'item': 'type',
+                'old': oldInfo.type,
+                'new': activity.type,
+            }
+            change.append(dictionary)
+        if activity.start_time != oldInfo.start_time:
+            dictionary = {
+                'item': 'start_time',
+                'old': oldInfo.start_time,
+                'new': activity.start_time,
+            }
+            change.append(dictionary)
+        if activity.end_time != oldInfo.end_time:
+            dictionary = {
+                'item': 'end_time',
+                'old': oldInfo.end_time,
+                'new': activity.end_time,
+            }
+            change.append(dictionary)
+        if activity.location != oldInfo.location:
+            dictionary = {
+                'item': 'location',
+                'old': oldInfo.location,
+                'new': activity.location,
+            }
+            change.append(dictionary)
+        if activity.organizer != oldInfo.organizer:
+            dictionary = {
+                'item': 'organizer',
+                'old': oldInfo.organizer,
+                'new': activity.organizer,
+            }
+            change.append(dictionary)
+        if activity.introduction != oldInfo.introduction:
+            dictionary = {
+                'item': 'introduction',
+                'old': oldInfo.introduction,
+                'new': activity.introduction,
+            }
+            change.append(dictionary)
 
         # sendMail 发邮件
         return JsonResponse(data)
@@ -551,6 +589,33 @@ def adminRefuseEdit(request):
     if request.method == 'POST':
         uuid = request.POST.get('act_uuid', None)
         activity = models.Activity.objects.get(uuid=uuid)
+        oldInfo = models.OldInfo.objects.get(uuid=activity.uuid)
+
+        os.remove(globals.PATH + activity.logo)
+        old_logo_path = globals.PATH + oldInfo.logo
+        logo_path = globals.PATH_ADMIN + oldInfo.logo.split('admin/')[1]
+        logo = oldInfo.logo.replace('admin', 'activity')
+
+        old = open(old_logo_path, 'rb+')
+        admin = open(logo_path, 'wb+')
+        admin.write(old.read())
+        old.close()
+        admin.close()
+
+        import shutil
+        shutil.rmtree(globals.PATH + 'activity/' + activity.uuid)
+
+        activity.logo =logo
+        activity.status_publish = 'published'
+        activity.name = oldInfo.name
+        activity.type = oldInfo.type
+        activity.location = oldInfo.location
+        activity.start_time = oldInfo.start_time
+        activity.end_time = oldInfo.end_time
+        activity.introduction = oldInfo.introduction
+        activity.organizer = oldInfo.organizer
+        activity.save()
+        oldInfo.delete()
 
         admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
@@ -587,7 +652,6 @@ def deleteActivity(request):
             return JsonResponse(data)
         elif activity.status_publish == 'published':
             activity.status_publish = 'to_be_audited'
-            activity.name = activity.name + '（删除请求待审核）'
             activity.save()
             new_admin_activity = models.AdminActivity()
             new_admin_activity.uuid = activity.uuid
@@ -634,7 +698,6 @@ def adminRefuseDelete(request):
 
         activity = models.Activity.objects.get(uuid=uuid)
         activity.status_publish = 'published'
-        activity.name = activity.name.split('（删除请求待审核）')[0]
         activity.save()
         admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
@@ -665,7 +728,6 @@ def publishActivity(request):
             return JsonResponse(data)
 
         activity.status_publish = 'to_be_audited'
-        activity.name = activity.name + '（发布请求待审核）'
         activity.save()
 
         new_admin_activity = models.AdminActivity()
@@ -687,7 +749,6 @@ def adminAgreePublish(request):
 
         activity = models.Activity.objects.get(uuid=uuid)
         activity.status_publish = 'published'
-        activity.name = activity.name.split('（发布请求待审核）')[0]
         activity.save()
         admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
@@ -710,7 +771,6 @@ def adminRefusePublish(request):
 
         activity = models.Activity.objects.get(uuid=uuid)
         activity.status_publish = 'unpublished'
-        activity.name = activity.name.split('（发布请求待审核）')[0]
         activity.save()
         admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
