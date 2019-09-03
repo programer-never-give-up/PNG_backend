@@ -520,6 +520,8 @@ def editActivity(request):
 
             return JsonResponse(data)
 
+
+@csrf_exempt
 def adminAgreeEdit(request):
     data = {
         'message': ''
@@ -537,10 +539,14 @@ def adminAgreeEdit(request):
         data['message'] = '活动信息已修改！'
 
         change = []
+        oldInfo = models.OldInfo.objects.get(uuid=uuid)
+
 
         # sendMail 发邮件
         return JsonResponse(data)
 
+
+@csrf_exempt
 def adminRefuseEdit(request):
     if request.method == 'POST':
         uuid = request.POST.get('act_uuid', None)
@@ -550,6 +556,7 @@ def adminRefuseEdit(request):
         admin_activity.delete()
 
 
+@csrf_exempt
 def deleteActivity(request):
     data = {
         'message': ''
@@ -591,6 +598,7 @@ def deleteActivity(request):
             return JsonResponse(data)
 
 
+@csrf_exempt
 def adminAgreeDelete(request):
     data = {
         'message': ''
@@ -615,6 +623,7 @@ def adminAgreeDelete(request):
         return JsonResponse(data)
 
 
+@csrf_exempt
 def adminRefuseDelete(request):
     data = {
         'message': '',
@@ -634,6 +643,7 @@ def adminRefuseDelete(request):
         return JsonResponse(data)
 
 
+@csrf_exempt
 def publishActivity(request):
     data = {
         'message': '',
@@ -666,6 +676,7 @@ def publishActivity(request):
         return JsonResponse(data)
 
 
+@csrf_exempt
 def adminAgreePublish(request):
     data = {
         'message': '',
@@ -688,6 +699,7 @@ def adminAgreePublish(request):
         return JsonResponse(data)
 
 
+@csrf_exempt
 def adminRefusePublish(request):
     data = {
         'message': '',
