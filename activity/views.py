@@ -591,11 +591,16 @@ def adminAgreeEdit(request):
             change.append(dictionary)
 
         # sendMail 发邮件
+        data['message'] = '会议资料修改成功！'
         return JsonResponse(data)
 
 
 @csrf_exempt
 def adminRefuseEdit(request):
+    data = {
+        'message': ''
+    }
+
     if request.method == 'POST':
         uuid = request.POST.get('act_uuid', None)
         activity = models.Activity.objects.get(uuid=uuid)
@@ -613,9 +618,9 @@ def adminRefuseEdit(request):
         admin.close()
 
         import shutil
-        shutil.rmtree(globals.PATH + 'activity/' + activity.uuid)
+        shutil.rmtree(globals.PATH + 'admin/' + activity.uuid)
 
-        activity.logo =logo
+        activity.logo = logo
         activity.status_publish = 'published'
         activity.name = oldInfo.name
         activity.type = oldInfo.type
@@ -629,6 +634,9 @@ def adminRefuseEdit(request):
 
         admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
+
+        data['message'] = '修改请求未通过！'
+        return JsonResponse(data)
 
 
 @csrf_exempt
@@ -712,7 +720,7 @@ def adminRefuseDelete(request):
         admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
 
-        data['message'] = '删除成功！'
+        data['message'] = '删除审核未通过！'
         return JsonResponse(data)
 
 
@@ -785,5 +793,5 @@ def adminRefusePublish(request):
         admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
 
-        data['message'] = '拒绝发布请求！'
+        data['message'] = '发布请求未通过！'
         return JsonResponse(data)
