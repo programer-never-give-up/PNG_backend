@@ -86,6 +86,15 @@ def apply(request):
                     path_code = 'user/' + user.uuid + '/qrcode/' + uuid_act + '.png'  # 改变路径存入数据库
                     new_record.qr_code = path_code
                     new_record.save()
+                    try:
+                        activity=models_activity.Activity.objects.get(uuid=uuid_act)
+                    except:
+                        data['message']='未获得activity'
+                        return JsonResponse(data)
+                    target=user.email
+                    title='提示信息'
+                    contents='您已成功报名参加活动 %s !'%activity.name
+                    sendMail(target,title,contents)
                     data['message'] = '申请成功！'
                     return JsonResponse(data)
             else:
