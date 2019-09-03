@@ -227,8 +227,6 @@ def pageDisplay(request):
                         dictionary['startTime'] = act.start_time
                         dictionary['endTime'] = act.end_time
                         dictionary['id'] = act.uuid
-                        admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
-                        dictionary['action'] = admin_activity.action
                         data['activities'].append(dictionary)
 
                     count += 1
@@ -254,8 +252,6 @@ def pageDisplay(request):
                         dictionary['endTime'] = act.end_time
                         dictionary['id'] = act.uuid
                         data['activities'].append(dictionary)
-                        admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
-                        dictionary['action'] = admin_activity.action
                     count += 1
             import math
             data['pageNum'] = math.ceil(count / per_page)
@@ -278,8 +274,6 @@ def pageDisplay(request):
                         dictionary['startTime'] = act.start_time
                         dictionary['endTime'] = act.end_time
                         dictionary['id'] = act.uuid
-                        admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
-                        dictionary['action'] = admin_activity.action
                         data['activities'].append(dictionary)
                     count += 1
             import math
@@ -303,8 +297,6 @@ def pageDisplay(request):
                         dictionary['startTime'] = act.start_time
                         dictionary['endTime'] = act.end_time
                         dictionary['id'] = act.uuid
-                        admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
-                        dictionary['action'] = admin_activity.action
                         data['activities'].append(dictionary)
                     count += 1
             import math
