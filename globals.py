@@ -6,3 +6,5 @@ PATH_ACTIVITY = 'D:/FRONTEND/MeetingSystemFrontEnd/activity/'
 PATH_DEFAULT = 'D:/FRONTEND/MeetingSystemFrontEnd/default.jpg'
 PATH_ADMIN = 'D:/FRONTEND/MeetingSystemFrontEnd/admin/'
 PATH = 'D:/FRONTEND/MeetingSystemFrontEnd/'
+seconds_per_hour=3600
+hours_per_day=24

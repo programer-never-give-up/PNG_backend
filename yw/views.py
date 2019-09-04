@@ -292,6 +292,10 @@ def getQRcode(request):
     else:
         data['message']='未获得GET'
 
+@csrf_exempt
+def add_in_recommendation(request):
+    pass
+
 # @csrf_exempt
 # def publish(request):
 #     """发布会议"""
