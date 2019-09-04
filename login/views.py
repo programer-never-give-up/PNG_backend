@@ -23,6 +23,7 @@ def index(request):
 def login(request):
     data = {
         "status": True,
+        'isAdmin':False,#判断是否为管理员登录
         "message": ''
     }  # 登录信息
     if request.method == 'POST':

@@ -32,3 +32,7 @@ class User(models.Model):
         verbose_name = "用户"
         verbose_name_plural = "用户"
 
+class Admin(models.Model):
+    username = models.CharField(max_length=128, unique=True, null=True, blank=True)  # 长度128，不可重复
+    password = models.CharField(max_length=256, null=True, blank=True)
+
