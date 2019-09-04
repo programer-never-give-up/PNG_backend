@@ -94,10 +94,9 @@ def apply(request):
                     target=user.email
                     title='提示信息'
                     contents='您已成功报名参加活动 %s !\n请凭附件中的二维码参与活动！'%activity.name
-                    try:
-                        send_mail_with_file(title,contents,target,user.uuid,uuid_act)
-                    except:
-                        print('D:/FRONTEND/MeetingSystemFrontEnd/user/%s/qrcode/%s.png'%(user.uuid,uuid_act))
+
+                    send_mail_with_file(title,contents,target,user.uuid,uuid_act)
+
                     data['message'] = '申请成功！'
                     return JsonResponse(data)
             else:
@@ -294,8 +293,63 @@ def getQRcode(request):
 
 @csrf_exempt
 def add_in_recommendation(request):
-    pass
+    data={
+        'message':'',
+    }
+    if request.method=='POST':
+        uuid_act=request.POST.get('uuid_act')
+        if uuid_act:
+            same_act=models.recommended_activity.objects.filter(uuid_act=uuid_act)
+            if same_act:
+                data['message']='此活动已上推荐！'
+                return JsonResponse(data)
+            new_recommendation=models.recommended_activity()
+            new_recommendation.uuid_act=uuid_act
+            new_recommendation.save()
+            data['message']='申请推荐成功！'
+            return JsonResponse(data)
+        else:
+            data['message']='未获得uuid'
+            return JsonResponse(data)
+    else:
+        data['message']='未获得post'
+        return JsonResponse(data)
 
+def showRecommendation(request):
+    data = {
+        'list_activity': [],  # 字典嵌套列表再嵌套字典
+        'message': '',
+    }
+    if request.method == 'GET':
+        try:
+            records = models_activity.Activity.objects.filter(status_publish='published', status_process='not_start')
+        except:
+            data['message'] = '无记录！'
+            return JsonResponse(data)
+        if len(records) < 20:
+            records = models_activity.Activity.objects.filter(status_publish='published',
+                                                              status_process='not_start').order_by('start_time')[
+                      :len(records)]
+        else:
+            records = models_activity.Activity.objects.filter(status_process='not_start',
+                                                              status_publish='published').order_by('?')[:20]
+        for i in range(len(records)):
+            activity = {
+                'uuid_act': records[i].uuid,
+                'name_act': records[i].name,
+                'start_time': records[i].start_time,
+                'end_time': records[i].end_time,
+                'logo': records[i].logo,
+                'location': records[i].location,
+            }
+            data['list_activity'].append(activity)
+        data['message'] = '查询成功！'
+        return JsonResponse(data)
+
+    else:
+        data['message'] = '空表单'
+        return JsonResponse(data)
+    
 # @csrf_exempt
 # def publish(request):
 #     """发布会议"""
@@ -437,7 +491,7 @@ def send_mail_with_file(title,contents,target,uuid_user,uuid_act):
         [target],   # 收件人
     )
 
-    filepath='D:/FRONTEND/MeetingSystemFrontEnd/user/%s/qrcode/%s.png'%(uuid_user,uuid_act)
+    filepath=globals.PATH_USER+'user/%s/qrcode/%s.png'%(uuid_user,uuid_act)
     email.attach_file(filepath, mimetype=None)
     email.send()
 

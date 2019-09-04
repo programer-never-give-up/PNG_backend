@@ -10,6 +10,7 @@ import filetype
 from PIL import Image
 import qrcode
 import django
+import random
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'PNG_backend.settings'#配置环境变量，以在manage外运行django
 django.setup()
@@ -104,15 +105,16 @@ if __name__ == '__main__':
     # else:
     #     print(activity)
 
-    #带附件的邮件
-    title='通知'
-    contents = '您已成功报名参加活动 %s !' % '国庆阅兵'
-    uuid_user='227af7b8-c7fc-11e9-ba32-887873aca633'
-    uuid_act='bbf0b026-cd23-11e9-ba17-a146354fd931'
-    target='213170713@qq.com'
-    send_mail_with_file(title,contents,target,uuid_user,uuid_act)
+    # #带附件的邮件
+    # title='通知'
+    # contents = '您已成功报名参加活动 %s !' % '国庆阅兵'
+    # uuid_user='227af7b8-c7fc-11e9-ba32-887873aca633'
+    # uuid_act='bbf0b026-cd23-11e9-ba17-a146354fd931'
+    # target='213170713@qq.com'
+    # send_mail_with_file(title,contents,target,uuid_user,uuid_act)
 
-
+    result = models_act.Activity.objects.filter(status_process='not_start',status_publish='published').order_by('?')[:3]
+    print(result)
 
 
 
