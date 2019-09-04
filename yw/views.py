@@ -349,7 +349,7 @@ def showRecommendation(request):
     else:
         data['message'] = '空表单'
         return JsonResponse(data)
-    
+
 # @csrf_exempt
 # def publish(request):
 #     """发布会议"""
