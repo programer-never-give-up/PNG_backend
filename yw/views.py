@@ -6,7 +6,7 @@ import qrcode
 import os
 import globals
 from activity import models as models_activity
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from login import models as models_login
 
 
@@ -32,7 +32,7 @@ def showRecent(request):
                                                               status_process='not_start').order_by('start_time')[:5]
         for i in range(len(records)):
             activity = {
-                'uuid_act': records[i].uuid_act,
+                'uuid_act': records[i].uuid,
                 'name_act': records[i].name,
                 'start_time': records[i].start_time,
                 'end_time': records[i].end_time,
@@ -93,8 +93,11 @@ def apply(request):
                         return JsonResponse(data)
                     target=user.email
                     title='提示信息'
-                    contents='您已成功报名参加活动 %s !'%activity.name
-                    sendMail(target,title,contents)
+                    contents='您已成功报名参加活动 %s !\n请凭附件中的二维码参与活动！'%activity.name
+                    try:
+                        send_mail_with_file(title,contents,target,user.uuid,uuid_act)
+                    except:
+                        print('D:/FRONTEND/MeetingSystemFrontEnd/user/%s/qrcode/%s.png'%(user.uuid,uuid_act))
                     data['message'] = '申请成功！'
                     return JsonResponse(data)
             else:
@@ -419,3 +422,18 @@ def sendMail(target, title, contents):
         '1040214708@qq.com',
         [target],
     )
+
+#发送带附件的邮件
+def send_mail_with_file(title,contents,target,uuid_user,uuid_act):
+    '''发送附件'''
+    email = EmailMessage(
+        title,
+        contents,
+        '1040214708@qq.com',   # 发件人
+        [target],   # 收件人
+    )
+
+    filepath='D:/FRONTEND/MeetingSystemFrontEnd/user/%s/qrcode/%s.png'%(uuid_user,uuid_act)
+    email.attach_file(filepath, mimetype=None)
+    email.send()
+

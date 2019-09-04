@@ -36,16 +36,18 @@ def login(request):
             if username=='admin':
                 try:
                     admin=models.Admin.objects.get(username='admin')
+                    print('取得admin')
                 except:
                     data['message']='管理员不存在'
                     data['status']='False'
+                    print(data['message'])
                     return JsonResponse(data)
                 if admin.password==password:
                     request.session['is_login'] = True
                     # request.session['user_uuid'] = str(user.uuid)
                     request.session['username'] = admin.username
 
-                    request.session['uuid'] = str(admin.uuid)
+                    request.session['uuid'] = 'admin'
                     request.session.set_expiry(0)  # 关闭浏览器过期
 
                     print(username, password)

@@ -1,7 +1,8 @@
 #邮件测试文件
 #函数测试
 import os
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives,EmailMessage
+from email.header import make_header
 import uuid
 import hashlib
 import globals
@@ -34,6 +35,38 @@ def make_qr(str,save):
   image=qr.make_image()
   image.save(save)
 
+def file_mail():
+    '''发送附件'''
+    email = EmailMessage(
+        'Hello',
+        'Body goes here',
+        '1040214708@qq.com',   # 发件人
+        ['213170713@seu.edu.cn'],   # 收件人
+
+        #reply_to=['another@example.com'],  # “回复”标题中使用的收件人地址列表或元组
+        #headers={'Message-ID': 'foo'},
+    )
+
+    # templates目录下有个a.png的图片
+    filepath='D:/FRONTEND/MeetingSystemFrontEnd/user/227af7b8-c7fc-11e9-ba32-887873aca633/qrcode/bbf0b026-cd23-11e9-ba17-a146354fd931.png'
+
+    email.attach_file(filepath, mimetype=None)
+    email.send()
+
+def send_mail_with_file(title,contents,target,uuid_user,uuid_act):
+    '''发送附件'''
+    email = EmailMessage(
+        title,
+        contents,
+        '1040214708@qq.com',   # 发件人
+        [target],   # 收件人
+    )
+
+    filepath='D:/FRONTEND/MeetingSystemFrontEnd/user/%s/qrcode/%s.png'%(uuid_user,uuid_act)
+    email.attach_file(filepath, mimetype=None)
+    email.send()
+
+
 if __name__ == '__main__':
     #uuid = uuid.uuid1()
 
@@ -63,13 +96,23 @@ if __name__ == '__main__':
     # str ='这是一个二维码生成的测试'
     # make_qr(str,save_path)
 
-    try:
-        activity=models_act.Activity.objects.filter(status_publish='published').order_by('start_time')[:2]
+    # try:
+    #     activity=models_act.Activity.objects.filter(status_publish='published').order_by('start_time')[:2]
+    #
+    # except:
+    #     print('get()异常')
+    # else:
+    #     print(activity)
 
-    except:
-        print('get()异常')
-    else:
-        print(activity)
+    #带附件的邮件
+    title='通知'
+    contents = '您已成功报名参加活动 %s !' % '国庆阅兵'
+    uuid_user='227af7b8-c7fc-11e9-ba32-887873aca633'
+    uuid_act='bbf0b026-cd23-11e9-ba17-a146354fd931'
+    target='213170713@qq.com'
+    send_mail_with_file(title,contents,target,uuid_user,uuid_act)
+
+
 
 
 
