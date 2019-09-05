@@ -521,7 +521,7 @@ def send_mail_with_file(title,contents,target,uuid_user,uuid_act):
         [target],   # 收件人
     )
 
-    filepath=globals.PATH_USER+'user/%s/qrcode/%s.png'%(uuid_user,uuid_act)
+    filepath=globals.PATH_USER+'%s/qrcode/%s.png'%(uuid_user,uuid_act)
     email.attach_file(filepath, mimetype=None)
     email.send()
 
