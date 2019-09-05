@@ -640,7 +640,8 @@ def deleteActivity(request):
 
     if request.method == 'POST':
 
-        uuid = request.POST.get('act_uuid', None)
+        uuid = request.POST.get('uuid', None)
+        print(uuid)
 
         try:
             activity = models.Activity.objects.get(uuid=uuid)
@@ -656,8 +657,8 @@ def deleteActivity(request):
 
         if activity.status_publish == 'unpublished':
             import shutil
-            shutil.rmtree(globals.PATH + 'activity/' + activity.uuid)
-            models.UploadRecord.objects.filter(uuid=activity.uuid).delete()
+            shutil.rmtree(globals.PATH + 'activity/' + activity.uuid + '/')
+            models.UploadRecord.objects.filter(act_uuid=activity.uuid).delete()
             activity.delete()
             data['message'] = '活动已删除！'
             return JsonResponse(data)
@@ -687,8 +688,8 @@ def adminAgreeDelete(request):
         activity = models.Activity.objects.get(uuid=uuid)
 
         import shutil
-        shutil.rmtree(globals.PATH + 'activity/' + activity.uuid)
-        models.UploadRecord.objects.filter(uuid=activity.uuid).delete()
+        shutil.rmtree(globals.PATH + 'activity/' + activity.uuid + '/')
+        models.UploadRecord.objects.filter(act_uuid=activity.uuid).delete()
         activity.delete()
         admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
