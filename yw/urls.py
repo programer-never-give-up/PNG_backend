@@ -12,4 +12,6 @@ urlpatterns=[
     path('add_in_recommendation/',views.add_in_recommendation),
     path('showRecommendation/',views.showRecommendation),
     path('search/',views.search),
+    path('cancelApply/',views.cancel_apply),
+    path('cancelCollection/',views.cancel_collect)
 ]

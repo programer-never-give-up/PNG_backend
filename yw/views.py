@@ -110,6 +110,43 @@ def apply(request):
         data['message'] = '无数据！'
         return JsonResponse(data)
 
+@csrf_exempt
+def cancel_apply(request):
+    data = {
+        'message': '',
+    }
+    if request.method == 'POST':
+        username = request.session['username']
+        if username:
+            try:
+                user = models_login.User.objects.get(username=username)
+            except:
+                data['message'] = '不存在的用户'
+                return JsonResponse(data)
+            uuid_act = request.POST.get('uuid_act', None)
+            if uuid_act:
+                try:
+                    application = models.activity_sign_up.objects.get(uuid_act=uuid_act, uuid_user=user.uuid)
+                except:
+                    data['message']='无对应报名数据！'
+                    return JsonResponse(data)
+                #删除本地二维码
+                path_qrcode=globals.PATH+application.qr_code
+                os.remove(path_qrcode)
+                #删除数据库记录
+                application.delete()
+                data['message']='取消报名成功'
+                return JsonResponse(data)
+            else:
+                data['message'] = '未获得uuid！'
+                return JsonResponse(data)
+
+        else:
+            data['message'] = '未接收到用户名！'
+            return JsonResponse(data)
+    else:
+        data['message'] = '无数据！'
+        return JsonResponse(data)
 
 @csrf_exempt
 def collect(request):
@@ -147,6 +184,41 @@ def collect(request):
     else:
         data['message'] = '无数据！'
         return JsonResponse(data)
+
+@csrf_exempt
+def cancel_collect(request):
+    data = {
+        'message': '',
+    }
+    if request.method == 'POST':
+        username = request.session['username']
+        if username:
+            try:
+                user = models_login.User.objects.get(username=username)
+            except:
+                data['message'] = '不存在的用户'
+                return JsonResponse(data)
+            uuid_act = request.POST.get('uuid_act', None)
+            if uuid_act:
+                try:
+                    collection = models.activity_sign_up.objects.get(uuid_act=uuid_act, uuid_user=user.uuid)
+                except:
+                    data['message'] = '无对应收藏数据！'
+                    return JsonResponse(data)
+                # 删除数据库记录
+                collection.delete()
+                data['message'] = '取消收藏成功'
+                return JsonResponse(data)
+            else:
+                data['message'] = '未获得uuid！'
+                return JsonResponse(data)
+        else:
+            data['message'] = '未接收到用户名！'
+            return JsonResponse(data)
+    else:
+        data['message'] = '无数据！'
+        return JsonResponse(data)
+
 
 
 @csrf_exempt
