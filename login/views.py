@@ -23,6 +23,7 @@ def index(request):
 def login(request):
     data = {
         "status": True,
+        'isAdmin':False,#判断是否为管理员登录
         "message": ''
     }  # 登录信息
     if request.method == 'POST':
@@ -31,13 +32,34 @@ def login(request):
         password = request.POST.get('password')
         message = '请检查填写的内容！'
         if username.strip() and password:
-            # 用户名字符合法性验证
-            # 密码长度验证
-            # 更多的其它验证.....
-            # #if login_form.is_valid():
-            #     username = login_form.cleaned_data.get('username')#获取表单值
-            #     password = login_form.cleaned_data.get('password')
+            #如果用户为管理员
+            if username=='admin':
+                try:
+                    admin=models.Admin.objects.get(username='admin')
+                    print('取得admin')
+                except:
+                    data['message']='管理员不存在'
+                    data['status']='False'
+                    print(data['message'])
+                    return JsonResponse(data)
+                if admin.password==password:
+                    request.session['is_login'] = True
+                    # request.session['user_uuid'] = str(user.uuid)
+                    request.session['username'] = admin.username
 
+                    request.session['uuid'] = 'admin'
+                    request.session.set_expiry(0)  # 关闭浏览器过期
+
+                    print(username, password)
+                    data['status'] = True
+                    data['message'] = '管理员登录成功！'
+                    data['isAdmin']=True
+                    return JsonResponse(data)
+                else:
+                    message = '密码不正确！'
+                    data['message'] = message
+                    data['status'] = False
+                    return JsonResponse(data)
             try:
                 user = models.User.objects.get(username=username)
             except:
