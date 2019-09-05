@@ -67,6 +67,14 @@ def send_mail_with_file(title,contents,target,uuid_user,uuid_act):
     email.attach_file(filepath, mimetype=None)
     email.send()
 
+def search(keyword):
+    try:
+        records=models_act.Activity.objects.filter(name__icontains=keyword)#,status_publish='published')
+    except:
+        print('无结果！')
+    else:
+        print(records)
+
 
 if __name__ == '__main__':
     #uuid = uuid.uuid1()
@@ -113,8 +121,8 @@ if __name__ == '__main__':
     # target='213170713@qq.com'
     # send_mail_with_file(title,contents,target,uuid_user,uuid_act)
 
-    result = models_act.Activity.objects.filter(status_process='not_start',status_publish='published').order_by('?')[:3]
-    print(result)
+    # result = models_act.Activity.objects.filter(status_process='not_start',status_publish='published').order_by('?')[:3]
+    # print(result)
 
-
+    search('大')
 

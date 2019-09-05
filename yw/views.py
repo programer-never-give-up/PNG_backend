@@ -350,6 +350,36 @@ def showRecommendation(request):
         data['message'] = '空表单'
         return JsonResponse(data)
 
+@csrf_exempt
+def search(request):
+    data={
+        'message':'',
+        'list_activity': [],
+    }
+    if request.method=='GET':
+        keyword=request.GET.get('keyword')
+        try:
+            records=models_activity.Activity.objects.filter(name__icontains=keyword,status_publish='published')
+        except:
+            data['message']='无结果！'
+            return JsonResponse(data)
+        for i in range(len(records)):
+            activity = {
+                'uuid_act': records[i].uuid,
+                'name_act': records[i].name,
+                'start_time': records[i].start_time,
+                'end_time': records[i].end_time,
+                'logo': records[i].logo,
+                'location': records[i].location,
+            }
+            data['list_activity'].append(activity)
+        data['message'] = '已搜索到%s条结果！'%len(records)
+        return JsonResponse(data)
+    else:
+        data['message']='未收到get'
+        return JsonResponse(data)
+
+
 # @csrf_exempt
 # def publish(request):
 #     """发布会议"""

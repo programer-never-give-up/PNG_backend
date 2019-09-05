@@ -11,4 +11,5 @@ urlpatterns=[
     path('getQRcode/',views.getQRcode),
     path('add_in_recommendation/',views.add_in_recommendation),
     path('showRecommendation/',views.showRecommendation),
+    path('search/',views.search),
 ]
