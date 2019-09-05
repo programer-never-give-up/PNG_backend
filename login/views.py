@@ -153,12 +153,16 @@ def sendMail(request):
                 data['status_email'] = True
                 return JsonResponse(data)
             code = get_random_str()  # 生成验证码
-            send_mail(
-                '会议系统验证码',
-                "您的验证码为 " + code,
-                '1040214708@qq.com',
-                [email],
-            )  # 发送邮件
+            try:
+                send_mail(
+                    '会议系统验证码',
+                    "您的验证码为 " + code,
+                    '1040214708@qq.com',
+                    [email],
+                )  # 发送邮件
+            except:
+                data['message']='无效的邮箱！'
+                return JsonResponse(data)
             request.session['code'] = code
             request.session.set_expiry(120)  # 120秒过期
             data['isSended'] = True
@@ -177,13 +181,17 @@ def checkMail(request):
     if request.method == 'POST':
         code = request.POST.get('code')  # 获取用户输入的验证码
         if code:
-            if code == request.session.get('code'):
-                data['status_check'] = True
-                data['message'] = '验证成功！'
-                return JsonResponse(data)
+            if request.session.get('code'):
+                if code == request.session.get('code'):
+                    data['status_check'] = True
+                    data['message'] = '验证成功！'
+                    return JsonResponse(data)
+                else:
+                    data['status_check'] = False
+                    data['message'] = '验证失败！'
+                    return JsonResponse(data)
             else:
-                data['status_check'] = False
-                data['message'] = '验证失败！'
+                data['message']='session无数据'
                 return JsonResponse(data)
 
 
