@@ -5,7 +5,7 @@ import datetime
 import hashlib
 import globals
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
-
+from yw import models as yw_models
 
 # Create your views here.
 
@@ -210,7 +210,6 @@ def pageDisplay(request):
     if request.method == 'GET':
         username = request.session['username']
         acts = models.Activity.objects.filter(username=username).order_by('start_time')
-
         btn_type = request.GET.get('btn-type')
         page_id = int(request.GET.get('page-id'))
         per_page = int(request.GET.get('per-page'))
@@ -333,19 +332,176 @@ def pageDisplay(request):
             else:
                 data['message'] = '成功！'
             return JsonResponse(data)
-
-        elif btn_type == 'my-not_start':
-            return JsonResponse(data)
-        elif btn_type == 'my-processing':
-            return JsonResponse(data)
-        elif btn_type == 'my-finished':
-            return JsonResponse(data)
-        elif btn_type == 'fav-not_start':
-            return JsonResponse(data)
-        elif btn_type == 'fav-processing':
-            return JsonResponse(data)
-        elif btn_type == 'fav-finished':
-            return JsonResponse(data)
+        # author: y4ngyy
+        elif btn_type[:2] == 'my':
+            if 'uuid' not in request.session.keys():
+                print("没有UUID")
+            user_uuid = request.session['uuid']
+            attend_acts_uuid = yw_models.activity_sign_up.objects.filter(uuid_user=user_uuid)
+            acts = []
+            # 获取所有报名会议的信息
+            for uid in attend_acts_uuid:
+                act = models.Activity.objects.get(uuid=uid.uuid_act)
+                acts.append(act)
+            if btn_type == 'my-not_start':
+                count = 0
+                for act in acts:
+                    if act.status_publish == 'published':
+                        if (page_id - 1) * per_page <= count < per_page * page_id:
+                            dictionary = {}
+                            dictionary['logoSrc'] = act.logo
+                            dictionary['activityName'] = act.name
+                            dictionary['location'] = act.location
+                            dictionary['startTime'] = act.start_time
+                            dictionary['endTime'] = act.end_time
+                            dictionary['id'] = act.uuid
+                            # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
+                            # dictionary['action'] = admin_activity.action
+                            # print(dictionary['action'])
+                            data['activities'].append(dictionary)
+                        count += 1
+                import math
+                data['pageNum'] = math.ceil(count / per_page)
+                data['sum'] = count
+                if data['pageNum'] == 0:
+                    data['message'] = '不存在参加的未开始的会议！'
+                else:
+                    data['message'] = '成功！'
+                return JsonResponse(data)
+            elif btn_type == 'my-processing':
+                count = 0
+                for act in acts:
+                    if act.status_publish == 'processing':
+                        if (page_id - 1) * per_page <= count < per_page * page_id:
+                            dictionary = {}
+                            dictionary['logoSrc'] = act.logo
+                            dictionary['activityName'] = act.name
+                            dictionary['location'] = act.location
+                            dictionary['startTime'] = act.start_time
+                            dictionary['endTime'] = act.end_time
+                            dictionary['id'] = act.uuid
+                            # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
+                            # dictionary['action'] = admin_activity.action
+                            # print(dictionary['action'])
+                            data['activities'].append(dictionary)
+                        count += 1
+                import math
+                data['pageNum'] = math.ceil(count / per_page)
+                data['sum'] = count
+                if data['pageNum'] == 0:
+                    data['message'] = '不存在参加的进行中的会议！'
+                else:
+                    data['message'] = '成功！'
+                return JsonResponse(data)
+            elif btn_type == 'my-finished':
+                count = 0
+                for act in acts:
+                    if act.status_publish == 'finished':
+                        if (page_id - 1) * per_page <= count < per_page * page_id:
+                            dictionary = {}
+                            dictionary['logoSrc'] = act.logo
+                            dictionary['activityName'] = act.name
+                            dictionary['location'] = act.location
+                            dictionary['startTime'] = act.start_time
+                            dictionary['endTime'] = act.end_time
+                            dictionary['id'] = act.uuid
+                            # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
+                            # dictionary['action'] = admin_activity.action
+                            # print(dictionary['action'])
+                            data['activities'].append(dictionary)
+                        count += 1
+                import math
+                data['pageNum'] = math.ceil(count / per_page)
+                data['sum'] = count
+                if data['pageNum'] == 0:
+                    data['message'] = '不存在参加的已结束的会议！'
+                else:
+                    data['message'] = '成功！'
+                return JsonResponse(data)
+        elif btn_type[:3] == 'fav':
+            if 'uuid' in request.session.keys():
+                print("没有UUID")
+            user_uuid = request.session['uuid']
+            collected_acts_uuid = yw_models.user_collection.objects.filter(uuid_user=user_uuid)
+            acts = []
+            for uid in collected_acts_uuid:
+                act = models.Activity.objects.get(uuid=uid.uuid_act)
+                acts.append(act)
+            if btn_type == 'fav-not_start':
+                count = 0
+                for act in acts:
+                    if act.status_publish == 'published':
+                        if (page_id - 1) * per_page <= count < per_page * page_id:
+                            dictionary = {}
+                            dictionary['logoSrc'] = act.logo
+                            dictionary['activityName'] = act.name
+                            dictionary['location'] = act.location
+                            dictionary['startTime'] = act.start_time
+                            dictionary['endTime'] = act.end_time
+                            dictionary['id'] = act.uuid
+                            # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
+                            # dictionary['action'] = admin_activity.action
+                            # print(dictionary['action'])
+                            data['activities'].append(dictionary)
+                        count += 1
+                import math
+                data['pageNum'] = math.ceil(count / per_page)
+                data['sum'] = count
+                if data['pageNum'] == 0:
+                    data['message'] = '不存在参加的进行中的会议！'
+                else:
+                    data['message'] = '成功！'
+                return JsonResponse(data)
+            elif btn_type == 'fav-processing':
+                count = 0
+                for act in acts:
+                    if act.status_publish == 'processing':
+                        if (page_id - 1) * per_page <= count < per_page * page_id:
+                            dictionary = {}
+                            dictionary['logoSrc'] = act.logo
+                            dictionary['activityName'] = act.name
+                            dictionary['location'] = act.location
+                            dictionary['startTime'] = act.start_time
+                            dictionary['endTime'] = act.end_time
+                            dictionary['id'] = act.uuid
+                            # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
+                            # dictionary['action'] = admin_activity.action
+                            # print(dictionary['action'])
+                            data['activities'].append(dictionary)
+                        count += 1
+                import math
+                data['pageNum'] = math.ceil(count / per_page)
+                data['sum'] = count
+                if data['pageNum'] == 0:
+                    data['message'] = '不存在参加的进行中的会议！'
+                else:
+                    data['message'] = '成功！'
+                return JsonResponse(data)
+            elif btn_type == 'fav-finished':
+                count = 0
+                for act in acts:
+                    if act.status_publish == 'finished':
+                        if (page_id - 1) * per_page <= count < per_page * page_id:
+                            dictionary = {}
+                            dictionary['logoSrc'] = act.logo
+                            dictionary['activityName'] = act.name
+                            dictionary['location'] = act.location
+                            dictionary['startTime'] = act.start_time
+                            dictionary['endTime'] = act.end_time
+                            dictionary['id'] = act.uuid
+                            # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
+                            # dictionary['action'] = admin_activity.action
+                            # print(dictionary['action'])
+                            data['activities'].append(dictionary)
+                        count += 1
+                import math
+                data['pageNum'] = math.ceil(count / per_page)
+                data['sum'] = count
+                if data['pageNum'] == 0:
+                    data['message'] = '不存在参加的进行中的会议！'
+                else:
+                    data['message'] = '成功！'
+                return JsonResponse(data)
 
         else:
             data['message'] = '不存在的会议状态！'
