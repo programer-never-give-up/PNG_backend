@@ -13,5 +13,6 @@ urlpatterns=[
     path('showRecommendation/',views.showRecommendation),
     path('search/',views.search),
     path('cancelApply/',views.cancel_apply),
-    path('cancelCollection/',views.cancel_collect)
+    path('cancelCollection/',views.cancel_collect),
+    path('checkAttend/',views.check_attend),
 ]

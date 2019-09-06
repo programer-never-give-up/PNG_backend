@@ -124,5 +124,7 @@ if __name__ == '__main__':
     # result = models_act.Activity.objects.filter(status_process='not_start',status_publish='published').order_by('?')[:3]
     # print(result)
 
-    search('大')
+    print(str(uuid.uuid1()))
+    print(str(uuid.uuid1()))
+    print(str(uuid.uuid1()))
 

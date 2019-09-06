@@ -8,6 +8,7 @@ import globals
 from activity import models as models_activity
 from django.core.mail import send_mail, EmailMessage
 from login import models as models_login
+from personal_center import models as models_person
 
 
 # Create your views here.
@@ -453,6 +454,35 @@ def search(request):
         return JsonResponse(data)
     else:
         data['message']='未收到get'
+        return JsonResponse(data)
+
+@csrf_exempt
+def check_attend(request):
+    data={
+        'message':'',
+        'status':False,#true表示验证通过
+    }
+    if request.method=='POST':
+        uuid_act=request.POST.get('uuid_act',None)
+        uuid_user=request.session['uuid']
+        if uuid_act and uuid_user:
+            try:
+                record=models.activity_sign_up.objects.filter(uuid_act=uuid_act,uuid_user=uuid_user)
+            except:
+                data['message']='未找到记录！'
+                return JsonResponse(data)
+            new_record=models_person.On_site()
+            new_record.uuid_user=uuid_user
+            new_record.uuid_act=uuid_act
+            new_record.save()
+            data['message']='入场成功！'
+            data['status']=True
+            return JsonResponse(data)
+        else:
+            data['message']='无活动uuid或用户uuid'
+            return JsonResponse(data)
+    else:
+        data['message']='未收到post'
         return JsonResponse(data)
 
 
