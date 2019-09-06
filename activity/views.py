@@ -529,6 +529,7 @@ def pageDisplay(request):
 @csrf_exempt
 def editActivity(request):
     data = {
+        'act_status': False,
         'message': '',
     }
 
@@ -545,7 +546,7 @@ def editActivity(request):
                     data['message'] = '你没有权限修改该活动！'
                     return JsonResponse(data)
             else:
-                data['message']='session中无数据！'
+                data['message'] = 'session中无数据！'
                 return JsonResponse(data)
 
         except:
@@ -671,6 +672,7 @@ def editActivity(request):
             old_info.save()
 
             activity.status_publish = 'to_be_audited'
+            data['act_status'] = True
             activity.name = name
             activity.type = activity_type
             activity.start_time = start_time
@@ -693,7 +695,7 @@ def editActivity(request):
 @csrf_exempt
 def adminAgreeEdit(request):
     data = {
-        'message': ''
+        'message': '',
     }
 
     if request.method == 'POST':
@@ -810,13 +812,13 @@ def adminRefuseEdit(request):
 @csrf_exempt
 def deleteActivity(request):
     data = {
+        'act_status': False,
         'message': ''
     }
 
     if request.method == 'POST':
 
-        uuid = request.POST.get('uuid', None)
-        print(uuid)
+        uuid = request.POST.get('act_uuid', None)
 
         try:
             activity = models.Activity.objects.get(uuid=uuid)
@@ -827,7 +829,7 @@ def deleteActivity(request):
                     data['message'] = '你没有权限删除该活动！'
                     return JsonResponse(data)
             else:
-                data['message']='session中无数据！'
+                data['message'] = 'session中无数据！'
                 return JsonResponse(data)
         except:
             data['message'] = '该活动不存在！'
@@ -838,10 +840,12 @@ def deleteActivity(request):
             shutil.rmtree(globals.PATH + 'activity/' + activity.uuid + '/')
             models.UploadRecord.objects.filter(act_uuid=activity.uuid).delete()
             activity.delete()
+            data['act_status'] = True
             data['message'] = '活动已删除！'
             return JsonResponse(data)
         elif activity.status_publish == 'published':
             activity.status_publish = 'to_be_audited'
+            data['act_status'] = True
             activity.save()
             new_admin_activity = models.AdminActivity()
             new_admin_activity.uuid = activity.uuid
@@ -900,6 +904,7 @@ def adminRefuseDelete(request):
 @csrf_exempt
 def publishActivity(request):
     data = {
+        'act_status': False,
         'message': '',
     }
 
@@ -915,7 +920,7 @@ def publishActivity(request):
                     data['message'] = '你没有权限发布该活动！'
                     return JsonResponse(data)
             else:
-                data['message']='session中无数据！'
+                data['message'] = 'session中无数据！'
                 return JsonResponse(data)
 
         except:
@@ -923,12 +928,13 @@ def publishActivity(request):
             return JsonResponse(data)
 
         activity.status_publish = 'to_be_audited'
+        data['act_status'] = True
         activity.save()
 
         new_admin_activity = models.AdminActivity()
         new_admin_activity.uuid = activity.uuid
         new_admin_activity.action = 'publish'
-        print(new_admin_activity.action)
+
         new_admin_activity.save()
 
         data['message'] = '已向管理员提交申请！'
@@ -975,3 +981,82 @@ def adminRefusePublish(request):
 
         data['message'] = '发布请求未通过！'
         return JsonResponse(data)
+
+
+@csrf_exempt
+def cancelApplication(request):
+    data = {
+        'act_status': False,
+        'message': '',
+    }
+
+    if request.method == 'POST':
+        uuid = request.POST.get('act_uuid', None)
+
+        try:
+            activity = models.Activity.objects.get(uuid=uuid)
+            admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+            editor = request.session['username']
+            if editor:
+                if activity.username != editor:
+                    data['message'] = '你没有权限修改该活动！'
+                    return JsonResponse(data)
+            else:
+                data['message'] = 'session中无数据！'
+                return JsonResponse(data)
+
+        except:
+            data['message'] = '该活动不存在！'
+            return JsonResponse(data)
+
+        if admin_activity.action == 'publish':
+            activity.status_publish = 'unpublished'
+            activity.save()
+            admin_activity.delete()
+            data['act_status'] = True
+            data['message'] = '已撤回发布请求！'
+            return JsonResponse(data)
+
+        elif admin_activity.action == 'delete':
+            activity.status_publish = 'published'
+            activity.save()
+            admin_activity.delete()
+            data['act_status'] = True
+            data['message'] = '已撤回删除请求！'
+            return JsonResponse(data)
+
+        elif admin_activity.action == 'modify':
+            oldInfo = models.OldInfo.objects.get(uuid=activity.uuid)
+
+            os.remove(globals.PATH + activity.logo)
+            old_logo_path = globals.PATH + oldInfo.logo
+            logo_path = globals.PATH_ADMIN + oldInfo.logo.split('admin/')[1]
+            logo = oldInfo.logo.replace('admin', 'activity')
+
+            old = open(old_logo_path, 'rb+')
+            admin = open(logo_path, 'wb+')
+            admin.write(old.read())
+            old.close()
+            admin.close()
+
+            import shutil
+            shutil.rmtree(globals.PATH + 'admin/' + activity.uuid)
+
+            activity.logo = logo
+            activity.status_publish = 'published'
+            activity.name = oldInfo.name
+            activity.type = oldInfo.type
+            activity.location = oldInfo.location
+            activity.start_time = oldInfo.start_time
+            activity.end_time = oldInfo.end_time
+            activity.introduction = oldInfo.introduction
+            activity.organizer = oldInfo.organizer
+            activity.save()
+            oldInfo.delete()
+
+            admin_activity.delete()
+            data['act_status'] = True
+            data['message'] = '已撤回修改请求！'
+            return JsonResponse(data)
+
+
