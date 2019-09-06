@@ -7,6 +7,7 @@ import globals
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from yw import models as yw_models
 
+
 # Create your views here.
 
 @csrf_exempt
@@ -93,7 +94,11 @@ def createActivity(request):
         print(str(new_activity.uuid))
         data['uuid'] = str(new_activity.uuid)
         # 获取活动创建者用户名
-        username = request.session['username']
+        if 'username' not in request.session.keys():
+            username = None
+            print("没有UUID")
+        else:
+            username = request.session['username']
         if username:
             # 获取活动logo
             logo = request.FILES.get('logo', None)
@@ -108,7 +113,7 @@ def createActivity(request):
                 os.makedirs(logo_path)
             # 如果未上传logo，设置默认logo，default.jpg
             if logo is None:
-                new_activity.logo = logo_path.split(globals.PATH)[1]+'/default.jpg'
+                new_activity.logo = logo_path.split(globals.PATH)[1] + '/default.jpg'
                 # 写入logo文件
                 logo_path = logo_path + 'default.jpg'
                 default = open(globals.PATH_DEFAULT, 'rb+')
@@ -162,8 +167,9 @@ def createActivity(request):
                 data['message'] = '信息尚未完善！'
                 return JsonResponse(data)
         else:
-            data['message']='session中无数据！'
+            data['message'] = 'session中无数据！'
             return JsonResponse
+
 
 @csrf_exempt
 def uploadFile(request):
@@ -205,6 +211,7 @@ def uploadFile(request):
         data['message'] = '上传成功！'
         return JsonResponse(data)
 
+
 @csrf_exempt
 def pageDisplay(request):
     data = {
@@ -215,7 +222,12 @@ def pageDisplay(request):
     }
 
     if request.method == 'GET':
-        username = request.session['username']
+        if 'username' not in request.session.keys()
+            username = None
+            print("没有username")
+        else:
+            username = request.session['username']
+
         if username:
             acts = models.Activity.objects.filter(username=username).order_by('start_time')
             btn_type = request.GET.get('btn-type')
@@ -343,13 +355,17 @@ def pageDisplay(request):
             # author: y4ngyy
             elif btn_type[:2] == 'my':
                 if 'uuid' not in request.session.keys():
+                    user_uuid = None
                     print("没有UUID")
-                user_uuid = request.session['uuid']
+                else:
+                    user_uuid = request.session['uuid']
+                print(user_uuid)
                 if user_uuid:
                     attend_acts_uuid = yw_models.activity_sign_up.objects.filter(uuid_user=user_uuid)
                     acts = []
                     # 获取所有报名会议的信息
                     for uid in attend_acts_uuid:
+                        print(uid.uuid_act)
                         act = models.Activity.objects.get(uuid=uid.uuid_act)
                         acts.append(act)
                     if btn_type == 'my-not_start':
@@ -431,9 +447,11 @@ def pageDisplay(request):
                     data['message'] = 'session中无数据！'
                     return JsonResponse(data)
             elif btn_type[:3] == 'fav':
-                if 'uuid' in request.session.keys():
+                if 'uuid' not in request.session.keys():
+                    user_uuid = None
                     print("没有UUID")
-                user_uuid = request.session['uuid']
+                else:
+                    user_uuid = request.session['uuid']
                 if user_uuid:
                     collected_acts_uuid = yw_models.user_collection.objects.filter(uuid_user=user_uuid)
                     acts = []
@@ -522,7 +540,7 @@ def pageDisplay(request):
                 data['message'] = '不存在的会议状态！'
                 return JsonResponse(data)
         else:
-            data['message']='session中无数据！'
+            data['message'] = 'session中无数据！'
             return JsonResponse(data)
     else:
         data['message'] = '空表单'
@@ -543,7 +561,11 @@ def editActivity(request):
         try:
             activity = models.Activity.objects.get(uuid=uuid)
 
-            editor = request.session['username']
+            if 'username' not in request.session.keys():
+                editor = None
+                print("没有Username")
+            else:
+                editor = request.session['username']
             if editor:
                 if activity.username != editor:
                     data['message'] = '你没有权限修改该活动！'
@@ -825,8 +847,11 @@ def deleteActivity(request):
 
         try:
             activity = models.Activity.objects.get(uuid=uuid)
-
-            editor = request.session['username']
+            if 'username' not in request.session.keys():
+                editor = None
+                print("没有username")
+            else:
+                editor = request.session['username']
             if editor:
                 if activity.username != editor:
                     data['message'] = '你没有权限删除该活动！'
@@ -871,6 +896,9 @@ def adminAgreeDelete(request):
         print(uuid)
 
         activity = models.Activity.objects.get(uuid=uuid)
+        name_act = activity.name
+        import login
+        user = login.models.User.objects.get(username=activity.user)
 
         import shutil
         shutil.rmtree(globals.PATH + 'activity/' + activity.uuid + '/')
@@ -882,6 +910,22 @@ def adminAgreeDelete(request):
         data['message'] = '活动已删除！'
 
         # sendMail 发邮件
+        title = '删除审核结果'
+        contents = '您申请删除的活动 %s 已成功删除。' % name_act
+        import yw
+        yw.views.sendMail(user.email, title, contents)
+        # 操作报名表
+        records = yw.models.activity_sign_up.objects.filter(uuid_act=activity.uuid)
+
+        for i in range(len(records)):  # 对报名会议的所有用户进行操作
+            try:
+                user = login.models.User.objects.get(uuid=records[i].uuid_user)
+            except:
+                return 'handle_delete:未获得uuid_user对应的user'
+            title = "活动通知"
+            contents = '您报名参加的活动 %s 已被举办者取消，请留意主办方发布的相关消息。' % name_act
+            yw.views.sendMail(user.email, title, contents)
+
         return JsonResponse(data)
 
 
@@ -916,8 +960,11 @@ def publishActivity(request):
 
         try:
             activity = models.Activity.objects.get(uuid=uuid)
-
-            editor = request.session['username']
+            if 'username' not in request.session.keys():
+                editor = None
+                print("没有Username")
+            else:
+                editor = request.session['username']
             if editor:
                 if activity.username != editor:
                     data['message'] = '你没有权限发布该活动！'
@@ -999,7 +1046,11 @@ def cancelApplication(request):
         try:
             activity = models.Activity.objects.get(uuid=uuid)
             admin_activity = models.AdminActivity.objects.get(uuid=uuid)
-            editor = request.session['username']
+            if 'username' not in request.session.keys()
+                editor = None
+                print("没有Username")
+            else:
+                editor = request.session['username']
             if editor:
                 if activity.username != editor:
                     data['message'] = '你没有权限修改该活动！'
@@ -1061,5 +1112,3 @@ def cancelApplication(request):
             data['act_status'] = True
             data['message'] = '已撤回修改请求！'
             return JsonResponse(data)
-
-
