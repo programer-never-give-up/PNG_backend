@@ -16,5 +16,6 @@ urlpatterns = [
     path("adminRefuseDelete/", views.adminRefuseDelete),
     path("adminAgreePublish/", views.adminAgreePublish),
     path("adminRefusePublish/", views.adminRefusePublish),
+    path("cancelApplication/", views.cancelApplication),
 
 ]

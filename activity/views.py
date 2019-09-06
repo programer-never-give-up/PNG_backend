@@ -90,6 +90,7 @@ def createActivity(request):
     if request.method == 'POST':
 
         new_activity = models.Activity()  # 创建活动，默认uuid
+        print(str(new_activity.uuid))
         data['uuid'] = str(new_activity.uuid)
         # 获取活动创建者用户名
         username = request.session['username']
@@ -137,7 +138,7 @@ def createActivity(request):
             introduction = request.POST.get('introduction', None)
 
             # 如果有数据未填写，数据库中不会保存会议记录
-            if name and start_time and end_time and location and organizer:
+            if name and start_time and end_time and location:
                 # 填入数据
 
                 new_activity.name = name
@@ -145,7 +146,9 @@ def createActivity(request):
                 new_activity.start_time = start_time
                 new_activity.end_time = end_time
                 new_activity.location = location
-                new_activity.organizer = organizer
+                if organizer:
+                    new_activity.organizer = organizer
+                new_activity.organizer = username
                 new_activity.introduction = introduction
                 new_activity.username = username
 
@@ -818,7 +821,7 @@ def deleteActivity(request):
 
     if request.method == 'POST':
 
-        uuid = request.POST.get('act_uuid', None)
+        uuid = request.POST.get('uuid', None)
 
         try:
             activity = models.Activity.objects.get(uuid=uuid)
