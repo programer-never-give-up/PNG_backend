@@ -115,7 +115,6 @@ def check(request):  # 判断是否登录
         data['message'] = "您还未登录！"
         return JsonResponse(data)
 
-
 @csrf_exempt
 def logout(request):
     data = {

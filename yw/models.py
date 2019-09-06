@@ -18,3 +18,4 @@ class recommended_activity(models.Model):
     uuid_act=models.CharField(max_length=64, null=True, blank=True)
     stay_length=models.IntegerField(max_length=30*globals.hours_per_day,null=True, blank=True)
     #停留时长以小时为单位，最多三十天
+
