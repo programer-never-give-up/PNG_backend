@@ -418,6 +418,7 @@ def showRecommendation(request):
                 'end_time': records[i].end_time,
                 'logo': records[i].logo,
                 'location': records[i].location,
+                'organizer':records[i].organizer,
             }
             data['list_activity'].append(activity)
         data['message'] = '查询成功！'
