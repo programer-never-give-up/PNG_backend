@@ -114,6 +114,7 @@ def apply(request):
 def cancel_apply(request):
     data = {
         'message': '',
+        'status':False#取消成功为true
     }
     if request.method == 'POST':
         username = request.session['username']
@@ -136,6 +137,7 @@ def cancel_apply(request):
                 #删除数据库记录
                 application.delete()
                 data['message']='取消报名成功'
+                data['status']=True
                 return JsonResponse(data)
             else:
                 data['message'] = '未获得uuid！'
@@ -189,6 +191,7 @@ def collect(request):
 def cancel_collect(request):
     data = {
         'message': '',
+        'status':False,#取消成功为ture
     }
     if request.method == 'POST':
         username = request.session['username']
@@ -208,6 +211,7 @@ def cancel_collect(request):
                 # 删除数据库记录
                 collection.delete()
                 data['message'] = '取消收藏成功'
+                data['status']=True
                 return JsonResponse(data)
             else:
                 data['message'] = '未获得uuid！'
