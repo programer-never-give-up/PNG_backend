@@ -82,7 +82,7 @@ def apply(request):
                         # 创建目录操作函数
                         os.makedirs(path_code)
 
-                    make_qr(uuid_act, path_code + '/' + uuid_act + '.png')  # 在本地生成二维码
+                    make_qr(user.uuid, path_code + '/' + uuid_act + '.png')  # 在本地生成二维码，二维码的数据为用户uuid
 
                     path_code = 'user/' + user.uuid + '/qrcode/' + uuid_act + '.png'  # 改变路径存入数据库
                     new_record.qr_code = path_code
@@ -350,18 +350,18 @@ def getQRcode(request):
         if uuid_act:
             uuid_user=request.session['uuid']
             if uuid_user:
-                pass
+                try:
+                    record = models.activity_sign_up.objects.get(uuid_act=uuid_act, uuid_user=uuid_user)
+                except:
+                    data['message'] = '未获得报名表中的记录'
+                    return JsonResponse(data)
+                data['qrcode'] = record.qr_code
+                data['message'] = '已获得二维码路径'
+                return JsonResponse(data)
             else:
                 data['message']='未获得uuid_user'
                 return JsonResponse(data)
-            try:
-                record=models.activity_sign_up.objects.get(uuid_act=uuid_act,uuid_user=uuid_user)
-            except:
-                data['message']='未获得报名表中的记录'
-                return JsonResponse(data)
-            data['qrcode']=record.qr_code
-            data['message']='已获得二维码路径'
-            return JsonResponse(data)
+
         else:
             data['message']='未获得uuid_act'
             return JsonResponse(data)
@@ -464,7 +464,7 @@ def check_attend(request):
     }
     if request.method=='POST':
         uuid_act=request.POST.get('uuid_act',None)
-        uuid_user=request.session['uuid']
+        uuid_user=request.POST.get('uuid_user',None)
         if uuid_act and uuid_user:
             try:
                 record=models.activity_sign_up.objects.filter(uuid_act=uuid_act,uuid_user=uuid_user)
