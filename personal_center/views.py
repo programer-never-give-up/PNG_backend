@@ -81,12 +81,12 @@ def editInfo(request):
             if avatar:
                 # 将文件保存到本地并更改avatar
                 for entry in range(len(user)):
-                    print(user[entry].uuid)
-                    destination = open(os.path.join(globals.PATH_USER+user[entry].uuid+'/', avatar.name), 'wb+')
+                    #print(user[entry].uuid)
+                    destination = open(os.path.join(globals.PATH_USER+str(user[entry].uuid)+'/', avatar.name), 'wb+')
                     for chunk in avatar.chunks():
                         destination.write(chunk)
                     destination.close()
-                    user.update(avatar='user/'+user[entry].uuid + '/' + avatar.name)
+                    user.update(avatar='user/'+str(user[entry].uuid) + '/' + avatar.name)
                 # # 改名
                 # path_avatar = os.path.join(globals.PATH_USER+user.uuid+'/', avatar.name)
                 # extension = '.' + avatar.name.split('.')[-1]
@@ -160,7 +160,7 @@ def history_attend(request):
                 }
                 #print('进入了for')
                 activity['uuid_act']=record[entry].uuid_act
-                print(activity['uuid_act'])
+                #print(activity['uuid_act'])
                 #进入activity表根据uuid获取会议名
                 try:
                     print('进入try')

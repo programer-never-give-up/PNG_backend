@@ -75,7 +75,7 @@ def login(request):
                 # request.session['user_uuid'] = str(user.uuid)
                 request.session['username'] = user.username
 
-                request.session['uuid']=str(user.uuid)
+                request.session['uuid']=user.uuid
                 request.session.set_expiry(0)#关闭浏览器过期
 
 
@@ -105,11 +105,31 @@ def login(request):
 def check(request):  # 判断是否登录
     data = {
         "status": True,
-        'message': ''
+        'message': '',
+        'type':0,#个人用户为0
     }
     if request.session.get('is_login', None):  # 不允许重复登录
-        data['message'] = '您已登录！'
-        return JsonResponse(data)
+        username=request.session.get('username',None)
+        if username:
+            try:
+                user=models.User.objects.get(username=username)
+            except:
+                data['message']='未找到user'
+                return JsonResponse(data)
+            if user.type=='企业':
+                data['type']=1
+                data['message'] = '您已登录！企业用户！'
+                request.session['type']=1
+                return JsonResponse(data)
+            else:
+                data['message'] = '您已登录！个人用户！'
+                request.session['type']=0
+                return JsonResponse(data)
+
+        else:
+            data['message']='session中无数据'
+            return JsonResponse(data)
+
     else:
         data['status'] = False
         data['message'] = "您还未登录！"
@@ -234,7 +254,7 @@ def register(request):
             avatar.close()
         # 如果上传了avatar，将avatar保存到本地并
         else:
-            new_user.avatar = 'user/'+new_user.uuid+ '/' + avatar.name
+            new_user.avatar = 'user/'+str(new_user.uuid)+ '/' + avatar.name
 
             destination = open(os.path.join(path, avatar.name), 'wb+')
             for chunk in avatar.chunks():
