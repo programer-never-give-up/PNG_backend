@@ -222,7 +222,7 @@ def pageDisplay(request):
     }
 
     if request.method == 'GET':
-        if 'username' not in request.session.keys()
+        if 'username' not in request.session.keys():
             username = None
             print("没有username")
         else:
@@ -1046,7 +1046,7 @@ def cancelApplication(request):
         try:
             activity = models.Activity.objects.get(uuid=uuid)
             admin_activity = models.AdminActivity.objects.get(uuid=uuid)
-            if 'username' not in request.session.keys()
+            if 'username' not in request.session.keys():
                 editor = None
                 print("没有Username")
             else:
