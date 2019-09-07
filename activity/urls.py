@@ -17,5 +17,8 @@ urlpatterns = [
     path("adminAgreePublish/", views.adminAgreePublish),
     path("adminRefusePublish/", views.adminRefusePublish),
     path("cancelApplication/", views.cancelApplication),
+    path("applyRecommend/", views.applyRecommend),
+    path("adminAgreeRecommend/", views.adminAgreeRecommend),
+    path("adminRefuseRecommend/", views.adminRefuseRecommend),
 
 ]
