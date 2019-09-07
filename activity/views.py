@@ -1284,7 +1284,7 @@ def adminRefuseRecommend(request):
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
         import login
-        user = login.models.User.objects.get(username=activity.user)
+        user = login.models.User.objects.get(username=activity.username)
 
         admin_activity = models.AdminActivity.objects.get(uuid=uuid)
         admin_activity.delete()
