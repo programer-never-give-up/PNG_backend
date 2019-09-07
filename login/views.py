@@ -48,6 +48,7 @@ def login(request):
                     request.session['username'] = admin.username
 
                     request.session['uuid'] = 'admin'
+                    request.session['isAdmin']=True
                     request.session.set_expiry(0)  # 关闭浏览器过期
 
                     print(username, password)
@@ -108,37 +109,45 @@ def check(request):  # 判断是否登录
         'message': '',
         'type':0,#个人用户为0,企业用户为1，管理员为2
     }
+    print('调用了check')
     if request.session.get('is_login', None):  # 不允许重复登录
         username=request.session.get('username',None)
+        print('username')
         if username:
             if request.session.get('isAdmin',None)==True:
                 data['message'] = '您已登录！管理用户！'
+                data['type']=2
                 request.session['type'] = 2
+                print(data)
                 return JsonResponse(data)
-            else:   
+            else:
                 try:
                     user=models.User.objects.get(username=username)
                 except:
                     data['message']='未找到user'
+                    print(data)
                     return JsonResponse(data)
                 if user.type=='企业':
                     data['type']=1
                     data['message'] = '您已登录！企业用户！'
                     request.session['type']=1
+                    print(data)
                     return JsonResponse(data)
 
                 else:
                     data['message'] = '您已登录！个人用户！'
                     request.session['type']=0
+                    print(data)
                     return JsonResponse(data)
 
         else:
             data['message']='session中无数据'
+            print(data)
             return JsonResponse(data)
-
     else:
         data['status'] = False
         data['message'] = "您还未登录！"
+        print(data)
         return JsonResponse(data)
 
 @csrf_exempt
