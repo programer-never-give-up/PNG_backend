@@ -264,6 +264,12 @@ def pageDisplay(request):
                     if act.status_publish == 'published':
                         if (page_id - 1) * per_page <= count < per_page * page_id:
                             dictionary = {}
+                            import yw
+                            recommend = yw.models.recommended_activity.objects.filter(uuid_act=act.uuid)
+                            if recommend:
+                                dictionary['ifRecommended'] = True
+                            else:
+                                dictionary['ifRecommended'] = False
                             dictionary['logoSrc'] = act.logo
                             dictionary['activityName'] = act.name
                             dictionary['location'] = act.location
