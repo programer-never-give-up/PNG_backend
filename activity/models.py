@@ -24,10 +24,10 @@ class Activity(models.Model):
 
 
 class UploadRecord(models.Model):
-    act_uuid = models.CharField(max_length=64, null=True, blank=True)
+    #act_uuid = models.CharField(max_length=64, null=True, blank=True)
     file_name = models.CharField(max_length=128, null=True, blank=True)
     file_path = models.CharField(max_length=256, null=True, blank=True)
-
+    activity = models.ForeignKey(max_length=64,db_column='act_uuid',to='Activity', to_field='uuid', null=True, on_delete=models.CASCADE)
     def __str__(self):
         return self.file_name
 
@@ -43,12 +43,13 @@ class OldInfo(models.Model):
     uuid = models.CharField(max_length=64, null=True, blank=True)  # uuid
     c_time = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
+
     def __str__(self):
         return self.name
 
 class AdminActivity(models.Model):
-    uuid = models.CharField(max_length=64, null=True, blank=True)  # uuid
+    #uuid = models.CharField(max_length=64, null=True, blank=True)  # uuid
     action = models.CharField(max_length=64, null=True, blank=True)  # 操作：发布 修改 删除
-
+    activity = models.ForeignKey(max_length=64,db_column='uuid',to='Activity', to_field='uuid', null=True, on_delete=models.CASCADE)
     def __str__(self):
-        return self.uuid
+        return self.action

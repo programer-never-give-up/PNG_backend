@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'PNG_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'djangoLearning',
+        'NAME': 'MeetingSystem',
         'HOST': '120.79.129.236',
         'USER': 'admin',
         'PASSWORD': 'a591620892',
