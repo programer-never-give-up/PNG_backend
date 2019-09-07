@@ -106,25 +106,31 @@ def check(request):  # 判断是否登录
     data = {
         "status": True,
         'message': '',
-        'type':0,#个人用户为0
+        'type':0,#个人用户为0,企业用户为1，管理员为2
     }
     if request.session.get('is_login', None):  # 不允许重复登录
         username=request.session.get('username',None)
         if username:
-            try:
-                user=models.User.objects.get(username=username)
-            except:
-                data['message']='未找到user'
+            if request.session.get('isAdmin',None)==True:
+                data['message'] = '您已登录！管理用户！'
+                request.session['type'] = 2
                 return JsonResponse(data)
-            if user.type=='企业':
-                data['type']=1
-                data['message'] = '您已登录！企业用户！'
-                request.session['type']=1
-                return JsonResponse(data)
-            else:
-                data['message'] = '您已登录！个人用户！'
-                request.session['type']=0
-                return JsonResponse(data)
+            else:   
+                try:
+                    user=models.User.objects.get(username=username)
+                except:
+                    data['message']='未找到user'
+                    return JsonResponse(data)
+                if user.type=='企业':
+                    data['type']=1
+                    data['message'] = '您已登录！企业用户！'
+                    request.session['type']=1
+                    return JsonResponse(data)
+
+                else:
+                    data['message'] = '您已登录！个人用户！'
+                    request.session['type']=0
+                    return JsonResponse(data)
 
         else:
             data['message']='session中无数据'
