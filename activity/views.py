@@ -1067,7 +1067,7 @@ def adminAgreePublish(request):
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
 
-        user = login_models.User.objects.get(username=activity.user)
+        user = login_models.User.objects.get(username=activity.username)
         activity.status_publish = 'published'
         activity.save()
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
