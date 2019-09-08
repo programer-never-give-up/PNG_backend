@@ -6,7 +6,8 @@ import hashlib
 import globals
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from yw import models as yw_models
-
+from login import models as login_models
+from yw import views as yw_views
 
 # Create your views here.
 
@@ -63,7 +64,7 @@ def showActivity(request):
             data['introduction'] = activity.introduction
 
             try:
-                files = models.UploadRecord.objects.filter(act_uuid=activity_uuid)
+                files = models.UploadRecord.objects.filter(activity_id=activity_uuid)
                 for i in files:
                     dictionary = {}
                     dictionary['fileName'] = i.file_name
@@ -201,7 +202,7 @@ def uploadFile(request):
         # 文件前端下载路径
         file_path = file_path.split(globals.PATH)[1] + '/'
         # 新建文件记录的相关属性
-        new_record.act_uuid = act_uuid
+        new_record.activity_id = act_uuid
         new_record.file_name = userfile.name
         new_record.file_path = file_path
         # 保存
@@ -265,7 +266,7 @@ def pageDisplay(request):
                         if (page_id - 1) * per_page <= count < per_page * page_id:
                             dictionary = {}
                             import yw
-                            recommend = yw.models.recommended_activity.objects.filter(uuid_act=act.uuid)
+                            recommend = yw_models.recommended_activity.objects.filter(activity_id=act.uuid)
                             if recommend:
                                 dictionary['ifRecommended'] = True
                             else:
@@ -345,7 +346,7 @@ def pageDisplay(request):
                             dictionary['startTime'] = act.start_time
                             dictionary['endTime'] = act.end_time
                             dictionary['id'] = act.uuid
-                            admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
+                            admin_activity = models.AdminActivity.objects.get(activity_id=act.uuid)
                             dictionary['action'] = admin_activity.action
                             print(dictionary['action'])
                             data['activities'].append(dictionary)
@@ -367,7 +368,7 @@ def pageDisplay(request):
                     user_uuid = request.session['uuid']
                 print(user_uuid)
                 if user_uuid:
-                    attend_acts_uuid = yw_models.activity_sign_up.objects.filter(uuid_user=user_uuid)
+                    attend_acts_uuid = yw_models.activity_sign_up.objects.filter(user_id=user_uuid)
                     acts = []
                     # 获取所有报名会议的信息
                     for uid in attend_acts_uuid:
@@ -459,7 +460,7 @@ def pageDisplay(request):
                 else:
                     user_uuid = request.session['uuid']
                 if user_uuid:
-                    collected_acts_uuid = yw_models.user_collection.objects.filter(uuid_user=user_uuid)
+                    collected_acts_uuid = yw_models.user_collection.objects.filter(user_id=user_uuid)
                     acts = []
                     for uid in collected_acts_uuid:
                         act = models.Activity.objects.get(uuid=uid.uuid_act)
@@ -604,8 +605,8 @@ def editActivity(request):
             delete_files = json.loads(delete_files)
 
             for filename in delete_files:
-                os.remove(globals.PATH + 'activity/' + activity.uuid + '/' + filename)
-                files = models.UploadRecord.objects.filter(act_uuid=activity.uuid)
+                os.remove(globals.PATH + 'activity/' + str(activity.uuid) + '/' + filename)
+                files = models.UploadRecord.objects.filter(activity_id=activity.uuid)
                 for file in files:
                     if file.file_name == filename:
                         file.delete()
@@ -637,7 +638,7 @@ def editActivity(request):
         elif activity.status_publish == 'published':
             # 获取活动logo
 
-            old_path = globals.PATH_ADMIN + activity.uuid + '/'
+            old_path = globals.PATH_ADMIN + str(activity.uuid) + '/'
             isExists = os.path.exists(old_path)
             # 判断路径是否存在
             if not isExists:
@@ -673,8 +674,8 @@ def editActivity(request):
             delete_files = json.loads(delete_files)
 
             for filename in delete_files:
-                os.remove(globals.PATH + 'activity/' + activity.uuid + '/' + filename)
-                files = models.UploadRecord.objects.filter(act_uuid=activity.uuid)
+                os.remove(globals.PATH + 'activity/' + str(activity.uuid) + '/' + filename)
+                files = models.UploadRecord.objects.filter(activity_id=activity.uuid)
                 for file in files:
                     if file.file_name == filename:
                         file.delete()
@@ -713,13 +714,13 @@ def editActivity(request):
             activity.introduction = introduction
             activity.save()
 
-            admin_activity = models.AdminActivity.objects.filter(uuid=activity.uuid)
+            admin_activity = models.AdminActivity.objects.filter(activity_id=activity.uuid)
             if admin_activity:
                 data['message'] = '您已提交申请，请不要重复提交！'
                 return JsonResponse(data)
             else:
                 new_admin_activity = models.AdminActivity()
-                new_admin_activity.uuid = activity.uuid
+                new_admin_activity.activity_id = activity.uuid
                 new_admin_activity.action = 'modify'
                 new_admin_activity.save()
 
@@ -739,10 +740,10 @@ def adminAgreeEdit(request):
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
         import login
-        user = login.models.User.objects.get(username=activity.user)
+        user = login_models.User.objects.get(username=activity.user)
         activity.status_publish = 'published'
         activity.save()
-        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+        admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
 
         change = []
@@ -805,18 +806,18 @@ def adminAgreeEdit(request):
         # sendMail 发邮件
         title = '编辑审核结果'
         contents = '您申请编辑的活动 %s 信息已成功修改。' % name_act
-        import yw
-        yw.views.sendMail(user.email, title, contents)
+
+        yw_views.sendMail(user.email, title, contents)
         # 操作报名表
-        records = yw.models.activity_sign_up.objects.filter(uuid_act=activity.uuid)
+        records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
 
         for i in range(len(records)):  # 对报名会议的所有用户进行操作
             try:
-                user = login.models.User.objects.get(uuid=records[i].uuid_user)
+                user = login_models.User.objects.get(uuid=records[i].uuid_user)
             except:
                 print('handle_delete:未获得uuid_user对应的user')
             title = "活动通知"
-            yw.views.sendMail(user.email, title, contents)
+            yw_views.sendMail(user.email, title, contents)
 
         return JsonResponse(data)
 
@@ -844,7 +845,7 @@ def adminRefuseEdit(request):
         admin.close()
 
         import shutil
-        shutil.rmtree(globals.PATH + 'admin/' + activity.uuid)
+        shutil.rmtree(globals.PATH + 'admin/' + str(activity.uuid))
 
         activity.logo = logo
         activity.status_publish = 'published'
@@ -860,9 +861,9 @@ def adminRefuseEdit(request):
 
         name_act = activity.name
         import login
-        user = login.models.User.objects.get(username=activity.user)
+        user = login_models.User.objects.get(username=activity.user)
 
-        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+        admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
 
         data['message'] = '修改请求未通过！'
@@ -906,8 +907,8 @@ def deleteActivity(request):
 
         if activity.status_publish == 'unpublished':
             import shutil
-            shutil.rmtree(globals.PATH + 'activity/' + activity.uuid + '/')
-            models.UploadRecord.objects.filter(act_uuid=activity.uuid).delete()
+            shutil.rmtree(globals.PATH + 'activity/' + str(activity.uuid) + '/')
+            models.UploadRecord.objects.filter(activity_id=activity.uuid).delete()
             activity.delete()
             data['act_status'] = True
             data['message'] = '活动已删除！'
@@ -916,13 +917,13 @@ def deleteActivity(request):
             activity.status_publish = 'to_be_audited'
             data['act_status'] = True
             activity.save()
-            admin_activity = models.AdminActivity.objects.filter(uuid=activity.uuid)
+            admin_activity = models.AdminActivity.objects.filter(activity_id=activity.uuid)
             if admin_activity:
                 data['message'] = '您已提交申请，请不要重复提交！'
                 return JsonResponse(data)
             else:
                 new_admin_activity = models.AdminActivity()
-                new_admin_activity.uuid = activity.uuid
+                new_admin_activity.activity_id = activity.uuid
                 new_admin_activity.action = 'delete'
                 new_admin_activity.save()
 
@@ -944,13 +945,13 @@ def adminAgreeDelete(request):
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
         import login
-        user = login.models.User.objects.get(username=activity.user)
+        user = login_models.User.objects.get(username=activity.user)
 
         import shutil
-        shutil.rmtree(globals.PATH + 'activity/' + activity.uuid + '/')
-        models.UploadRecord.objects.filter(act_uuid=activity.uuid).delete()
+        shutil.rmtree(globals.PATH + 'activity/' + str(activity.uuid) + '/')
+        models.UploadRecord.objects.filter(activity_id=activity.uuid).delete()
         activity.delete()
-        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+        admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
 
         data['message'] = '活动已删除！'
@@ -959,18 +960,18 @@ def adminAgreeDelete(request):
         title = '删除审核结果'
         contents = '您申请删除的活动 %s 已成功删除。' % name_act
         import yw
-        yw.views.sendMail(user.email, title, contents)
+        yw_views.sendMail(user.email, title, contents)
         # 操作报名表
-        records = yw.models.activity_sign_up.objects.filter(uuid_act=activity.uuid)
+        records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
 
         for i in range(len(records)):  # 对报名会议的所有用户进行操作
             try:
-                user = login.models.User.objects.get(uuid=records[i].uuid_user)
+                user = login_models.User.objects.get(uuid=records[i].uuid_user)
             except:
                 print('handle_delete:未获得uuid_user对应的user')
             title = "活动通知"
             contents = '您报名参加的活动 %s 已被举办者取消，请留意主办方发布的相关消息。' % name_act
-            yw.views.sendMail(user.email, title, contents)
+            yw_views.sendMail(user.email, title, contents)
 
         return JsonResponse(data)
 
@@ -987,11 +988,11 @@ def adminRefuseDelete(request):
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
         import login
-        user = login.models.User.objects.get(username=activity.user)
+        user = login_models.User.objects.get(username=activity.user)
 
         activity.status_publish = 'published'
         activity.save()
-        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+        admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
 
         data['message'] = '删除审核未通过！'
@@ -1038,13 +1039,13 @@ def publishActivity(request):
         data['act_status'] = True
         activity.save()
 
-        admin_activity = models.AdminActivity.objects.filter(uuid=activity.uuid)
+        admin_activity = models.AdminActivity.objects.filter(activity_id=activity.uuid)
         if admin_activity:
             data['message'] = '您已提交申请，请不要重复提交！'
             return JsonResponse(data)
         else:
             new_admin_activity = models.AdminActivity()
-            new_admin_activity.uuid = activity.uuid
+            new_admin_activity.activity_id = activity.uuid
             new_admin_activity.action = 'publish'
 
             new_admin_activity.save()
@@ -1065,11 +1066,11 @@ def adminAgreePublish(request):
 
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
-        import login
-        user = login.models.User.objects.get(username=activity.user)
+
+        user = login_models.User.objects.get(username=activity.user)
         activity.status_publish = 'published'
         activity.save()
-        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+        admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
 
         data['message'] = '发布成功！'
@@ -1077,8 +1078,8 @@ def adminAgreePublish(request):
         # sendMail发邮件
         title = '发布审核结果'
         contents = '您申请发布的活动 %s 已成功发布。' % name_act
-        import yw
-        yw.views.sendMail(user.email, title, contents)
+
+        yw_views.sendMail(user.email, title, contents)
 
         return JsonResponse(data)
 
@@ -1094,19 +1095,19 @@ def adminRefusePublish(request):
 
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
-        import login
-        user = login.models.User.objects.get(username=activity.user)
+
+        user = login_models.User.objects.get(username=activity.user)
         activity.status_publish = 'unpublished'
         activity.save()
-        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+        admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
 
         data['message'] = '发布请求未通过！'
         # sendMail 发邮件
         title = '发布审核结果'
         contents = '经审核，您申请发布的活动 %s 不符合条件，无法发布。' % name_act
-        import yw
-        yw.views.sendMail(user.email, title, contents)
+
+        yw_views.sendMail(user.email, title, contents)
 
         return JsonResponse(data)
 
@@ -1123,7 +1124,7 @@ def cancelApplication(request):
 
         try:
             activity = models.Activity.objects.get(uuid=uuid)
-            admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+            admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
             if 'username' not in request.session.keys():
                 editor = None
                 print("没有Username")
@@ -1172,7 +1173,7 @@ def cancelApplication(request):
             admin.close()
 
             import shutil
-            shutil.rmtree(globals.PATH + 'admin/' + activity.uuid)
+            shutil.rmtree(globals.PATH + 'admin/' + str(activity.uuid))
 
             activity.logo = logo
             activity.status_publish = 'published'
@@ -1220,13 +1221,13 @@ def applyRecommend(request):
             data['message'] = '该活动不存在！'
             return JsonResponse(data)
 
-        admin_activity = models.AdminActivity.objects.filter(uuid=activity.uuid)
+        admin_activity = models.AdminActivity.objects.filter(activity_id=activity.uuid)
         if admin_activity:
             data['message'] = '您已提交申请，请不要重复提交！'
             return JsonResponse(data)
         else:
             new_admin_activity = models.AdminActivity()
-            new_admin_activity.uuid = activity.uuid
+            new_admin_activity.activity_id = activity.uuid
             new_admin_activity.action = 'recommend'
 
             new_admin_activity.save()
@@ -1245,20 +1246,20 @@ def adminAgreeRecommend(request):
 
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
-        import login
-        user = login.models.User.objects.get(username=activity.user)
 
-        import yw
-        recommend_activity = yw.models.recommended_activity.objects.filter(uuid_act=activity.uuid)
+        user = login_models.User.objects.get(username=activity.user)
+
+
+        recommend_activity = yw_models.recommended_activity.objects.filter(activity_id=activity.uuid)
         if recommend_activity:
             data['message'] = '活动已被推荐！'
             return JsonResponse(data)
         else:
-            new_recommend = yw.models.recommended_activity()
-            new_recommend.uuid_act = activity.uuid
+            new_recommend = yw_models.recommended_activity()
+            new_recommend.activity_id = activity.uuid
             new_recommend.save()
 
-        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+        admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
 
         data['message'] = '推荐请求成功！'
@@ -1267,7 +1268,7 @@ def adminAgreeRecommend(request):
         title = '推荐审核结果'
         contents = '您申请推荐的活动 %s 已登上首页。' % name_act
         import yw
-        yw.views.sendMail(user.email, title, contents)
+        yw_views.sendMail(user.email, title, contents)
 
         return JsonResponse(data)
 
@@ -1283,17 +1284,17 @@ def adminRefuseRecommend(request):
 
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
-        import login
-        user = login.models.User.objects.get(username=activity.username)
 
-        admin_activity = models.AdminActivity.objects.get(uuid=uuid)
+        user = login_models.User.objects.get(username=activity.username)
+
+        admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
 
         data['message'] = '申请推荐未通过！'
         # sendMail 发邮件
         title = '推荐审核结果'
         contents = '经审核，您申请推荐的活动 %s 不符合条件，暂不能推荐。' % name_act
-        import yw
-        yw.views.sendMail(user.email, title, contents)
+
+        yw_views.sendMail(user.email, title, contents)
 
         return JsonResponse(data)

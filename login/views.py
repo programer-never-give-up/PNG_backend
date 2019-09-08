@@ -2,15 +2,12 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from . import models
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
-import datetime
 import hashlib
 import uuid
 from django.core.mail import send_mail
-from django.core.files.storage import default_storage
 import globals
-from django.core.files.base import ContentFile
 import os
-import filetype
+
 
 
 # Create your views here.

@@ -205,7 +205,7 @@ def cancel_collect(request):
             uuid_act = request.POST.get('uuid_act', None)
             if uuid_act:
                 try:
-                    collection = models.activity_sign_up.objects.get(uuid_act=uuid_act, uuid_user=user.uuid)
+                    collection = models.activity_sign_up.objects.get(activity_id=uuid_act, user_id=user.uuid)
                 except:
                     data['message'] = '无对应收藏数据！'
                     return JsonResponse(data)
@@ -242,7 +242,7 @@ def showActivityList(request):
             for i in range(len(activitys)):
                 # 根据uuid去activity表找数据
                 try:
-                    record_act = models_activity.Activity.objects.get(uuid=activitys[i].uuid)
+                    record_act = models_activity.Activity.objects.get(uuid=activitys[i].activity_id)
                 except:
                     data['message'] = '未取得uuid对应的活动'
                     return JsonResponse(data)
@@ -318,7 +318,7 @@ def showModification(request):
             data['introduction_old'] = activity_old.introduction
             data['introduction_new'] = activity_new.introduction
             try:
-                files = models_activity.UploadRecord.objects.filter(act_uuid=uuid)
+                files = models_activity.UploadRecord.objects.filter(activity_id=uuid)
                 print('取得files')
                 for i in range(len(files)):
                     print('进入循环')
@@ -351,7 +351,7 @@ def getQRcode(request):
             uuid_user=request.session['uuid']
             if uuid_user:
                 try:
-                    record = models.activity_sign_up.objects.get(uuid_act=uuid_act, uuid_user=uuid_user)
+                    record = models.activity_sign_up.objects.get(activity_id=uuid_act, user_id=uuid_user)
                 except:
                     data['message'] = '未获得报名表中的记录'
                     return JsonResponse(data)
@@ -376,12 +376,12 @@ def add_in_recommendation(request):
     if request.method=='POST':
         uuid_act=request.POST.get('uuid_act')
         if uuid_act:
-            same_act=models.recommended_activity.objects.filter(uuid_act=uuid_act)
+            same_act=models.recommended_activity.objects.filter(activity_id=uuid_act)
             if same_act:
                 data['message']='此活动已上推荐！'
                 return JsonResponse(data)
             new_recommendation=models.recommended_activity()
-            new_recommendation.uuid_act=uuid_act
+            new_recommendation.activity_id=uuid_act
             new_recommendation.save()
             data['message']='申请推荐成功！'
             return JsonResponse(data)
@@ -468,13 +468,13 @@ def check_attend(request):
         uuid_user=request.POST.get('uuid_user',None)
         if uuid_act and uuid_user:
             try:
-                record=models.activity_sign_up.objects.filter(uuid_act=uuid_act,uuid_user=uuid_user)
+                record=models.activity_sign_up.objects.filter(activity_id=uuid_act,user_id=uuid_user)
             except:
                 data['message']='未找到记录！'
                 return JsonResponse(data)
             new_record=models_person.On_site()
-            new_record.uuid_user=uuid_user
-            new_record.uuid_act=uuid_act
+            new_record.user_id=uuid_user
+            new_record.activity_id=uuid_act
             new_record.save()
             data['message']='入场成功！'
             data['status']=True

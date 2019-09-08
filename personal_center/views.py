@@ -139,7 +139,7 @@ def history_attend(request):
         uuid_user=request.session['uuid']#session中的string转uuid
         if uuid_user:
             try:
-                record= models.On_site.objects.filter(uuid_user=uuid_user)
+                record= models.On_site.objects.filter(user_id=uuid_user)
                 print('取得record')
                 #筛选出这个uuid对应的所有条目
                 #print('获得user')
@@ -159,12 +159,12 @@ def history_attend(request):
                     'end_time': '',
                 }
                 #print('进入了for')
-                activity['uuid_act']=record[entry].uuid_act
+                activity['uuid_act']=record[entry].activity_id
                 #print(activity['uuid_act'])
                 #进入activity表根据uuid获取会议名
                 try:
                     print('进入try')
-                    tmp_activity=models_activity.Activity.objects.get(uuid=record[entry].uuid_act)
+                    tmp_activity=models_activity.Activity.objects.get(uuid=record[entry].activity_id)
                     print('取得tmp')
                 except:
                     data['message']='无此活动！'
