@@ -870,8 +870,7 @@ def adminRefuseEdit(request):
         # sendMail 发邮件
         title = '编辑审核结果'
         contents = '经审核，您申请编辑的活动 %s 信息不符合条件，不予修改。' % name_act
-        import yw
-        yw.views.sendMail(user.email, title, contents)
+        yw_views.sendMail(user.email, title, contents)
 
         return JsonResponse(data)
 
@@ -1001,7 +1000,7 @@ def adminRefuseDelete(request):
         title = '删除审核结果'
         contents = '经审核，您申请删除的活动 %s 不符合条件，无法删除。' % name_act
         import yw
-        yw.views.sendMail(user.email, title, contents)
+        yw_views.sendMail(user.email, title, contents)
 
         return JsonResponse(data)
 
