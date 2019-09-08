@@ -461,9 +461,9 @@ def check_attend(request):
         uuid_user=request.POST.get('uuid_user',None)
         if uuid_act and uuid_user:
             try:
-                record=models.activity_sign_up.objects.filter(activity_id=uuid_act,user_id=uuid_user)
+                record=models.activity_sign_up.objects.filter(activity_id=uuid_act,user_id=uuid_user).select_related('activity','user')
             except:
-                data['message']='未找到记录！'
+                data['message']='未找到报名记录！'
                 return JsonResponse(data)
             new_record=models_person.On_site()
             new_record.user_id=uuid_user
