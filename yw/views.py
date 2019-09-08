@@ -167,7 +167,7 @@ def collect(request):
             uuid_act = request.POST.get('uuid_act', None)
 
             if uuid_act:
-                same_collection = models.user_collection.objects.filter(uuid_act=uuid_act, uuid_user=user.uuid)
+                same_collection = models.user_collection.objects.filter(activity_id=uuid_act, user_id=user.uuid)
                 if same_collection:
                     data['message'] = '重复收藏！'
                     return JsonResponse(data)
