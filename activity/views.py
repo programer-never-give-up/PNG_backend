@@ -740,7 +740,7 @@ def adminAgreeEdit(request):
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
         import login
-        user = login_models.User.objects.get(username=activity.user)
+        user = login_models.User.objects.get(username=activity.username)
         activity.status_publish = 'published'
         activity.save()
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
@@ -861,7 +861,7 @@ def adminRefuseEdit(request):
 
         name_act = activity.name
         import login
-        user = login_models.User.objects.get(username=activity.user)
+        user = login_models.User.objects.get(username=activity.username)
 
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
@@ -944,7 +944,7 @@ def adminAgreeDelete(request):
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
         import login
-        user = login_models.User.objects.get(username=activity.user)
+        user = login_models.User.objects.get(username=activity.username)
 
         import shutil
         shutil.rmtree(globals.PATH + 'activity/' + str(activity.uuid) + '/')
@@ -987,7 +987,7 @@ def adminRefuseDelete(request):
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
         import login
-        user = login_models.User.objects.get(username=activity.user)
+        user = login_models.User.objects.get(username=activity.username)
 
         activity.status_publish = 'published'
         activity.save()
@@ -1095,7 +1095,7 @@ def adminRefusePublish(request):
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
 
-        user = login_models.User.objects.get(username=activity.user)
+        user = login_models.User.objects.get(username=activity.username)
         activity.status_publish = 'unpublished'
         activity.save()
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
@@ -1246,7 +1246,7 @@ def adminAgreeRecommend(request):
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
 
-        user = login_models.User.objects.get(username=activity.user)
+        user = login_models.User.objects.get(username=activity.username)
 
 
         recommend_activity = yw_models.recommended_activity.objects.filter(activity_id=activity.uuid)
