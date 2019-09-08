@@ -128,7 +128,7 @@ def cancel_apply(request):
             uuid_act = request.POST.get('uuid_act', None)
             if uuid_act:
                 try:
-                    application = models.activity_sign_up.objects.get(uuid_act=uuid_act, uuid_user=user.uuid)
+                    application = models.activity_sign_up.objects.get(activity_id=uuid_act, user_id=user.uuid)
                 except:
                     data['message']='无对应报名数据！'
                     return JsonResponse(data)
