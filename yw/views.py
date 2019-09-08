@@ -399,26 +399,19 @@ def showRecommendation(request):
     }
     if request.method == 'GET':
         try:
-            records = models_activity.Activity.objects.filter(status_publish='published', status_process='not_start')
+            records = models.recommended_activity.objects.all().select_related('activity')#主动联表查询
         except:
             data['message'] = '无记录！'
             return JsonResponse(data)
-        if len(records) < 20:
-            records = models_activity.Activity.objects.filter(status_publish='published',
-                                                              status_process='not_start').order_by('start_time')[
-                      :len(records)]
-        else:
-            records = models_activity.Activity.objects.filter(status_process='not_start',
-                                                              status_publish='published').order_by('?')[:20]
         for i in range(len(records)):
             activity = {
-                'uuid_act': records[i].uuid,
-                'name_act': records[i].name,
-                'start_time': records[i].start_time,
-                'end_time': records[i].end_time,
-                'logo': records[i].logo,
-                'location': records[i].location,
-                'organizer':records[i].organizer,
+                'uuid_act': records[i].activity_id,
+                'name_act': records[i].activity.name,
+                'start_time': records[i].activity.start_time,
+                'end_time': records[i].activity.end_time,
+                'logo': records[i].activity.logo,
+                'location': records[i].activity.location,
+                'organizer':records[i].activity.organizer,
             }
             data['list_activity'].append(activity)
         data['message'] = '查询成功！'
