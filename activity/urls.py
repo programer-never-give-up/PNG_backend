@@ -20,5 +20,6 @@ urlpatterns = [
     path("applyRecommend/", views.applyRecommend),
     path("adminAgreeRecommend/", views.adminAgreeRecommend),
     path("adminRefuseRecommend/", views.adminRefuseRecommend),
+    path("updateStatus/", views.updateStatus),
 
 ]

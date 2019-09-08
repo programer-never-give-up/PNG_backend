@@ -1318,14 +1318,20 @@ def adminRefuseRecommend(request):
 
 
 @csrf_exempt
-def updataStatus(request):
+def updateStatus(request):
     data = {
         'message': '更新活动状态',
     }
+    if request.method == 'GET':
+        import time
+        localtime = str(time.strftime("%Y-%m-%d %H:%M", time.localtime()))
+        activities = models.Activity.objects.all()
+        for activity in activities:
+            if activity.start_time < localtime < activity.end_time:
+                activity.status_process = 'processing'
+                activity.save()
+            elif localtime >= activity.end_time:
+                activity.status_process = 'finished'
+                activity.save()
+        return JsonResponse(data)
 
-    import time
-    localtime = str(time.strftime("%Y-%m-%d %H:%M", time.localtime()))
-    activities = models.Activity.objects.all()
-    for activity in activities:
-        if activity.start_time:
-            print()
