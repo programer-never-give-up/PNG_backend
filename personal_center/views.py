@@ -229,14 +229,26 @@ def history_organize(request):
                 #应到人数和实到人数
                 try:
                     record_signUp=models_yw.activity_sign_up.objects.filter(activity_id=str(record[entry].uuid))
-                    record_onSite=models.On_site.objects.filter(activity_id=str(record[entry].uuid))
+
                 except:
-                    data['message']='未找到报名或参加记录'
-                    return JsonResponse(data)
-                data['num_should']=len(record_signUp)
-                data['num_actual']=len(record_onSite)
-                # 将字典activity加入列表
-                data['list_activity'].append(activity)
+                    data['message']='未找到报名记录'
+                    print('进入异常！')
+                    activity['num_should']=0
+                else:
+                    activity['num_should'] = len(record_signUp)
+                finally:
+                    try:
+                        record_onSite = models.On_site.objects.filter(activity_id=str(record[entry].uuid))
+                    except:
+                        data['message'] = '未找到参加记录'
+                        print('进入异常！')
+                        activity['num_actual'] = 0
+                    else:
+                        activity['num_actual'] = len(record_onSite)
+                    finally:
+                        # 将字典activity加入列表
+                        data['list_activity'].append(activity)
+            print(data)
             return JsonResponse(data)
         else:
             data['message']='无username!'

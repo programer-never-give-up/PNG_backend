@@ -65,7 +65,7 @@ def apply(request):
                 return JsonResponse(data)
             uuid_act = request.POST.get('uuid_act', None)
             if uuid_act:
-                same_application = models.activity_sign_up.objects.filter(uuid_act=uuid_act, uuid_user=user.uuid)
+                same_application = models.activity_sign_up.objects.filter(activity_id=uuid_act, user_id=user.uuid)
                 if same_application:
                     data['message'] = '重复报名！'
                     return JsonResponse(data)
