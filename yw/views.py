@@ -71,8 +71,8 @@ def apply(request):
                     return JsonResponse(data)
                 else:
                     new_record = models.activity_sign_up()
-                    new_record.uuid_user = user.uuid
-                    new_record.uuid_act = uuid_act
+                    new_record.user_id = user.uuid
+                    new_record.activity_id = uuid_act
                     # 用uuid生成二维码并存入用户文件夹
                     path_code = globals.PATH_USER + user.uuid + '/qrcode/'
                     isExists = os.path.exists(path_code)
@@ -173,8 +173,8 @@ def collect(request):
                     return JsonResponse(data)
                 else:
                     new_record = models.user_collection()
-                    new_record.uuid_user = user.uuid
-                    new_record.uuid_act = uuid_act
+                    new_record.user_id = user.uuid
+                    new_record.activity_id = uuid_act
                     new_record.save()
                     data['message'] = '收藏成功！'
                     return JsonResponse(data)
