@@ -63,7 +63,7 @@ def showActivity(request):
             data['organizer'] = activity.organizer
             data['logo'] = activity.logo
             data['introduction'] = activity.introduction
-            data['num'] = len(yw_models.activity_sign_up.objects.filter(uuid_act=activity.uuid))
+            data['num'] = len(yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid))
 
             try:
                 files = models.UploadRecord.objects.filter(activity_id=activity_uuid)
@@ -249,7 +249,7 @@ def pageDisplay(request):
                             dictionary['startTime'] = act.start_time
                             dictionary['endTime'] = act.end_time
                             dictionary['id'] = act.uuid
-                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
+                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(activity_id=act.uuid))
                             data['activities'].append(dictionary)
 
                         count += 1
@@ -280,7 +280,7 @@ def pageDisplay(request):
                             dictionary['startTime'] = act.start_time
                             dictionary['endTime'] = act.end_time
                             dictionary['id'] = act.uuid
-                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
+                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(activity_id=act.uuid))
                             data['activities'].append(dictionary)
                         count += 1
                 import math
@@ -304,7 +304,7 @@ def pageDisplay(request):
                             dictionary['startTime'] = act.start_time
                             dictionary['endTime'] = act.end_time
                             dictionary['id'] = act.uuid
-                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
+                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(activity_id=act.uuid))
                             data['activities'].append(dictionary)
                         count += 1
                 import math
@@ -328,7 +328,7 @@ def pageDisplay(request):
                             dictionary['startTime'] = act.start_time
                             dictionary['endTime'] = act.end_time
                             dictionary['id'] = act.uuid
-                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
+                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(activity_id=act.uuid))
                             data['activities'].append(dictionary)
                         count += 1
                 import math
@@ -352,7 +352,7 @@ def pageDisplay(request):
                             dictionary['startTime'] = act.start_time
                             dictionary['endTime'] = act.end_time
                             dictionary['id'] = act.uuid
-                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
+                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(activity_id=act.uuid))
                             admin_activity = models.AdminActivity.objects.get(activity_id=act.uuid)
                             dictionary['action'] = admin_activity.action
                             print(dictionary['action'])
@@ -394,7 +394,7 @@ def pageDisplay(request):
                                     dictionary['endTime'] = act.end_time
                                     dictionary['id'] = act.uuid
                                     dictionary['num'] = len(
-                                        yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
+                                        yw_models.activity_sign_up.objects.filter(activity_id=act.uuid))
                                     # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                                     # dictionary['action'] = admin_activity.action
                                     # print(dictionary['action'])
@@ -421,7 +421,7 @@ def pageDisplay(request):
                                     dictionary['endTime'] = act.end_time
                                     dictionary['id'] = act.uuid
                                     dictionary['num'] = len(
-                                        yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
+                                        yw_models.activity_sign_up.objects.filter(activity_id=act.uuid))
                                     # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                                     # dictionary['action'] = admin_activity.action
                                     # print(dictionary['action'])
@@ -448,7 +448,7 @@ def pageDisplay(request):
                                     dictionary['endTime'] = act.end_time
                                     dictionary['id'] = act.uuid
                                     dictionary['num'] = len(
-                                        yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
+                                        yw_models.activity_sign_up.objects.filter(activity_id=act.uuid))
                                     # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                                     # dictionary['action'] = admin_activity.action
                                     # print(dictionary['action'])
@@ -490,7 +490,7 @@ def pageDisplay(request):
                                     dictionary['endTime'] = act.end_time
                                     dictionary['id'] = act.uuid
                                     dictionary['num'] = len(
-                                        yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
+                                        yw_models.activity_sign_up.objects.filter(activity_id=act.uuid))
                                     # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                                     # dictionary['action'] = admin_activity.action
                                     # print(dictionary['action'])
@@ -517,7 +517,7 @@ def pageDisplay(request):
                                     dictionary['endTime'] = act.end_time
                                     dictionary['id'] = act.uuid
                                     dictionary['num'] = len(
-                                        yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
+                                        yw_models.activity_sign_up.objects.filter(activity_id=act.uuid))
                                     # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                                     # dictionary['action'] = admin_activity.action
                                     # print(dictionary['action'])
@@ -544,7 +544,7 @@ def pageDisplay(request):
                                     dictionary['endTime'] = act.end_time
                                     dictionary['id'] = act.uuid
                                     dictionary['num'] = len(
-                                        yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
+                                        yw_models.activity_sign_up.objects.filter(activity_id=act.uuid))
                                     # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                                     # dictionary['action'] = admin_activity.action
                                     # print(dictionary['action'])
@@ -1315,3 +1315,23 @@ def adminRefuseRecommend(request):
         yw_views.sendMail(user.email, title, contents)
 
         return JsonResponse(data)
+
+
+@csrf_exempt
+def updateStatus(request):
+    data = {
+        'message': '更新活动状态',
+    }
+    if request.method == 'GET':
+        import time
+        localtime = str(time.strftime("%Y-%m-%d %H:%M", time.localtime()))
+        activities = models.Activity.objects.all()
+        for activity in activities:
+            if activity.start_time < localtime < activity.end_time:
+                activity.status_process = 'processing'
+                activity.save()
+            elif localtime >= activity.end_time:
+                activity.status_process = 'finished'
+                activity.save()
+        return JsonResponse(data)
+
