@@ -5,6 +5,7 @@ from django.http import JsonResponse
 import globals
 import os
 from . import  models
+from yw import models as models_yw
 # Create your views here.
 
 
@@ -205,12 +206,16 @@ def history_organize(request):
                 data['message'] = '不存在的记录'
 
                 return JsonResponse(data)
+
             for entry in range(len(record)):
                 activity = {
                     'uuid_act': '',
                     'name_act': '',
                     'start_time': '',
                     'end_time': '',
+                    'num_should':'',
+                    'num_actual':'',
+
                 }
                 #print(entry)
                 activity['uuid_act']=str(record[entry].uuid)
@@ -219,9 +224,19 @@ def history_organize(request):
                 activity['start_time']=record[entry].start_time
                 activity['end_time']=record[entry].end_time
                 #print(activity)
-                #将字典activity加入列表
-                data['list_activity'].append(activity)
+
                 #print( data['list_activity'])
+                #应到人数和实到人数
+                try:
+                    record_signUp=models_yw.activity_sign_up.objects.filter(activity_id=str(record[entry].uuid))
+                    record_onSite=models.On_site.objects.filter(activity_id=str(record[entry].uuid))
+                except:
+                    data['message']='未找到报名或参加记录'
+                    return JsonResponse(data)
+                data['num_should']=len(record_signUp)
+                data['num_actual']=len(record_onSite)
+                # 将字典activity加入列表
+                data['list_activity'].append(activity)
             return JsonResponse(data)
         else:
             data['message']='无username!'
