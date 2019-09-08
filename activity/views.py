@@ -25,6 +25,7 @@ def showActivity(request):
         'organizer': '',
         'logo': '',
         'introduction': '',
+        'num': 0,
         'files': [],
         'roleType': 0,
     }
@@ -62,6 +63,7 @@ def showActivity(request):
             data['organizer'] = activity.organizer
             data['logo'] = activity.logo
             data['introduction'] = activity.introduction
+            data['num'] = len(yw_models.activity_sign_up.objects.filter(uuid_act=activity.uuid))
 
             try:
                 files = models.UploadRecord.objects.filter(activity_id=activity_uuid)
@@ -247,6 +249,7 @@ def pageDisplay(request):
                             dictionary['startTime'] = act.start_time
                             dictionary['endTime'] = act.end_time
                             dictionary['id'] = act.uuid
+                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
                             data['activities'].append(dictionary)
 
                         count += 1
@@ -277,6 +280,7 @@ def pageDisplay(request):
                             dictionary['startTime'] = act.start_time
                             dictionary['endTime'] = act.end_time
                             dictionary['id'] = act.uuid
+                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
                             data['activities'].append(dictionary)
                         count += 1
                 import math
@@ -300,6 +304,7 @@ def pageDisplay(request):
                             dictionary['startTime'] = act.start_time
                             dictionary['endTime'] = act.end_time
                             dictionary['id'] = act.uuid
+                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
                             data['activities'].append(dictionary)
                         count += 1
                 import math
@@ -323,6 +328,7 @@ def pageDisplay(request):
                             dictionary['startTime'] = act.start_time
                             dictionary['endTime'] = act.end_time
                             dictionary['id'] = act.uuid
+                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
                             data['activities'].append(dictionary)
                         count += 1
                 import math
@@ -346,6 +352,7 @@ def pageDisplay(request):
                             dictionary['startTime'] = act.start_time
                             dictionary['endTime'] = act.end_time
                             dictionary['id'] = act.uuid
+                            dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
                             admin_activity = models.AdminActivity.objects.get(activity_id=act.uuid)
                             dictionary['action'] = admin_activity.action
                             print(dictionary['action'])
@@ -372,8 +379,7 @@ def pageDisplay(request):
                     acts = []
                     # 获取所有报名会议的信息
                     for uid in attend_acts_uuid:
-                        print(uid.uuid_act)
-                        act = models.Activity.objects.get(uuid=uid.uuid_act)
+                        act = models.Activity.objects.get(uuid=uid.activity_id)
                         acts.append(act)
                     if btn_type == 'my-not_start':
                         count = 0
@@ -387,6 +393,8 @@ def pageDisplay(request):
                                     dictionary['startTime'] = act.start_time
                                     dictionary['endTime'] = act.end_time
                                     dictionary['id'] = act.uuid
+                                    dictionary['num'] = len(
+                                        yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
                                     # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                                     # dictionary['action'] = admin_activity.action
                                     # print(dictionary['action'])
@@ -412,6 +420,8 @@ def pageDisplay(request):
                                     dictionary['startTime'] = act.start_time
                                     dictionary['endTime'] = act.end_time
                                     dictionary['id'] = act.uuid
+                                    dictionary['num'] = len(
+                                        yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
                                     # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                                     # dictionary['action'] = admin_activity.action
                                     # print(dictionary['action'])
@@ -437,6 +447,8 @@ def pageDisplay(request):
                                     dictionary['startTime'] = act.start_time
                                     dictionary['endTime'] = act.end_time
                                     dictionary['id'] = act.uuid
+                                    dictionary['num'] = len(
+                                        yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
                                     # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                                     # dictionary['action'] = admin_activity.action
                                     # print(dictionary['action'])
@@ -463,7 +475,7 @@ def pageDisplay(request):
                     collected_acts_uuid = yw_models.user_collection.objects.filter(user_id=user_uuid)
                     acts = []
                     for uid in collected_acts_uuid:
-                        act = models.Activity.objects.get(uuid=uid.uuid_act)
+                        act = models.Activity.objects.get(uuid=uid.activity_id)
                         acts.append(act)
                     if btn_type == 'fav-not_start':
                         count = 0
@@ -477,6 +489,8 @@ def pageDisplay(request):
                                     dictionary['startTime'] = act.start_time
                                     dictionary['endTime'] = act.end_time
                                     dictionary['id'] = act.uuid
+                                    dictionary['num'] = len(
+                                        yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
                                     # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                                     # dictionary['action'] = admin_activity.action
                                     # print(dictionary['action'])
@@ -502,6 +516,8 @@ def pageDisplay(request):
                                     dictionary['startTime'] = act.start_time
                                     dictionary['endTime'] = act.end_time
                                     dictionary['id'] = act.uuid
+                                    dictionary['num'] = len(
+                                        yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
                                     # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                                     # dictionary['action'] = admin_activity.action
                                     # print(dictionary['action'])
@@ -527,6 +543,8 @@ def pageDisplay(request):
                                     dictionary['startTime'] = act.start_time
                                     dictionary['endTime'] = act.end_time
                                     dictionary['id'] = act.uuid
+                                    dictionary['num'] = len(
+                                        yw_models.activity_sign_up.objects.filter(uuid_act=act.uuid))
                                     # admin_activity = models.AdminActivity.objects.get(uuid=act.uuid)
                                     # dictionary['action'] = admin_activity.action
                                     # print(dictionary['action'])
