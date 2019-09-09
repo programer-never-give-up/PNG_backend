@@ -605,6 +605,7 @@ def editActivity(request):
             data['message'] = '该活动不存在！'
             return JsonResponse(data)
 
+        # 未发布活动 随便改
         if activity.status_publish == 'unpublished':
 
             logo = request.FILES.get('logo', None)
@@ -655,6 +656,7 @@ def editActivity(request):
 
             return JsonResponse(data)
 
+        # 已发布活动 需管理员审核
         elif activity.status_publish == 'published':
             # 获取活动logo
 
@@ -822,16 +824,17 @@ def adminAgreeEdit(request):
             }
             change.append(dictionary)
 
-        contents = '您报名参加的活动 %s 相关信息已被修改，请留意修改的信息：\n' % name_act
-        for info in change:
-            contents += '{item}已由{old}变为{new}\n'.format(**info)
-
         data['message'] = '会议资料修改成功！'
         # sendMail 发邮件
         title = '编辑审核结果'
         contents = '您申请编辑的活动 %s 信息已成功修改。' % name_act
 
         yw_views.sendMail(user.email, title, contents)
+
+        contents = '您报名参加的活动 %s 相关信息已被修改，请留意修改的信息：\n' % name_act
+        for info in change:
+            contents += '{item}已由{old}变为{new}\n'.format(**info)
+
         # 操作报名表
         records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
 
@@ -1358,9 +1361,10 @@ def adminRefuseRecommend(request):
         return JsonResponse(data)
 
 
-# 更新会议状态
+# 更新会议状态 会议前一天、三小时前分别发送邮件提醒
 @csrf_exempt
 def updateStatus(request):
+    import datetime
     data = {
         'message': '更新活动状态',
     }
@@ -1368,13 +1372,59 @@ def updateStatus(request):
         import time
         # 获取当前时间 格式年-月-日 时:分
         localtime = str(time.strftime("%Y-%m-%d %H:%M", time.localtime()))
+        local = datetime.datetime.strptime(localtime, '%Y-%m-%d %H:%M')
         activities = models.Activity.objects.all()
         # 遍历所有活动，更新会议进行状态
         for activity in activities:
+            start = datetime.datetime.strptime(activity.start_time, '%Y-%m-%d %H:%M')
+            name_act = activity.name
             if activity.start_time < localtime < activity.end_time:
                 activity.status_process = 'processing'
                 activity.save()
             elif localtime >= activity.end_time:
                 activity.status_process = 'finished'
                 activity.save()
+            delta = start - local
+            day = delta.days
+            second = delta.seconds
+            if day == 1 and second <= 1800:
+                # 操作报名表
+                records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
+
+                # 对报名会议的所有用户进行操作
+                for i in range(len(records)):
+                    try:
+                        user = login_models.User.objects.get(uuid=records[i].uuid_user)
+                    except:
+                        print('handle_delete:未获得uuid_user对应的user')
+                    title = "活动开始通知"
+                    contents = '您报名参加的活动 %s 将于一天后开始，请凭二维码准时参加。' % name_act
+                    yw_views.sendMail(user.email, title, contents)
+            elif day == 0 and second > 84600:
+                # 操作报名表
+                records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
+
+                # 对报名会议的所有用户进行操作
+                for i in range(len(records)):
+                    try:
+                        user = login_models.User.objects.get(uuid=records[i].uuid_user)
+                    except:
+                        print('handle_delete:未获得uuid_user对应的user')
+                    title = "活动开始通知"
+                    contents = '您报名参加的活动 %s 将于一天后开始，请凭二维码准时参加。' % name_act
+                    yw_views.sendMail(user.email, title, contents)
+            elif day ==0 and 9000 < second <= 12600:
+                # 操作报名表
+                records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
+
+                # 对报名会议的所有用户进行操作
+                for i in range(len(records)):
+                    try:
+                        user = login_models.User.objects.get(uuid=records[i].uuid_user)
+                    except:
+                        print('handle_delete:未获得uuid_user对应的user')
+                    title = "活动开始通知"
+                    contents = '您报名参加的活动 %s 将于三小时后开始，请凭二维码准时参加。' % name_act
+                    yw_views.sendMail(user.email, title, contents)
+
         return JsonResponse(data)
