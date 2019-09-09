@@ -189,8 +189,10 @@ def sendMail(request):
             code = get_random_str()  # 生成验证码
             try:
                 validate_email(email)
-            except:
+                print('有效的邮箱？')
+            except ValidationError:
                 data['message']='无效的邮箱！'
+                print(data['message'])
                 return JsonResponse(data)
             send_mail(
                 '会议系统验证码',
