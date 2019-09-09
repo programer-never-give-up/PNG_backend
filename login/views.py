@@ -8,7 +8,12 @@ from django.core.mail import send_mail
 import globals
 import os
 import random
-
+<<<<<<< HEAD
+import html
+=======
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+>>>>>>> f1cd08ab4ee829464b377ad6fab8e4e9cc88306a
 
 
 # Create your views here.
@@ -182,15 +187,16 @@ def sendMail(request):
                 return JsonResponse(data)
             code = get_random_str()  # 生成验证码
             try:
-                send_mail(
-                    '会议系统验证码',
-                    "您的验证码为 " + code,
-                    '1040214708@qq.com',
-                    [email],
-                )  # 发送邮件
+                validate_email(email)
             except:
                 data['message']='无效的邮箱！'
                 return JsonResponse(data)
+            send_mail(
+                '会议系统验证码',
+                "您的验证码为 " + code,
+                '1040214708@qq.com',
+                [email],
+            )  # 发送邮件
             request.session['code'] = code
             request.session.set_expiry(120)  # 120秒过期
             data['isSended'] = True
@@ -271,13 +277,13 @@ def register(request):
             destination.close()
         # 获取其他数据
         type = request.POST.get('type', None)
-        address = request.POST.get('address', None)
-        profession = request.POST.get('profession', None)
-        company = request.POST.get('company', None)
-        email = request.POST.get('email', None)
+        address = html.escape(request.POST.get('address', None))
+        profession = html.escape(request.POST.get('profession', None))
+        company = html.escape(request.POST.get('company', None))
+        email = html.escape(request.POST.get('email', None))
         gender = request.POST.get('gender', None)
 
-        phone_number = request.POST.get('phone_number', None)
+        phone_number = html.escape(request.POST.get('phone_number', None))
         # introduction = request.POST.get('introduction', None)
         password = request.POST.get('password', None)
         # 填入数据
@@ -299,6 +305,7 @@ def register(request):
     # 内容： request{ avatar, username, password, phoneNumber, company, profession, address, introduction}
 
 
+@csrf_exempt
 def findPassword(request):
     data = {
         'message': '',

@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from yw import models as yw_models
 from login import models as login_models
 from yw import views as yw_views
-
+import html
 
 # Create your views here.
 
@@ -136,15 +136,15 @@ def createActivity(request):
                 destination.close()
 
             # 获取其他数据
-            name = request.POST.get('name', None)
+            name = html.escape(request.POST.get('name', None))
             activity_type = request.POST.get('type', None)
             start_time = request.POST.get('start_time', None)
             start_time = start_time.replace('T', ' ')
             end_time = request.POST.get('end_time', None)
             end_time = end_time.replace('T', ' ')
-            location = request.POST.get('location', None)
-            organizer = request.POST.get('organizer', None)
-            introduction = request.POST.get('introduction', None)
+            location = html.escape(request.POST.get('location', None))
+            organizer = html.escape(request.POST.get('organizer', None))
+            introduction = html.escape(request.POST.get('introduction', None))
 
             # 如果有数据未填写，数据库中不会保存会议记录
             if name and start_time and end_time and location:
@@ -634,15 +634,15 @@ def editActivity(request):
                         file.delete()
 
             # 获取其他数据
-            name = request.POST.get('name', None)
+            name = html.escape(request.POST.get('name', None))
             activity_type = request.POST.get('type', None)
             start_time = request.POST.get('start_time', None)
             start_time = start_time.replace('T', ' ')
             end_time = request.POST.get('end_time', None)
             end_time = end_time.replace('T', ' ')
-            location = request.POST.get('location', None)
-            organizer = request.POST.get('organizer', None)
-            introduction = request.POST.get('introduction', None)
+            location = html.escape(request.POST.get('location', None))
+            organizer = html.escape(request.POST.get('organizer', None))
+            introduction = html.escape(request.POST.get('introduction', None))
 
             activity.name = name
             activity.type = activity_type
