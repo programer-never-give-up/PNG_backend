@@ -359,9 +359,13 @@ def pageDisplay(request):
                             dictionary['endTime'] = act.end_time
                             dictionary['id'] = act.uuid
                             dictionary['num'] = len(yw_models.activity_sign_up.objects.filter(activity_id=act.uuid))
-                            admin_activity = models.AdminActivity.objects.get(activity_id=act.uuid)
-                            dictionary['action'] = admin_activity.action
-                            print(dictionary['action'])
+                            try:
+                                admin_activity = models.AdminActivity.objects.get(activity_id=act.uuid)
+                                dictionary['action'] = admin_activity.action
+                            except:
+                                data['message'] = '管理员未接到相关活动请求！请重新提交请求！'
+                                return JsonResponse(data)
+
                             data['activities'].append(dictionary)
                         count += 1
                 import math
