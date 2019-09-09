@@ -8,7 +8,8 @@ from django.core.mail import send_mail
 import globals
 import os
 import random
-
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 
 
 # Create your views here.
@@ -182,15 +183,16 @@ def sendMail(request):
                 return JsonResponse(data)
             code = get_random_str()  # 生成验证码
             try:
-                send_mail(
-                    '会议系统验证码',
-                    "您的验证码为 " + code,
-                    '1040214708@qq.com',
-                    [email],
-                )  # 发送邮件
+                validate_email(email)
             except:
                 data['message']='无效的邮箱！'
                 return JsonResponse(data)
+            send_mail(
+                '会议系统验证码',
+                "您的验证码为 " + code,
+                '1040214708@qq.com',
+                [email],
+            )  # 发送邮件
             request.session['code'] = code
             request.session.set_expiry(120)  # 120秒过期
             data['isSended'] = True
