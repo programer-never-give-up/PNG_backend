@@ -172,6 +172,14 @@ def createActivity(request):
                 return JsonResponse(data)
             else:
                 data['message'] = '信息尚未完善！'
+                import shutil
+                # 删除整个文件夹
+                act_path = globals.PATH + 'activity/' + str(new_activity.uuid) + '/'
+                isExists = os.path.exists(act_path)
+                if isExists:
+                    shutil.rmtree(act_path)
+
+                models.UploadRecord.objects.filter(activity_id=new_activity.uuid).delete()
                 return JsonResponse(data)
         else:
             data['message'] = 'session中无数据！'
@@ -884,7 +892,10 @@ def adminRefuseEdit(request):
 
         # 删除管理员端会议文件夹
         import shutil
-        shutil.rmtree(globals.PATH + 'admin/' + str(activity.uuid))
+        act_path = globals.PATH + 'admin/' + str(activity.uuid) + '/'
+        isExists = os.path.exists(act_path)
+        if isExists:
+            shutil.rmtree(act_path)
 
         # 原信息写回
         activity.logo = logo
@@ -950,7 +961,10 @@ def deleteActivity(request):
         if activity.status_publish == 'unpublished':
             import shutil
             # 删除整个文件夹
-            shutil.rmtree(globals.PATH + 'activity/' + str(activity.uuid) + '/')
+            act_path = globals.PATH + 'activity/' + str(activity.uuid) + '/'
+            isExists = os.path.exists(act_path)
+            if isExists:
+                shutil.rmtree(act_path)
             models.UploadRecord.objects.filter(activity_id=activity.uuid).delete()
             activity.delete()
             data['act_status'] = True
@@ -994,7 +1008,11 @@ def adminAgreeDelete(request):
         user = login_models.User.objects.get(username=activity.username)
         # 删除管理员端保存会议信息的文件夹
         import shutil
-        shutil.rmtree(globals.PATH + 'activity/' + str(activity.uuid) + '/')
+        act_path = globals.PATH + 'activity/' + str(activity.uuid) + '/'
+        isExists = os.path.exists(act_path)
+        if isExists:
+            shutil.rmtree(act_path)
+
         models.UploadRecord.objects.filter(activity_id=activity.uuid).delete()
         # 删除请求
         activity.delete()
@@ -1235,7 +1253,10 @@ def cancelApplication(request):
             admin.close()
             # 删除管理员端文件夹
             import shutil
-            shutil.rmtree(globals.PATH + 'admin/' + str(activity.uuid))
+            act_path = globals.PATH + 'admin/' + str(activity.uuid) + '/'
+            isExists = os.path.exists(act_path)
+            if isExists:
+                shutil.rmtree(act_path)
             # 恢复为之前的信息
             activity.logo = logo
             activity.status_publish = 'published'
