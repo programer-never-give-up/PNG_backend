@@ -8,12 +8,13 @@ from django.core.mail import send_mail
 import globals
 import os
 import random
-<<<<<<< HEAD
 import html
-=======
+
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
->>>>>>> f1cd08ab4ee829464b377ad6fab8e4e9cc88306a
+
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 
 
 # Create your views here.
