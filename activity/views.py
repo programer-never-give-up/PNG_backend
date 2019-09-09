@@ -12,6 +12,7 @@ import html
 
 # Create your views here.
 
+# 活动信息详情
 @csrf_exempt
 def showActivity(request):
     data = {
@@ -84,6 +85,7 @@ def showActivity(request):
             return JsonResponse(data)
 
 
+# 用户创建活动
 @csrf_exempt
 def createActivity(request):
     data = {
@@ -176,6 +178,7 @@ def createActivity(request):
             return JsonResponse(data)
 
 
+# 用户上传文件
 @csrf_exempt
 def uploadFile(request):
     data = {
@@ -217,6 +220,7 @@ def uploadFile(request):
         return JsonResponse(data)
 
 
+# 控制台分页展示
 @csrf_exempt
 def pageDisplay(request):
     data = {
