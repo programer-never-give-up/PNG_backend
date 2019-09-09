@@ -843,7 +843,7 @@ def adminAgreeEdit(request):
             try:
                 user = login_models.User.objects.get(uuid=records[i].user_id)
             except:
-                print('handle_delete:未获得uuid_user对应的user')
+                print('handle_delete:未获得user_id对应的user')
             title = "活动通知"
             yw_views.sendMail(user.email, title, contents)
 
@@ -1008,7 +1008,7 @@ def adminAgreeDelete(request):
             try:
                 user = login_models.User.objects.get(uuid=records[i].user_id)
             except:
-                print('handle_delete:未获得uuid_user对应的user')
+                print('handle_delete:未获得user_id对应的user')
             title = "活动通知"
             contents = '您报名参加的活动 %s 已被举办者取消，请留意主办方发布的相关消息。' % name_act
             yw_views.sendMail(user.email, title, contents)
@@ -1396,7 +1396,7 @@ def updateStatus(request):
                     try:
                         user = login_models.User.objects.get(uuid=records[i].user_id)
                     except:
-                        print('handle_delete:未获得uuid_user对应的user')
+                        print('handle_delete:未获得user_id对应的user')
                     title = "活动开始通知"
                     contents = '您报名参加的活动 %s 将于一天后开始，请凭二维码准时参加。' % name_act
                     yw_views.sendMail(user.email, title, contents)
@@ -1409,7 +1409,7 @@ def updateStatus(request):
                     try:
                         user = login_models.User.objects.get(uuid=records[i].user_id)
                     except:
-                        print('handle_delete:未获得uuid_user对应的user')
+                        print('handle_delete:未获得user_id对应的user')
                     title = "活动开始通知"
                     contents = '您报名参加的活动 %s 将于一天后开始，请凭二维码准时参加。' % name_act
                     yw_views.sendMail(user.email, title, contents)
@@ -1422,7 +1422,7 @@ def updateStatus(request):
                     try:
                         user = login_models.User.objects.get(uuid=records[i].user_id)
                     except:
-                        print('handle_delete:未获得uuid_user对应的user')
+                        print('handle_delete:未获得user_id对应的user')
                     title = "活动开始通知"
                     contents = '您报名参加的活动 %s 将于三小时后开始，请凭二维码准时参加。' % name_act
                     yw_views.sendMail(user.email, title, contents)
