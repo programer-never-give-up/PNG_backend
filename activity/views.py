@@ -172,7 +172,7 @@ def createActivity(request):
                 return JsonResponse(data)
         else:
             data['message'] = 'session中无数据！'
-            return JsonResponse
+            return JsonResponse(data)
 
 
 @csrf_exempt
