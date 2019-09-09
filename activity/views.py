@@ -9,6 +9,7 @@ from yw import models as yw_models
 from login import models as login_models
 from yw import views as yw_views
 
+
 # Create your views here.
 
 @csrf_exempt
@@ -572,6 +573,7 @@ def pageDisplay(request):
         return JsonResponse(data)
 
 
+# 用户编辑会议请求
 @csrf_exempt
 def editActivity(request):
     data = {
@@ -603,6 +605,7 @@ def editActivity(request):
             data['message'] = '该活动不存在！'
             return JsonResponse(data)
 
+        # 未发布活动 随便改
         if activity.status_publish == 'unpublished':
 
             logo = request.FILES.get('logo', None)
@@ -653,6 +656,7 @@ def editActivity(request):
 
             return JsonResponse(data)
 
+        # 已发布活动 需管理员审核
         elif activity.status_publish == 'published':
             # 获取活动logo
 
@@ -747,6 +751,7 @@ def editActivity(request):
             return JsonResponse(data)
 
 
+# 管理员同意编辑请求
 @csrf_exempt
 def adminAgreeEdit(request):
     data = {
@@ -757,13 +762,16 @@ def adminAgreeEdit(request):
         uuid = request.POST.get('act_uuid', None)
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
-        import login
+
         user = login_models.User.objects.get(username=activity.username)
+        # 修改会议状态
         activity.status_publish = 'published'
         activity.save()
+        # 删除请求
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
 
+        # 找出信息变更的部分 用于发邮件
         change = []
         oldInfo = models.OldInfo.objects.get(uuid=uuid)
         if activity.name != oldInfo.name:
@@ -816,30 +824,33 @@ def adminAgreeEdit(request):
             }
             change.append(dictionary)
 
-        contents = '您报名参加的活动 %s 相关信息已被修改，请留意修改的信息：\n' % name_act
-        for info in change:
-            contents += '{item}已由{old}变为{new}\n'.format(**info)
-
         data['message'] = '会议资料修改成功！'
         # sendMail 发邮件
         title = '编辑审核结果'
         contents = '您申请编辑的活动 %s 信息已成功修改。' % name_act
 
         yw_views.sendMail(user.email, title, contents)
+
+        contents = '您报名参加的活动 %s 相关信息已被修改，请留意修改的信息：\n' % name_act
+        for info in change:
+            contents += '{item}已由{old}变为{new}\n'.format(**info)
+
         # 操作报名表
         records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
 
-        for i in range(len(records)):  # 对报名会议的所有用户进行操作
+        # 对报名会议的所有用户进行操作
+        for i in range(len(records)):
             try:
-                user = login_models.User.objects.get(uuid=records[i].uuid_user)
+                user = login_models.User.objects.get(uuid=records[i].user_id)
             except:
-                print('handle_delete:未获得uuid_user对应的user')
+                print('handle_delete:未获得user_id对应的user')
             title = "活动通知"
             yw_views.sendMail(user.email, title, contents)
 
         return JsonResponse(data)
 
 
+# 管理员拒绝编辑请求
 @csrf_exempt
 def adminRefuseEdit(request):
     data = {
@@ -851,6 +862,7 @@ def adminRefuseEdit(request):
         activity = models.Activity.objects.get(uuid=uuid)
         oldInfo = models.OldInfo.objects.get(uuid=activity.uuid)
 
+        # 原logo写回
         os.remove(globals.PATH + activity.logo)
         old_logo_path = globals.PATH + oldInfo.logo
         logo_path = globals.PATH_ADMIN + oldInfo.logo.split('admin/')[1]
@@ -862,9 +874,11 @@ def adminRefuseEdit(request):
         old.close()
         admin.close()
 
+        # 删除管理员端会议文件夹
         import shutil
         shutil.rmtree(globals.PATH + 'admin/' + str(activity.uuid))
 
+        # 原信息写回
         activity.logo = logo
         activity.status_publish = 'published'
         activity.name = oldInfo.name
@@ -878,9 +892,9 @@ def adminRefuseEdit(request):
         oldInfo.delete()
 
         name_act = activity.name
-        import login
-        user = login_models.User.objects.get(username=activity.username)
 
+        user = login_models.User.objects.get(username=activity.username)
+        # 删除请求
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
 
@@ -893,6 +907,7 @@ def adminRefuseEdit(request):
         return JsonResponse(data)
 
 
+# 用户删除活动请求
 @csrf_exempt
 def deleteActivity(request):
     data = {
@@ -911,6 +926,7 @@ def deleteActivity(request):
                 print("没有username")
             else:
                 editor = request.session['username']
+            # 判断权限
             if editor:
                 if activity.username != editor:
                     data['message'] = '你没有权限删除该活动！'
@@ -922,23 +938,28 @@ def deleteActivity(request):
             data['message'] = '该活动不存在！'
             return JsonResponse(data)
 
+        # 未发布的会议可以直接删除
         if activity.status_publish == 'unpublished':
             import shutil
+            # 删除整个文件夹
             shutil.rmtree(globals.PATH + 'activity/' + str(activity.uuid) + '/')
             models.UploadRecord.objects.filter(activity_id=activity.uuid).delete()
             activity.delete()
             data['act_status'] = True
             data['message'] = '活动已删除！'
             return JsonResponse(data)
+        # 已发布的会议 需提交管理员审核
         elif activity.status_publish == 'published':
             activity.status_publish = 'to_be_audited'
             data['act_status'] = True
             activity.save()
+            # 判断是否重复提交请求
             admin_activity = models.AdminActivity.objects.filter(activity_id=activity.uuid)
             if admin_activity:
                 data['message'] = '您已提交申请，请不要重复提交！'
                 return JsonResponse(data)
             else:
+                # 新增请求 管理员表中新增记录
                 new_admin_activity = models.AdminActivity()
                 new_admin_activity.activity_id = activity.uuid
                 new_admin_activity.action = 'delete'
@@ -948,6 +969,7 @@ def deleteActivity(request):
             return JsonResponse(data)
 
 
+# 管理员同意删除请求
 @csrf_exempt
 def adminAgreeDelete(request):
     data = {
@@ -957,16 +979,16 @@ def adminAgreeDelete(request):
     if request.method == 'POST':
 
         uuid = request.POST.get('act_uuid', None)
-        print(uuid)
 
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
-        import login
-        user = login_models.User.objects.get(username=activity.username)
 
+        user = login_models.User.objects.get(username=activity.username)
+        # 删除管理员端保存会议信息的文件夹
         import shutil
         shutil.rmtree(globals.PATH + 'activity/' + str(activity.uuid) + '/')
         models.UploadRecord.objects.filter(activity_id=activity.uuid).delete()
+        # 删除请求
         activity.delete()
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
@@ -976,16 +998,17 @@ def adminAgreeDelete(request):
         # sendMail 发邮件
         title = '删除审核结果'
         contents = '您申请删除的活动 %s 已成功删除。' % name_act
-        import yw
+
         yw_views.sendMail(user.email, title, contents)
         # 操作报名表
         records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
 
-        for i in range(len(records)):  # 对报名会议的所有用户进行操作
+        # 对报名会议的所有用户进行操作
+        for i in range(len(records)):
             try:
-                user = login_models.User.objects.get(uuid=records[i].uuid_user)
+                user = login_models.User.objects.get(uuid=records[i].user_id)
             except:
-                print('handle_delete:未获得uuid_user对应的user')
+                print('handle_delete:未获得user_id对应的user')
             title = "活动通知"
             contents = '您报名参加的活动 %s 已被举办者取消，请留意主办方发布的相关消息。' % name_act
             yw_views.sendMail(user.email, title, contents)
@@ -993,6 +1016,7 @@ def adminAgreeDelete(request):
         return JsonResponse(data)
 
 
+# 管理员拒绝删除请求
 @csrf_exempt
 def adminRefuseDelete(request):
     data = {
@@ -1004,9 +1028,9 @@ def adminRefuseDelete(request):
 
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
-        import login
-        user = login_models.User.objects.get(username=activity.username)
 
+        user = login_models.User.objects.get(username=activity.username)
+        # 修改会议状态
         activity.status_publish = 'published'
         activity.save()
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
@@ -1023,10 +1047,11 @@ def adminRefuseDelete(request):
         return JsonResponse(data)
 
 
+# 用户申请发布会议
 @csrf_exempt
 def publishActivity(request):
     data = {
-        'act_status': False,
+        'act_status': False, # 会议状态是否修改
         'message': '',
     }
 
@@ -1040,6 +1065,7 @@ def publishActivity(request):
                 print("没有Username")
             else:
                 editor = request.session['username']
+            # 判断权限
             if editor:
                 if activity.username != editor:
                     data['message'] = '你没有权限发布该活动！'
@@ -1052,15 +1078,18 @@ def publishActivity(request):
             data['message'] = '该活动不存在！'
             return JsonResponse(data)
 
+        # 修改会议状态
         activity.status_publish = 'to_be_audited'
         data['act_status'] = True
         activity.save()
 
+        # 判断是否重复提交请求
         admin_activity = models.AdminActivity.objects.filter(activity_id=activity.uuid)
         if admin_activity:
             data['message'] = '您已提交申请，请不要重复提交！'
             return JsonResponse(data)
         else:
+            # 新增请求 管理员表中新增一条记录
             new_admin_activity = models.AdminActivity()
             new_admin_activity.activity_id = activity.uuid
             new_admin_activity.action = 'publish'
@@ -1071,6 +1100,7 @@ def publishActivity(request):
         return JsonResponse(data)
 
 
+# 管理员同意发布请求
 @csrf_exempt
 def adminAgreePublish(request):
     data = {
@@ -1079,12 +1109,12 @@ def adminAgreePublish(request):
 
     if request.method == 'POST':
         uuid = request.POST.get('act_uuid', None)
-        print(uuid)
 
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
 
         user = login_models.User.objects.get(username=activity.username)
+        # 修改发布状态
         activity.status_publish = 'published'
         activity.save()
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
@@ -1101,6 +1131,7 @@ def adminAgreePublish(request):
         return JsonResponse(data)
 
 
+# 管理员拒绝发布请求
 @csrf_exempt
 def adminRefusePublish(request):
     data = {
@@ -1114,6 +1145,7 @@ def adminRefusePublish(request):
         name_act = activity.name
 
         user = login_models.User.objects.get(username=activity.username)
+        # 修改发布状态
         activity.status_publish = 'unpublished'
         activity.save()
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
@@ -1129,6 +1161,7 @@ def adminRefusePublish(request):
         return JsonResponse(data)
 
 
+# 用户取消发布、删除、修改请求
 @csrf_exempt
 def cancelApplication(request):
     data = {
@@ -1147,6 +1180,7 @@ def cancelApplication(request):
                 print("没有Username")
             else:
                 editor = request.session['username']
+            # 判断权限
             if editor:
                 if activity.username != editor:
                     data['message'] = '你没有权限修改该活动！'
@@ -1159,6 +1193,7 @@ def cancelApplication(request):
             data['message'] = '该活动不存在！'
             return JsonResponse(data)
 
+        # 取消发布请求
         if admin_activity.action == 'publish':
             activity.status_publish = 'unpublished'
             activity.save()
@@ -1167,6 +1202,7 @@ def cancelApplication(request):
             data['message'] = '已撤回发布请求！'
             return JsonResponse(data)
 
+        # 取消删除请求
         elif admin_activity.action == 'delete':
             activity.status_publish = 'published'
             activity.save()
@@ -1174,7 +1210,7 @@ def cancelApplication(request):
             data['act_status'] = True
             data['message'] = '已撤回删除请求！'
             return JsonResponse(data)
-
+        # 取消修改请求 恢复成之前的信息
         elif admin_activity.action == 'modify':
             oldInfo = models.OldInfo.objects.get(uuid=activity.uuid)
 
@@ -1183,15 +1219,16 @@ def cancelApplication(request):
             logo_path = globals.PATH_ADMIN + oldInfo.logo.split('admin/')[1]
             logo = oldInfo.logo.replace('admin', 'activity')
 
+            # logo写回
             old = open(old_logo_path, 'rb+')
             admin = open(logo_path, 'wb+')
             admin.write(old.read())
             old.close()
             admin.close()
-
+            # 删除管理员端文件夹
             import shutil
             shutil.rmtree(globals.PATH + 'admin/' + str(activity.uuid))
-
+            # 恢复为之前的信息
             activity.logo = logo
             activity.status_publish = 'published'
             activity.name = oldInfo.name
@@ -1204,12 +1241,14 @@ def cancelApplication(request):
             activity.save()
             oldInfo.delete()
 
+            # 删除请求 删除管理员表中记录
             admin_activity.delete()
             data['act_status'] = True
             data['message'] = '已撤回修改请求！'
             return JsonResponse(data)
 
 
+# 用户申请推荐
 @csrf_exempt
 def applyRecommend(request):
     data = {
@@ -1226,6 +1265,7 @@ def applyRecommend(request):
                 print("没有Username")
             else:
                 editor = request.session['username']
+            # 判断用户是否有权限申请
             if editor:
                 if activity.username != editor:
                     data['message'] = '你没有权限申请推荐该活动！'
@@ -1238,11 +1278,13 @@ def applyRecommend(request):
             data['message'] = '该活动不存在！'
             return JsonResponse(data)
 
+        # 判断是否重复申请
         admin_activity = models.AdminActivity.objects.filter(activity_id=activity.uuid)
         if admin_activity:
             data['message'] = '您已提交申请，请不要重复提交！'
             return JsonResponse(data)
         else:
+            # 新增请求，数据库添加一条记录
             new_admin_activity = models.AdminActivity()
             new_admin_activity.activity_id = activity.uuid
             new_admin_activity.action = 'recommend'
@@ -1253,6 +1295,7 @@ def applyRecommend(request):
         return JsonResponse(data)
 
 
+# 管理员同意推荐请求
 @csrf_exempt
 def adminAgreeRecommend(request):
     data = {
@@ -1265,17 +1308,17 @@ def adminAgreeRecommend(request):
         name_act = activity.name
 
         user = login_models.User.objects.get(username=activity.username)
-
-
+        # 查找该活动是否已经被推荐
         recommend_activity = yw_models.recommended_activity.objects.filter(activity_id=activity.uuid)
         if recommend_activity:
             data['message'] = '活动已被推荐！'
             return JsonResponse(data)
         else:
+            # 新增推荐，数据库中新增一条记录
             new_recommend = yw_models.recommended_activity()
             new_recommend.activity_id = activity.uuid
             new_recommend.save()
-
+        # 删除请求
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
 
@@ -1284,12 +1327,13 @@ def adminAgreeRecommend(request):
         # sendMail发邮件
         title = '推荐审核结果'
         contents = '您申请推荐的活动 %s 已登上首页。' % name_act
-        import yw
+
         yw_views.sendMail(user.email, title, contents)
 
         return JsonResponse(data)
 
 
+# 管理员拒绝推荐请求
 @csrf_exempt
 def adminRefuseRecommend(request):
     data = {
@@ -1298,12 +1342,12 @@ def adminRefuseRecommend(request):
 
     if request.method == 'POST':
         uuid = request.POST.get('act_uuid', None)
-
+        # 获取活动
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
-
+        # 获取用户
         user = login_models.User.objects.get(username=activity.username)
-
+        # 删除请求
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
 
@@ -1317,21 +1361,70 @@ def adminRefuseRecommend(request):
         return JsonResponse(data)
 
 
+# 更新会议状态 会议前一天、三小时前分别发送邮件提醒
 @csrf_exempt
 def updateStatus(request):
+    import datetime
     data = {
         'message': '更新活动状态',
     }
     if request.method == 'GET':
         import time
+        # 获取当前时间 格式年-月-日 时:分
         localtime = str(time.strftime("%Y-%m-%d %H:%M", time.localtime()))
+        local = datetime.datetime.strptime(localtime, '%Y-%m-%d %H:%M')
         activities = models.Activity.objects.all()
+        # 遍历所有活动，更新会议进行状态
         for activity in activities:
+            start = datetime.datetime.strptime(activity.start_time, '%Y-%m-%d %H:%M')
+            name_act = activity.name
             if activity.start_time < localtime < activity.end_time:
                 activity.status_process = 'processing'
                 activity.save()
             elif localtime >= activity.end_time:
                 activity.status_process = 'finished'
                 activity.save()
-        return JsonResponse(data)
+            delta = start - local
+            day = delta.days
+            second = delta.seconds
+            if day == 1 and second <= 1800:
+                # 操作报名表
+                records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
 
+                # 对报名会议的所有用户进行操作
+                for i in range(len(records)):
+                    try:
+                        user = login_models.User.objects.get(uuid=records[i].user_id)
+                    except:
+                        print('handle_delete:未获得user_id对应的user')
+                    title = "活动开始通知"
+                    contents = '您报名参加的活动 %s 将于一天后开始，请凭二维码准时参加。' % name_act
+                    yw_views.sendMail(user.email, title, contents)
+            elif day == 0 and second > 84600:
+                # 操作报名表
+                records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
+
+                # 对报名会议的所有用户进行操作
+                for i in range(len(records)):
+                    try:
+                        user = login_models.User.objects.get(uuid=records[i].user_id)
+                    except:
+                        print('handle_delete:未获得user_id对应的user')
+                    title = "活动开始通知"
+                    contents = '您报名参加的活动 %s 将于一天后开始，请凭二维码准时参加。' % name_act
+                    yw_views.sendMail(user.email, title, contents)
+            elif day ==0 and 9000 < second <= 12600:
+                # 操作报名表
+                records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
+
+                # 对报名会议的所有用户进行操作
+                for i in range(len(records)):
+                    try:
+                        user = login_models.User.objects.get(uuid=records[i].user_id)
+                    except:
+                        print('handle_delete:未获得user_id对应的user')
+                    title = "活动开始通知"
+                    contents = '您报名参加的活动 %s 将于三小时后开始，请凭二维码准时参加。' % name_act
+                    yw_views.sendMail(user.email, title, contents)
+
+        return JsonResponse(data)
