@@ -221,8 +221,8 @@ def history_organize(request):
                 activity['uuid_act']=str(record[entry].uuid)
                 activity['name_act']=record[entry].name
                 #print(activity['name_act'])
-                activity['start_time']=record[entry].start_time
-                activity['end_time']=record[entry].end_time
+                activity['start_time']=record[entry].start_time.replace(' ','T')
+                activity['end_time']=record[entry].end_time.replace(' ','T')
                 #print(activity)
 
                 #print( data['list_activity'])
