@@ -95,7 +95,7 @@ def createActivity(request):
     if request.method == 'POST':
 
         new_activity = models.Activity()  # 创建活动，默认uuid
-        print(str(new_activity.uuid))
+
         data['uuid'] = str(new_activity.uuid)
         # 获取活动创建者用户名
         if 'username' not in request.session.keys():
@@ -157,7 +157,8 @@ def createActivity(request):
                 new_activity.location = location
                 if organizer:
                     new_activity.organizer = organizer
-                new_activity.organizer = username
+                else:
+                    new_activity.organizer = username
                 new_activity.introduction = introduction
                 new_activity.username = username
 
