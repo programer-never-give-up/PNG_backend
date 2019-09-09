@@ -841,7 +841,7 @@ def adminAgreeEdit(request):
         # 对报名会议的所有用户进行操作
         for i in range(len(records)):
             try:
-                user = login_models.User.objects.get(uuid=records[i].uuid_user)
+                user = login_models.User.objects.get(uuid=records[i].user_id)
             except:
                 print('handle_delete:未获得uuid_user对应的user')
             title = "活动通知"
@@ -1006,7 +1006,7 @@ def adminAgreeDelete(request):
         # 对报名会议的所有用户进行操作
         for i in range(len(records)):
             try:
-                user = login_models.User.objects.get(uuid=records[i].uuid_user)
+                user = login_models.User.objects.get(uuid=records[i].user_id)
             except:
                 print('handle_delete:未获得uuid_user对应的user')
             title = "活动通知"
@@ -1394,7 +1394,7 @@ def updateStatus(request):
                 # 对报名会议的所有用户进行操作
                 for i in range(len(records)):
                     try:
-                        user = login_models.User.objects.get(uuid=records[i].uuid_user)
+                        user = login_models.User.objects.get(uuid=records[i].user_id)
                     except:
                         print('handle_delete:未获得uuid_user对应的user')
                     title = "活动开始通知"
@@ -1407,7 +1407,7 @@ def updateStatus(request):
                 # 对报名会议的所有用户进行操作
                 for i in range(len(records)):
                     try:
-                        user = login_models.User.objects.get(uuid=records[i].uuid_user)
+                        user = login_models.User.objects.get(uuid=records[i].user_id)
                     except:
                         print('handle_delete:未获得uuid_user对应的user')
                     title = "活动开始通知"
@@ -1420,7 +1420,7 @@ def updateStatus(request):
                 # 对报名会议的所有用户进行操作
                 for i in range(len(records)):
                     try:
-                        user = login_models.User.objects.get(uuid=records[i].uuid_user)
+                        user = login_models.User.objects.get(uuid=records[i].user_id)
                     except:
                         print('handle_delete:未获得uuid_user对应的user')
                     title = "活动开始通知"
