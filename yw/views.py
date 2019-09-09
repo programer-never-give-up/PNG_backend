@@ -234,29 +234,24 @@ def showActivityList(request):
     }
     if request.method == 'GET':
         try:
-            activitys = models_activity.AdminActivity.objects.filter()
+            activitys = models_activity.AdminActivity.objects.all().select_related('activity')
         except:
             data['message'] = '未取得AdminActivity中的数据'
             return JsonResponse(data)
         else:
             for i in range(len(activitys)):
                 # 根据uuid去activity表找数据
-                try:
-                    record_act = models_activity.Activity.objects.get(uuid=activitys[i].activity_id)
-                except:
-                    data['message'] = '未取得uuid对应的活动'
-                    return JsonResponse(data)
-                else:
-                    activity = {
-                        'uuid_act': record_act.uuid,
-                        'name_act': record_act.name,
-                        'location': record_act.location,
-                        'start_time': record_act.start_time,
-                        'end_time': record_act.end_time,
-                        'organizer': record_act.organizer,
-                        'action': activitys[i].action,
-                    }
-                    data['list_activity'].append(activity)
+
+                activity = {
+                    'uuid_act': activitys[i].activity.uuid,
+                    'name_act': activitys[i].activity.name,
+                    'location': activitys[i].activity.location,
+                    'start_time': activitys[i].activity.start_time,
+                    'end_time': activitys[i].activity.end_time,
+                    'organizer': activitys[i].activity.organizer,
+                    'action': activitys[i].action,
+                }
+                data['list_activity'].append(activity)
             data['message'] = '已填入数据！'
             return JsonResponse(data)
     else:

@@ -148,7 +148,7 @@ def history_attend(request):
             uuid_user = None
         if uuid_user:
             try:
-                record= models.On_site.objects.filter(user_id=uuid_user)
+                record= models.On_site.objects.filter(user_id=uuid_user).select_related('activity')
                 print('取得record')
                 #筛选出这个uuid对应的所有条目
                 #print('获得user')
@@ -171,17 +171,10 @@ def history_attend(request):
                 activity['uuid_act']=record[entry].activity_id
                 #print(activity['uuid_act'])
                 #进入activity表根据uuid获取会议名
-                try:
-                    print('进入try')
-                    tmp_activity=models_activity.Activity.objects.get(uuid=record[entry].activity_id)
-                    print('取得tmp')
-                except:
-                    data['message']='无此活动！'
-                    return JsonResponse(data)
-                #print(tmp_activity.name)
-                activity['name_act']=tmp_activity.name
-                activity['start_time']=tmp_activity.start_time
-                activity['end_time']=tmp_activity.end_time
+
+                activity['name_act']=record[entry].activity.name
+                activity['start_time']=record[entry].activity.start_time
+                activity['end_time']=record[entry].activity.end_time
                 #将字典activity加入列表
 
                 data['list_activity'].append(activity)
