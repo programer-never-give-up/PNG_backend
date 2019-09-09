@@ -7,6 +7,7 @@ import uuid
 from django.core.mail import send_mail
 import globals
 import os
+import random
 
 
 
@@ -28,7 +29,7 @@ def login(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         message = '请检查填写的内容！'
-        if username.strip() and password:
+        if username and password:
             #如果用户为管理员
             if username=='admin':
                 try:
@@ -83,20 +84,16 @@ def login(request):
                 data['message'] = '登录成功！'
                 return JsonResponse(data)
         else:
-            message = '密码不正确！'
+            message = '用户名或密码为空！'
             data['message'] = message
             data['status'] = False
             return JsonResponse(data)
 
     else:
         data['status'] = False
+        data['message']='未获得post'
         return JsonResponse(data)  # 若验证不通过
 
-
-    # login_form=forms.UserForm    #空表单
-    data['status'] = False
-    data['message'] = '空表单'
-    return JsonResponse(data)
 
 
 @csrf_exempt
@@ -212,8 +209,8 @@ def checkMail(request):
     if request.method == 'POST':
         code = request.POST.get('code')  # 获取用户输入的验证码
         if code:
-            if request.session.get('code'):
-                if code == request.session.get('code'):
+            if request.session.get('code',None):
+                if code == request.session.get('code',None):
                     data['status_check'] = True
                     data['message'] = '验证成功！'
                     return JsonResponse(data)
@@ -334,8 +331,12 @@ def findPassword(request):
 
 # 生成验证码
 def get_random_str():
-    uuid_val = uuid.uuid4()
-    uuid_str = str(uuid_val).encode("utf-8")
-    md5 = hashlib.md5()
-    md5.update(uuid_str)
-    return md5.hexdigest()
+    list_num = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+    list_str = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 's', 't', 'x', 'y',
+                'z']
+    veri_str = random.sample(list_str, 2)
+    veri_num = random.sample(list_num, 2)
+    veri_out = random.sample(veri_num + veri_str, 4)
+    veri_res = str(veri_out[0]) + str(veri_out[1]) + str(veri_out[2]) + str(veri_out[3])
+    return veri_res
+

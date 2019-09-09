@@ -56,7 +56,7 @@ def apply(request):
         'message': '',
     }
     if request.method == 'POST':
-        username = request.session['username']
+        username = request.session.get('username',None)
         if username:
             try:
                 user = models_login.User.objects.get(username=username)
@@ -118,7 +118,7 @@ def cancel_apply(request):
         'status':False#取消成功为true
     }
     if request.method == 'POST':
-        username = request.session['username']
+        username = request.session.get('username',None)
         if username:
             try:
                 user = models_login.User.objects.get(username=username)
@@ -157,7 +157,7 @@ def collect(request):
         'message': '',
     }
     if request.method == 'POST':
-        username = request.session['username']
+        username = request.session.get('username',None)
         if username:
             try:
                 user = models_login.User.objects.get(username=username)
@@ -195,7 +195,7 @@ def cancel_collect(request):
         'status':False,#取消成功为ture
     }
     if request.method == 'POST':
-        username = request.session['username']
+        username = request.session.get('username',None)
         if username:
             try:
                 user = models_login.User.objects.get(username=username)
@@ -348,7 +348,7 @@ def getQRcode(request):
     if request.method=="GET":
         uuid_act=request.GET.get('uuid_act')
         if uuid_act:
-            uuid_user=request.session['uuid']
+            uuid_user=request.session.get('uuid',None)
             if uuid_user:
                 try:
                     record = models.activity_sign_up.objects.get(activity_id=uuid_act, user_id=uuid_user)

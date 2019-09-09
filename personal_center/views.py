@@ -25,7 +25,10 @@ def showInfo(request):
        'message':'',
     }
     if request.method=='GET':
-        username=request.session['username']
+        if 'username' in request.session.keys():
+            username=request.session['username']#取出session中username
+        else:
+            username = None
         if username:
             try:
                 user= models_login.User.objects.get(username=username)
@@ -59,7 +62,10 @@ def editInfo(request):
     }
     if request.method=='POST':
         #print('收到post')
-        username = request.session['username']
+        if 'username' in request.session.keys():
+            username = request.session['username']  # 取出session中username
+        else:
+            username = None
         if username:
             try:
                 user= models_login.User.objects.filter(username=username)
@@ -136,8 +142,10 @@ def history_attend(request):
     }
     if request.method=='GET':
         print('收到get')
-
-        uuid_user=request.session['uuid']#session中的string转uuid
+        if 'uuid' in request.session.keys():
+            uuid_user=request.session['uuid']#session中的string转uuid
+        else:
+            uuid_user = None
         if uuid_user:
             try:
                 record= models.On_site.objects.filter(user_id=uuid_user)
@@ -196,7 +204,12 @@ def history_organize(request):
     }
     if request.method=='GET':
         print('获得')
-        username=request.session['username']#取出session中username
+        if 'username' in request.session.keys():
+            username=request.session['username']#取出session中username
+        else:
+            username = None
+
+
         if username:
             try:
                 record= models_activity.Activity.objects.filter(username=username)
@@ -221,8 +234,8 @@ def history_organize(request):
                 activity['uuid_act']=str(record[entry].uuid)
                 activity['name_act']=record[entry].name
                 #print(activity['name_act'])
-                activity['start_time']=record[entry].start_time.replace(' ','T')
-                activity['end_time']=record[entry].end_time.replace(' ','T')
+                activity['start_time']=record[entry].start_time.replace(' ','T')+':00'
+                activity['end_time']=record[entry].end_time.replace(' ','T')+':00'
                 #print(activity)
 
                 #print( data['list_activity'])
