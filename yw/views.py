@@ -205,7 +205,7 @@ def cancel_collect(request):
             uuid_act = request.POST.get('uuid_act', None)
             if uuid_act:
                 try:
-                    collection = models.activity_sign_up.objects.get(activity_id=uuid_act, user_id=user.uuid)
+                    collection = models.user_collection.objects.get(activity_id=uuid_act, user_id=user.uuid)
                 except:
                     data['message'] = '无对应收藏数据！'
                     return JsonResponse(data)
