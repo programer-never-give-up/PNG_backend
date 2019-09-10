@@ -135,8 +135,8 @@ STATIC_URL = '/static/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.qq.com'
 EMAIL_PORT = 465
-EMAIL_HOST_USER = '1040214708@qq.com'
-EMAIL_HOST_PASSWORD = 'jljvzpchjrkqbdgf'
+EMAIL_HOST_USER = '407215483@qq.com'
+EMAIL_HOST_PASSWORD = 'ctcndpbhiliqbigf'
 EMAIL_USE_SSL = True # 和SMTP对话是否使用SSL安全连接端口465
 
 CACHES={

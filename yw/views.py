@@ -619,7 +619,7 @@ def send_mail_with_file(title,contents,target,uuid_user,uuid_act):
     email = EmailMessage(
         title,
         contents,
-        '1040214708@qq.com',   # 发件人
+        '407215483@qq.com',   # 发件人
         [target],   # 收件人
     )
 
