@@ -1027,7 +1027,7 @@ def adminAgreeDelete(request):
 
         yw_views.sendMail(user.email, title, contents)
         # 操作报名表
-        records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
+        records = yw_models.activity_sign_up.objects.filter(activity_id=uuid)
 
         # 对报名会议的所有用户进行操作
         for i in range(len(records)):
@@ -1038,7 +1038,8 @@ def adminAgreeDelete(request):
             title = "活动通知"
             contents = '您报名参加的活动 %s 已被举办者取消，请留意主办方发布的相关消息。' % name_act
             yw_views.sendMail(user.email, title, contents)
-
+        yw_models.activity_sign_up.objects.filter(activity_id=uuid).delete()
+        yw_models.recommended_activity.objects.filter(activity_id=uuid).delete()
         return JsonResponse(data)
 
 
