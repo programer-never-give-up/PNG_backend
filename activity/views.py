@@ -1001,7 +1001,7 @@ def adminAgreeDelete(request):
     if request.method == 'POST':
 
         uuid = request.POST.get('act_uuid', None)
-
+        print(uuid)
         activity = models.Activity.objects.get(uuid=uuid)
         name_act = activity.name
 
@@ -1015,10 +1015,10 @@ def adminAgreeDelete(request):
 
         models.UploadRecord.objects.filter(activity_id=activity.uuid).delete()
         # 删除请求
-        activity.delete()
+
         admin_activity = models.AdminActivity.objects.get(activity_id=uuid)
         admin_activity.delete()
-
+        activity.delete()
         data['message'] = '活动已删除！'
 
         # sendMail 发邮件
