@@ -399,18 +399,25 @@ def showRecommendation(request):
             data['message'] = '无记录！'
             return JsonResponse(data)
         for i in range(len(records)):
-            activity = {
-                'uuid_act': records[i].activity_id,
-                'name_act': records[i].activity.name,
-                'start_time': records[i].activity.start_time,
-                'end_time': records[i].activity.end_time,
-                'logo': records[i].activity.logo,
-                'location': records[i].activity.location,
-                'organizer':records[i].activity.organizer,
-            }
-            data['list_activity'].append(activity)
-        data['message'] = '查询成功！'
-        return JsonResponse(data)
+            if records[i].activity.status_process=='not_start':
+                activity = {
+                    'uuid_act': records[i].activity_id,
+                    'name_act': records[i].activity.name,
+                    'start_time': records[i].activity.start_time,
+                    'end_time': records[i].activity.end_time,
+                    'logo': records[i].activity.logo,
+                    'location': records[i].activity.location,
+                    'organizer':records[i].activity.organizer,
+                }
+                data['list_activity'].append(activity)
+            else:
+                records[i].delete()
+        if data['list_activity']:
+            data['message'] = '查询成功！'
+            return JsonResponse(data)
+        else:
+            data['message']='无活动数据'
+            return  JsonResponse(data)
 
     else:
         data['message'] = '空表单'
