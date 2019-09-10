@@ -197,7 +197,7 @@ def sendMail(request):
             send_mail(
                 '会议系统验证码',
                 "您的验证码为 " + code,
-                '1040214708@qq.com',
+                '407215483@qq.com',
                 [email],
             )  # 发送邮件
             request.session['code'] = code

@@ -609,7 +609,7 @@ def sendMail(target, title, contents):
     send_mail(
         title,
         contents,
-        '1040214708@qq.com',
+        '407215483@qq.com',
         [target],
     )
 
