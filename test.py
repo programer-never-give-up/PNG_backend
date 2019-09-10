@@ -80,12 +80,12 @@ if __name__ == '__main__':
     #uuid = uuid.uuid1()
 
     #print(uuid)
-    # send_mail(
-    #     '来自Inderway的测试邮件',
-    #     '此为邮件正文',
-    #     '1040214708@qq.com',
-    #     ['213170713@seu.edu.cn'],
-    # )
+    send_mail(
+        '来自Inderway的测试邮件',
+        '此为邮件正文',
+        '407215483@qq.com',
+        ['213170713@seu.edu.cn'],
+    )
 
     # avatar = os.path.join(globals.PATH_AVATAR, "PNG.png")
     #
@@ -124,7 +124,4 @@ if __name__ == '__main__':
     # result = models_act.Activity.objects.filter(status_process='not_start',status_publish='published').order_by('?')[:3]
     # print(result)
 
-    print(str(uuid.uuid1()))
-    print(str(uuid.uuid1()))
-    print(str(uuid.uuid1()))
 
