@@ -1006,7 +1006,7 @@ def adminAgreeDelete(request):
         name_act = activity.name
 
         user = login_models.User.objects.get(username=activity.username)
-        # 删除管理员端保存会议信息的文件夹
+        # 删除文件夹
         import shutil
         act_path = globals.PATH + 'activity/' + str(activity.uuid) + '/'
         isExists = os.path.exists(act_path)
@@ -1442,7 +1442,7 @@ def updateStatus(request):
                     title = "活动开始通知"
                     contents = '您报名参加的活动 %s 将于一天后开始，请凭二维码准时参加。' % name_act
                     yw_views.sendMail(user.email, title, contents)
-            elif day ==0 and 9000 < second <= 12600:
+            elif day == 0 and 9000 < second <= 12600:
                 # 操作报名表
                 records = yw_models.activity_sign_up.objects.filter(activity_id=activity.uuid)
 
