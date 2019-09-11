@@ -401,7 +401,7 @@ def pageDisplay(request):
                     if btn_type == 'my-not_start':
                         count = 0
                         for act in acts:
-                            if act.status_publish == 'published':
+                            if act.status_process == 'not_start':
                                 if (page_id - 1) * per_page <= count < per_page * page_id:
                                     dictionary = {}
                                     dictionary['logoSrc'] = act.logo
@@ -428,7 +428,7 @@ def pageDisplay(request):
                     elif btn_type == 'my-processing':
                         count = 0
                         for act in acts:
-                            if act.status_publish == 'processing':
+                            if act.status_process == 'processing':
                                 if (page_id - 1) * per_page <= count < per_page * page_id:
                                     dictionary = {}
                                     dictionary['logoSrc'] = act.logo
@@ -455,7 +455,7 @@ def pageDisplay(request):
                     elif btn_type == 'my-finished':
                         count = 0
                         for act in acts:
-                            if act.status_publish == 'finished':
+                            if act.status_process == 'finished':
                                 if (page_id - 1) * per_page <= count < per_page * page_id:
                                     dictionary = {}
                                     dictionary['logoSrc'] = act.logo
@@ -497,7 +497,7 @@ def pageDisplay(request):
                     if btn_type == 'fav-not_start':
                         count = 0
                         for act in acts:
-                            if act.status_publish == 'published':
+                            if act.status_status == 'published' and act.status_process =='not_start':
                                 if (page_id - 1) * per_page <= count < per_page * page_id:
                                     dictionary = {}
                                     dictionary['logoSrc'] = act.logo
@@ -524,7 +524,7 @@ def pageDisplay(request):
                     elif btn_type == 'fav-processing':
                         count = 0
                         for act in acts:
-                            if act.status_publish == 'processing':
+                            if act.status_process == 'processing' and act.status_publish == 'published':
                                 if (page_id - 1) * per_page <= count < per_page * page_id:
                                     dictionary = {}
                                     dictionary['logoSrc'] = act.logo
@@ -551,7 +551,7 @@ def pageDisplay(request):
                     elif btn_type == 'fav-finished':
                         count = 0
                         for act in acts:
-                            if act.status_publish == 'finished':
+                            if act.status_process == 'finished' and act.status_publish == 'published':
                                 if (page_id - 1) * per_page <= count < per_page * page_id:
                                     dictionary = {}
                                     dictionary['logoSrc'] = act.logo
