@@ -85,9 +85,13 @@ def login(request):
 
 
 
-                print(username, password)
+                #print(username, password)
                 data['status'] = True
                 data['message'] = '登录成功！'
+                return JsonResponse(data)
+            else:
+                data['status'] = False
+                data['message'] = '用户名或密码错误！'
                 return JsonResponse(data)
         else:
             message = '用户名或密码为空！'
@@ -189,7 +193,7 @@ def sendMail(request):
             code = get_random_str()  # 生成验证码
             try:
                 validate_email(email)
-                print('有效的邮箱？')
+                #print('有效的邮箱')
             except ValidationError:
                 data['message']='无效的邮箱！'
                 print(data['message'])
