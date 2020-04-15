@@ -204,7 +204,7 @@ def sendMail(request):
                 '407215483@qq.com',
                 [email],
             )  # 发送邮件
-            request.session['code'] = code
+            request.session['code'] = 'test'#code
             request.session.set_expiry(120)  # 120秒过期
             data['isSended'] = True
             data['message'] = '邮件已发送！'
@@ -219,14 +219,18 @@ def checkMail(request):
         'status_check': False,  # 是否验证成功
         'message': '',
     }
+    print('checkMail')
     if request.method == 'POST':
         code = request.POST.get('code')  # 获取用户输入的验证码
+        print(code)
         if code:
             if request.session.get('code',None):
-                if code == request.session.get('code',None):
+                if code ==request.session.get('code',None):
                     data['status_check'] = True
                     data['message'] = '验证成功！'
+                    print('True')
                     return JsonResponse(data)
+
                 else:
                     data['status_check'] = False
                     data['message'] = '验证失败！'
@@ -234,6 +238,7 @@ def checkMail(request):
             else:
                 data['message']='session无数据'
                 return JsonResponse(data)
+
 
 
 @csrf_exempt
@@ -250,8 +255,12 @@ def register(request):
             same_name_user = models.User.objects.filter(username=username)  # 确认用户名是否重复
             if same_name_user:
                 data['message'] = '此用户名已被注册！'
-                data['status_username'] = True
+                data['status_username']=True
                 return JsonResponse(data)
+        else:
+            data['message'] = '用户名为空！'
+            print(data['message'])
+            return JsonResponse(data)
         # 开始注册
         new_user = models.User()  # 创建new_user,默认创建uuid
 
